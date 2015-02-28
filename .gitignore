@@ -4,3 +4,4 @@ pvfree.sublime-workspace
 *.pyc
 .postgre
 db.sqlite3
+public/static/
