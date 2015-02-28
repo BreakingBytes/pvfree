@@ -2,3 +2,4 @@
 pvfree.sublime-project
 pvfree.sublime-workspace
 *.pyc
+.postgre

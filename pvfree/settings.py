@@ -71,10 +71,10 @@ with open(os.path.join(BASE_DIR, '.postgre'), 'rb') as f:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'PVValue',
-        'USER': 'PVValue',
+        'NAME': 'pvfree_db',
+        'USER': 'pvfree',
         'PASSWORD': PSQL_PSWD,
-        'HOST': 'localhost',
+        'HOST': 'postgresql.alwaysdata.com',
         'PORT': 5432,
     }
 }
