@@ -18,7 +18,6 @@ FQDN = socket.getfqdn(HOSTNAME)  # fully qualified domain name of host
 IP_ADDR = socket.gethostbyname(HOSTNAME)  # IP address of host
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -67,10 +66,16 @@ WSGI_APPLICATION = 'pvfree.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
+with open(os.path.join(BASE_DIR, '.postgre'), 'rb') as f:
+    PSQL_PSWD = base64.b64decode(f.read())
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'PVValue',
+        'USER': 'PVValue',
+        'PASSWORD': PSQL_PSWD,
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
