@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from simulations.forms import RequestForm
 
 
 def home(request):
