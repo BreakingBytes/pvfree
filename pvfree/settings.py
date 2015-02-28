@@ -30,9 +30,9 @@ with open(os.path.join(BASE_DIR, '.secretkey'), 'rb') as f:
 SECRET_KEY = _SECRETKEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG = True
 
 #ALLOWED_HOSTS = ['pvfree.alwaysdata.net']
 
