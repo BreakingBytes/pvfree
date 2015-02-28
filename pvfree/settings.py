@@ -30,11 +30,11 @@ with open(os.path.join(BASE_DIR, '.secretkey'), 'rb') as f:
 SECRET_KEY = _SECRETKEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = [FQDN.lower()]
+#ALLOWED_HOSTS = ['pvfree.alwaysdata.net']
 
 
 # Application definition
@@ -46,7 +46,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'parameters',
     'tastypie',
+    'south',
 )
 
 MIDDLEWARE_CLASSES = (
