@@ -20,7 +20,6 @@ class VacoRangeFilter(admin.SimpleListFilter):
         """
         return (
             (-999, ('Missing')),
-            (0, ('All')),
             (100, ('1 - 100')),
             (200, ('101 - 200')),
             (300, ('201 - 300')),
@@ -43,11 +42,11 @@ class VacoRangeFilter(admin.SimpleListFilter):
         # to decide how to filter the queryset.
         if not self.value():
             return
-        elif self.value() == -999:
-            return queryset.filter(Vaco=-999)                
+        elif self.value() == '-999':
+            return queryset.filter(Vaco=float(self.value()))                
         else:
-            return queryset.filter(Vaco__gt=(self.value() - 100),
-                                   Vaco__lte=self.value())
+            return queryset.filter(Vaco__gt=(float(self.value()) - 100),
+                                   Vaco__lte=float(self.value()))
 
 
 class PVInverterAdmin(admin.ModelAdmin):
