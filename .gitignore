@@ -7,3 +7,4 @@ db.sqlite3
 public/static/
 .project
 .pydevproject
+pvfree.log
