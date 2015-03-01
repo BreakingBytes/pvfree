@@ -1,6 +1,13 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from parameters.models import PVInverter
 
 
 def home(request):
-    return HttpResponse("Hello, world. You're at the pvfree home.")
+    return render(request, 'index.html')
+
+
+def pvinverters(request):
+    pvinv = PVInverter.objects.all()
+    return render(request, 'pvinverters.html',
+                  context={'path': request.path, 'pvinverters': pvinv})
+
