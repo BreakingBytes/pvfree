@@ -5,3 +5,5 @@ pvfree.sublime-workspace
 .postgre
 db.sqlite3
 public/static/
+.project
+.pydevproject

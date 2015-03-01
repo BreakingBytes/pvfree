@@ -1,3 +1,6 @@
+<!-- begin django template variables -->
+<!-- path -->
+<!-- end django template variables -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -37,8 +40,10 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
-            <li><a href="#">Link</a></li>
+            <li {% if path == url 'pvinverters' %} class="active" {% endif %}>
+              <a href="#">PVInverters {% if path == url 'pvinverters' %}<span class="sr-only">(current)</span>{% endif %}</a></li>
+            <li {% if path == url 'pvmodules' %} class="active" {% endif %}>
+              <a href="#">PVModules {% if path == url 'pvmodules' %}<span class="sr-only">(current)</span>{% endif %}</a></li>
             <!-- include navbar dropdown snippet -->
           </ul>
           <!-- include navbar search form snippet -->
