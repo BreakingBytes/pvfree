@@ -54,7 +54,7 @@ class PVInverterAdmin(admin.ModelAdmin):
         'Vdcmax', 'Idcmax', 'MPPT_low', 'MPPT_hi', 'Pnt', 'Tamb_low',
         'Tamb_max', 'weight', 'numberMPPTChannels'
     )
-    list_filter = ('manufacturer', 'vintage', 'VacoRangeFilter')
+    list_filter = ('manufacturer', 'vintage', VacoRangeFilter)
     fields = (('manufacturer', 'name'), 'vintage',
               ('Sandia_ID', 'source'),
               ('Vaco', 'Paco'),
