@@ -10,6 +10,9 @@ class VacoRangeFilter(admin.SimpleListFilter):
     # Parameter for the filter that will be used in the URL query.
     parameter_name = 'Vaco'
 
+    _incr = 100
+    _stop = 1000
+
     def lookups(self, request, model_admin):
         """
         Returns a list of tuples. The first element in each
@@ -18,12 +21,10 @@ class VacoRangeFilter(admin.SimpleListFilter):
         human-readable name for the option that will appear
         in the right sidebar.
         """
-        _incr = 100
-        _stop = 1000
         return tuple(
             [('-999', 'Missing')] +
-            [(str(x), '%d - %d' % ((x - _incr + 1), x))
-             for x in xrange(_incr, _stop + _incr, _incr)])
+            [(str(x), '%d - %d [V]' % ((x - self._incr + 1), x))
+             for x in xrange(self._incr, self._stop + self._incr, self._incr)])
 
     def queryset(self, request, queryset):
         """
@@ -38,7 +39,7 @@ class VacoRangeFilter(admin.SimpleListFilter):
         elif self.value() == '-999':
             return queryset.filter(Vaco=float(self.value()))                
         else:
-            return queryset.filter(Vaco__gt=(float(self.value()) - 100),
+            return queryset.filter(Vaco__gt=(float(self.value()) - self._incr),
                                    Vaco__lte=float(self.value()))
 
 
@@ -58,12 +59,36 @@ class PacoRangeFilter(admin.SimpleListFilter):
         human-readable name for the option that will appear
         in the right sidebar.
         """
-        _incr = 100
-        _stop = 1000
-        return tuple(
-            [('-999', 'Missing')] +
-            [(str(x), '%d - %d' % ((x - _incr + 1), x))
-             for x in xrange(_incr, _stop + _incr, _incr)])
+        return (('-999', 'Missing'),
+                ('1', '< 1 [kW]'),
+                ('2', '1 - 2 [kW]'),
+                ('3', '2 - 3 [kW]'),
+                ('4', '3 - 4 [kW]'),
+                ('5', '4 - 5 [kW]'),
+                ('6', '5 - 6 [kW]'),
+                ('7', '6 - 7 [kW]'),
+                ('8', '7 - 8 [kW]'),
+                ('9', '8 - 9 [kW]'),
+                ('10', '9 - 10 [kW]'),
+                ('20', '10 - 20 [kW]'),
+                ('30', '20 - 30 [kW]'),
+                ('40', '30 - 40 [kW]'),
+                ('50', '40 - 50 [kW]'),
+                ('60', '50 - 60 [kW]'),
+                ('70', '60 - 70 [kW]'),
+                ('80', '70 - 80 [kW]'),
+                ('90', '80 - 90 [kW]'),
+                ('100', '90 - 100 [kW]'),
+                ('200', '100 - 200 [kW]'),
+                ('300', '200 - 300 [kW]'),
+                ('400', '300 - 400 [kW]'),
+                ('500', '400 - 500 [kW]'),
+                ('600', '500 - 600 [kW]'),
+                ('700', '600 - 700 [kW]'),
+                ('800', '700 - 800 [kW]'),
+                ('900', '800 - 900 [kW]'),
+                ('1000', '900 [kW] - 1 [MW]'),
+                ('+1000', '> 1 [MW]'))
 
     def queryset(self, request, queryset):
         """
@@ -76,10 +101,18 @@ class PacoRangeFilter(admin.SimpleListFilter):
         if not self.value():
             return
         elif self.value() == '-999':
-            return queryset.filter(Paco=float(self.value()))                
+            return queryset.filter(Paco=float(self.value()))
+        elif self.value() == '1000+':
+            return queryset.filter(Paco__gt=float(self.value()) * 1000)
+        elif float(self.value()) > 100:
+            return queryset.filter(Paco__gt=((float(self.value()) - 100) * 1000),
+                                   Paco__lte=float(self.value()) * 1000)
+        elif float(self.value()) > 10:
+            return queryset.filter(Paco__gt=((float(self.value()) - 10) * 1000),
+                                   Paco__lte=float(self.value()) * 1000)
         else:
-            return queryset.filter(Paco__gt=(float(self.value()) - 100),
-                                   Paco__lte=float(self.value()))
+            return queryset.filter(Paco__gt=((float(self.value()) - 1) * 1000),
+                                   Paco__lte=float(self.value()) * 1000)
 
 
 class PVInverterAdmin(admin.ModelAdmin):
