@@ -40,10 +40,12 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li {% if path == url 'pvinverters' %} class="active" {% endif %}>
-              <a href="#">PVInverters {% if path == url 'pvinverters' %}<span class="sr-only">(current)</span>{% endif %}</a></li>
-            <li {% if path == url 'pvmodules' %} class="active" {% endif %}>
-              <a href="#">PVModules {% if path == url 'pvmodules' %}<span class="sr-only">(current)</span>{% endif %}</a></li>
+            {% url 'pvinverters' as pvinverters %}
+            {% url 'pvmodules' as pvmodules %}
+            <li {% if path == pvinverters %} class="active" {% endif %}>
+              <a href="#">PVInverters {% if path == pvinverters %}<span class="sr-only">(current)</span>{% endif %}</a></li>
+            <li {% if path == pvmodules %} class="active" {% endif %}>
+              <a href="#">PVModules {% if path == pvmodules %}<span class="sr-only">(current)</span>{% endif %}</a></li>
             <!-- include navbar dropdown snippet -->
           </ul>
           <!-- include navbar search form snippet -->
