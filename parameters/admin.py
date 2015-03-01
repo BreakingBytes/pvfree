@@ -102,7 +102,7 @@ class PacoRangeFilter(admin.SimpleListFilter):
             return
         elif self.value() == '-999':
             return queryset.filter(Paco=float(self.value()))
-        elif self.value() == '1000+':
+        elif self.value() == '+1000':
             return queryset.filter(Paco__gt=float(self.value()) * 1000)
         elif float(self.value()) > 100:
             return queryset.filter(Paco__gt=((float(self.value()) - 100) * 1000),
