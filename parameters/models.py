@@ -36,7 +36,7 @@ class PVInverter(models.Model):
     Sandia model PV inverter parameters.
     """
     Sandia_ID = models.IntegerField()
-    manufacturer = models.CharField(max_length=100)
+    manufacturer = models.CharField('mfg.', max_length=100)
     name = models.CharField(max_length=100)
     source = models.CharField(max_length=10)
     vintage = models.DateField(default=date(1999, 1, 1))
