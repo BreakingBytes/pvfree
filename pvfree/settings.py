@@ -102,3 +102,41 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'public', 'static')
 
+TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "assets")]
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'public', 'media')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': ('[%(levelname)s] %(asctime)s (%(processName)s) ' +
+                       '(%(threadName)s)\n> %(message)s')
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'pvfree.log'),
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'parameters.models': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
