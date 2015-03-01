@@ -19,7 +19,8 @@ class VacoRangeFilter(admin.SimpleListFilter):
         in the right sidebar.
         """
         return (
-            (-999, ('missing')),
+            (-999, ('Missing')),
+            (0, ('All')),
             (100, ('1 - 100')),
             (200, ('101 - 200')),
             (300, ('201 - 300')),
@@ -40,7 +41,9 @@ class VacoRangeFilter(admin.SimpleListFilter):
         """
         # Compare the requested value (either '80s' or '90s')
         # to decide how to filter the queryset.
-        if self.value() == -999:
+        if not self.value():
+            return
+        elif self.value() == -999:
             return queryset.filter(Vaco=-999)                
         else:
             return queryset.filter(Vaco__gt=(self.value() - 100),
