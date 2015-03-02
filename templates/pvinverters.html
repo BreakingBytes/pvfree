@@ -6,7 +6,8 @@
 {% block content %}
 <div class="container">
   <h1 class="page-header">PV Inverters</h1>
-  <div class="table-responsive">
+  {% if pvinv_set %}
+  <div class="table">
     <table id="myTable" class="tablesorter">
       <thead>
         <tr>
@@ -35,9 +36,8 @@
           <th>No. MPPT Channels</th>
         </tr>
       </thead>
-      {% if pvinv_set %}
       <tbody>
-        {% for pvinv in pvinv_set %}
+        {% for pvinv in pvinverters %}
         <tr>
           <td>{{ pvinv.manufacturer }}</td>
           <td>{{ pvinv.name }}</td>
@@ -65,11 +65,11 @@
         </tr>
         {% endfor %}
       </tbody>
-      {% else %}
-         <p>No PV Inverters are available.</p>
-      {% endif %}
     </table>
   </div>
+  {% else %}
+     <p>No PV Inverters are available.</p>
+  {% endif %}
 </div>
 {% endblock %}
 

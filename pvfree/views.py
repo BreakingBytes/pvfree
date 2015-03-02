@@ -8,9 +8,9 @@ def home(request):
 
 
 def pvinverters(request):
-    pvinv_set = PVInverter.objects.all()
+    pvinv = PVInverter.objects.all()
     return render(request, 'pvinverters.html',
-                  {'path': request.path, 'pvinverters': pvinv_set})
+                  {'path': request.path, 'pvinverters': pvinv})
 
 def pvmodules(request):
     return HttpResponse('welcome to pvmodules page.')
