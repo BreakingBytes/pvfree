@@ -1,15 +1,22 @@
 {% extends "base.html" %}
 
-{% block headscripts %}
-<!-- datatables.net -->
-<link rel"stylesheet" href="http://cdn.datatables.net/1.10.5/css/jquery.dataTables.min.css">
-{% endblock headscripts %}
+{% block headers %}
+<!-- datatables.net with Bootstrap-3 theme -->
+<!--https://datatables.net/examples/styling/bootstrap.html-->
+<!--https://datatables.net/manual/styling/bootstrap-->
+<!-- link rel"stylesheet" href="http://cdn.datatables.net/1.10.5/css/jquery.dataTables.min.css" -->
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.css">
+{% endblock headers %}
 
 {% block content %}
-welcome to pvmodules page.
+<div class="container">
+  <h1 class="page-header">PV Inverters</h1>
+There are no modules
+</div>
 {% endblock %}
 
-{% block footscripts %}
+{% block footers %}
 <!-- datatables.net -->
 <script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
-{% endblock footscripts %}
+<script src="https://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+{% endblock footers %}

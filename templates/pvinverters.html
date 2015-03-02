@@ -1,86 +1,88 @@
 {% extends "base.html" %}
 
-{% block headscripts %}
-<!-- datatables.net -->
-<link rel"stylesheet" href="http://cdn.datatables.net/1.10.5/css/jquery.dataTables.min.css">
-{% endblock headscripts %}
+{% block headers %}
+<!-- datatables.net with Bootstrap-3 theme -->
+<!--https://datatables.net/examples/styling/bootstrap.html-->
+<!--https://datatables.net/manual/styling/bootstrap-->
+<!-- link rel"stylesheet" href="http://cdn.datatables.net/1.10.5/css/jquery.dataTables.min.css" -->
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.css">
+{% endblock headers %}
 
 {% block content %}
 <div class="container">
   <h1 class="page-header">PV Inverters</h1>
-  {% if pvinverters %}
-  <div class="table">
-    <table id="myTable">
-      <thead>
-        <tr>
-          <th>Mfg</th>
-          <th>Name</th>
-          <th>Vintage</th>
-          <th>Source</th>
-          <th>Sandia #</th>
-          <th>Vaco</th>
-          <th>Paco</th>
-          <th>Vdco</th>
-          <th>Pdco</th>
-          <th>C0</th>
-          <th>C1</th>
-          <th>C2</th>
-          <th>C3</th>
-          <th>Pso</th>
-          <th>Pnt</th>
-          <th>Vdcmax</th>
-          <th>Idcmax</th>
-          <th>MPPT low</th>
-          <th>MPPT high</th>
-          <th>Tamb low</th>
-          <th>Tamb max</th>
-          <th>Weight</th>
-          <th>No. MPPT Channels</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for pvinv in pvinverters %}
-        <tr>
-          <td>{{ pvinv.manufacturer }}</td>
-          <td>{{ pvinv.name }}</td>
-          <td>{{ pvinv.vintage }}</td>
-          <td>{{ pvinv.source }}</td>
-          <td>{{ pvinv.Sandia_ID }}</td>
-          <td>{{ pvinv.Vaco }}</td>
-          <td>{{ pvinv.Paco }}</td>
-          <td>{{ pvinv.Vdco }}</td>
-          <td>{{ pvinv.Pdco }}</td>
-          <td>{{ pvinv.C0 }}</td>
-          <td>{{ pvinv.C1 }}</td>
-          <td>{{ pvinv.C2 }}</td>
-          <td>{{ pvinv.C3 }}</td>
-          <td>{{ pvinv.Pso }}</td>
-          <td>{{ pvinv.Pnt }}</td>
-          <td>{{ pvinv.Vdcmax }}</td>
-          <td>{{ pvinv.Idcmax }}</td>
-          <td>{{ pvinv.MPPT_low }}</td>
-          <td>{{ pvinv.MPPT_hi }}</td>
-          <td>{{ pvinv.Tamb_low }}</td>
-          <td>{{ pvinv.Tamb_max }}</td>
-          <td>{{ pvinv.weight }}</td>
-          <td>{{ pvinv.numberMPPTChannels }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  {% if pvinv_set %}
+  <table id="myTable" class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        <th>Mfg<br /><br /></th>
+        <th>Name<br /><br /></th>
+        <th>Vintage<br /><br /></th>
+        <th>Source<br /><br /></th>
+        <th>Sandia ID</th>
+        <th>Vaco<br /><br /></th>
+        <th>Paco<br /><br /></th>
+        <th>Vdco<br /><br /></th>
+        <th>Pdco<br /><br /></th>
+        <th>C0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
+        <th>C1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
+        <th>C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
+        <th>C3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
+        <th>Pso<br /><br /></th>
+        <th>Pnt<br /><br /></th>
+        <th>Vdcmax<br /><br /></th>
+        <th>Idcmax<br /><br /></th>
+        <th>MPPT low</th>
+        <th>MPPT high</th>
+        <th>Tamb low</th>
+        <th>Tamb max</th>
+        <th>Weight</th>
+        <th>MPPT Channels</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pvinv in pvinv_set %}
+      <tr>
+        <td>{{ pvinv.manufacturer }}</td>
+        <td>{{ pvinv.name }}</td>
+        <td>{{ pvinv.vintage|date:"Y" }}</td>
+        <td>{{ pvinv.source }}</td>
+        <td>{{ pvinv.Sandia_ID }}</td>
+        <td>{{ pvinv.Vaco }}</td>
+        <td>{{ pvinv.Paco }}</td>
+        <td>{{ pvinv.Vdco|floatformat }}</td>
+        <td>{{ pvinv.Pdco|floatformat }}</td>
+        <td>{{ pvinv.C0|stringformat:"5.2E" }}</td>
+        <td>{{ pvinv.C1|stringformat:"5.2E" }}</td>
+        <td>{{ pvinv.C2|stringformat:"5.2E" }}</td>
+        <td>{{ pvinv.C3|stringformat:"5.2E" }}</td>
+        <td>{{ pvinv.Pso|floatformat }}</td>
+        <td>{{ pvinv.Pnt }}</td>
+        <td>{{ pvinv.Vdcmax }}</td>
+        <td>{{ pvinv.Idcmax }}</td>
+        <td>{{ pvinv.MPPT_low }}</td>
+        <td>{{ pvinv.MPPT_hi }}</td>
+        <td>{{ pvinv.Tamb_low }}</td>
+        <td>{{ pvinv.Tamb_max }}</td>
+        <td>{{ pvinv.weight }}</td>
+        <td>{{ pvinv.numberMPPTChannels }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   {% else %}
      <p>No PV Inverters are available.</p>
   {% endif %}
 </div>
 {% endblock %}
 
-{% block footscripts %}
+{% block footers %}
 <!-- datatables.net -->
 <script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.js"></script>
 <script>
 $(document).ready(function(){
     $('#myTable').DataTable();
 });
 </script>
-{% endblock footscripts %}
+{% endblock footers %}

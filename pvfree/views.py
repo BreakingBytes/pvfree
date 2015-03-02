@@ -7,9 +7,8 @@ def home(request):
 
 
 def pvinverters(request):
-    pvinv = PVInverter.objects.values()
-    context = {'path': request.path, 'pvinverters': pvinv}
-    return render(request, 'pvinverters.html', context)
+    return render(request, 'pvinverters.html',
+        {'path': request.path, 'pvinv_set': PVInverter.objects.values()})
 
 def pvmodules(request):
     return render(request, 'pvmodules.html', {'path': request.path})
