@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from parameters.models import PVInverter
-from django.http import HttpResponse
 
 
 def home(request):
@@ -13,4 +12,4 @@ def pvinverters(request):
                   {'path': request.path, 'pvinverters': pvinv})
 
 def pvmodules(request):
-    return HttpResponse('welcome to pvmodules page.')
+    return render(request, 'pvmodules.html', {'path': request.path})

@@ -1,3 +1,5 @@
+{% extends "base.html" %}
+
 {% block headscripts %}
 <!-- datatables.net -->
 <link rel"stylesheet" href="http://cdn.datatables.net/1.10.5/css/jquery.dataTables.min.css">
@@ -6,7 +8,7 @@
 {% block content %}
 <div class="container">
   <h1 class="page-header">PV Inverters</h1>
-  {% if pvinv_set %}
+  {% if pvinverters %}
   <div class="table">
     <table id="myTable" class="tablesorter">
       <thead>
