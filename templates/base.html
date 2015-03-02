@@ -1,5 +1,6 @@
 <!-- begin django template variables -->
 <!-- path -->
+{% load staticfiles %}
 <!-- end django template variables -->
 <!DOCTYPE html>
 <html lang="en">
@@ -7,6 +8,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Public API for PV modeling">
+    <meta name="author" content="Mark Mikofski">
+    <link rel="icon" href="{% static "sunpower_favicon.ico" %}">
+
     <title>PV Free</title>
 
     <!-- Bootstrap -->
@@ -20,45 +25,49 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    {% block headscripts %}
+    {% endblock headscripts %}
+
     <!-- Custom styles for this template -->
     <style type="text/css">
       /* Body Padding required: The fixed navbar will overlay your other
        * content, unless you add padding to the top of the <body>. Try out
        * your own values or use our snippet below. Tip: By default, the
        * navbar is 50px high.
-       * http://getbootstrap.com/components/#navbar-fixed-top */ 
+       * http://getbootstrap.com/components/#navbar-fixed-top */
       body {
         padding-top: 50px;
       }
-      /* center and scale */
-      .starter-template {
-        padding: 40px 15px;
-        }
     </style>
+
+    {% block headstyles %}
+    {% endblock headstyles %}
+
   </head>
   <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">PV Free</a>
+          <a class="navbar-brand" title="Return to homepage" href="/home/">PV Free</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="navbar">
+        <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             {% url 'pvinverters' as pvinverters %}
             {% url 'pvmodules' as pvmodules %}
-            <li {% if path == pvinverters %} class="active" {% endif %}>
-              <a href="#">PVInverters {% if path == pvinverters %}<span class="sr-only">(current)</span>{% endif %}</a></li>
-            <li {% if path == pvmodules %} class="active" {% endif %}>
-              <a href="#">PVModules {% if path == pvmodules %}<span class="sr-only">(current)</span>{% endif %}</a></li>
+            <li {% if path == pvinverters %}class="active"{% endif %}>
+              <a href="pvinverters">PVInverters {% if path == pvinverters %}<span class="sr-only">(current)</span>{% endif %}</a></li>
+            <li {% if path == pvmodules %}class="active"{% endif %}>
+              <a href="pvmodules">PVModules {% if path == pvmodules %}<span class="sr-only">(current)</span>{% endif %}</a></li>
             <!-- include navbar dropdown snippet -->
           </ul>
           <!-- include navbar search form snippet -->
@@ -75,7 +84,9 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
-    <!-- datatables.net -->
-    <script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
+
+    {% block footscripts %}
+    {% endblock footscripts %}
+
   </body>
 </html>
