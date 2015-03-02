@@ -147,5 +147,11 @@ class PVInverter(models.Model):
 class PVInverterResource(ModelResource):
     class Meta:
         queryset = PVInverter.objects.all()
-
+        filtering = {
+            "manufacturer": ('iexact', 'istartswith', 'icontains', 'iregex', 
+'iendswith'),
+            "name": ('iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'),
+            "Vaco": ('exact', 'lt', 'lte', 'gt', 'gte'),
+            "vintage": ('year')
+        }
 
