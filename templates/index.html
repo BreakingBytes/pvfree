@@ -85,7 +85,8 @@ SyntaxHighlighter.all();
   <h1>Filters</h1>
   The following fields can be <a target="_blank" href="https://django-tastypie.readthedocs.org/en/latest/resources.html?highlight=filtering#basic-filtering">filtered</a> using <a 
 target="_blank" href="https://docs.djangoproject.com/en/1.6/ref/models/querysets/#field-lookups" >Django 
-ORM</a>.
+ORM</a>. <i>Note:</i> use encoded URI components for the following reserved querystring characters: for <b>"&amp;"</b> use <b>"%26"</b>, for <b>"+"</b> use <b>"%2B"</b>, for <b>"?"</b> 
+use <b>"%3F"</b> and for <b>"="</b> use <b>"%3D"</b>.
   <ul>
   <li>field: <code>manufacturer</code>
     <ul>
