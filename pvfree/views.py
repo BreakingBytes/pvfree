@@ -7,7 +7,7 @@ def home(request):
 
 
 def pvinverters(request):
-    pvinv = PVInverter.objects.all()
+    pvinv = PVInverter.objects.values()
     return render(request, 'pvinverters.html',
                   {'path': request.path, 'pvinverters': pvinv})
 
