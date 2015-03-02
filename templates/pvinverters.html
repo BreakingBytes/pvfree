@@ -4,9 +4,81 @@
 {% enblock headscripts%}
 
 {% block content %}
+<div class="container">
+  <h1 class="page-header">PV Inverters</h1>
+  <div class="table-responsive">
+    <table id="myTable" class="tablesorter">
+      <thead>
+        <tr>
+          <th>Mfg</th>
+          <th>Name</th>
+          <th>Vintage</th>
+          <th>Source</th>
+          <th>Sandia #</th>
+          <th>Vaco</th>
+          <th>Paco</th>
+          <th>Vdco</th>
+          <th>Pdco</th>
+          <th>C0</th>
+          <th>C1</th>
+          <th>C2</th>
+          <th>C3</th>
+          <th>Pso</th>
+          <th>Pnt</th>
+          <th>Vdcmax</th>
+          <th>Idcmax</th>
+          <th>MPPT low</th>
+          <th>MPPT high</th>
+          <th>Tamb low</th>
+          <th>Tamb max</th>
+          <th>Weight</th>
+          <th>No. MPPT Channels</th>
+        </tr>
+      </thead>
+      {% if pvinv_set %}
+      <tbody>
+        {% for pvinv in pvinv_set %}
+        <tr>
+          <td>{{ pvinv.manufacturer }}</td>
+          <td>{{ pvinv.name }}</td>
+          <td>{{ pvinv.vintage }}</td>
+          <td>{{ pvinv.Source }}</td>
+          <td>{{ pvinv.Sandia # }}</td>
+          <td>{{ pvinv.Vaco }}</td>
+          <td>{{ pvinv.Paco }}</td>
+          <td>{{ pvinv.Vdco }}</td>
+          <td>{{ pvinv.Pdco }}</td>
+          <td>{{ pvinv.C0 }}</td>
+          <td>{{ pvinv.C1 }}</td>
+          <td>{{ pvinv.C2 }}</td>
+          <td>{{ pvinv.C3 }}</td>
+          <td>{{ pvinv.Pso }}</td>
+          <td>{{ pvinv.Pnt }}</td>
+          <td>{{ pvinv.Vdcmax }}</td>
+          <td>{{ pvinv.Idcmax }}</td>
+          <td>{{ pvinv.MPPT_low }}</td>
+          <td>{{ pvinv.MPPT_hi }}</td>
+          <td>{{ pvinv.Tamb_low }}</td>
+          <td>{{ pvinv.Tamb_max }}</td>
+          <td>{{ pvinv.weigt }}</td>
+          <td>{{ pvinv.numberMPPTChannels }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% else %}
+         <p>No PV Inverters are available.</p>
+      {% endif %}
+    </table>
+  </div>
+</div>
 {% endblock %}
 
 {% block footscripts %}
 <!-- datatables.net -->
 <script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('#myTable').DataTable();
+});
+</script>
 {% enblock footscripts%}

@@ -56,7 +56,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" title="Return to homepage" href="/home/">PV Free</a>
+          <a class="navbar-brand" title="Return to homepage" href="{% url 'home' %}">PV Free</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -69,6 +69,9 @@
             <li {% if path == pvmodules %}class="active"{% endif %}>
               <a href="pvmodules">PVModules {% if path == pvmodules %}<span class="sr-only">(current)</span>{% endif %}</a></li>
             <!-- include navbar dropdown snippet -->
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/admin/">admin</a></li>
           </ul>
           <!-- include navbar search form snippet -->
           <!-- include nabar right snippet -->

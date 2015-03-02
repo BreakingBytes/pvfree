@@ -3,11 +3,11 @@ from parameters.models import PVInverter
 
 
 def home(request):
-    return render(request, 'index.html')
+    return render(request, 'index.html', context={'path': request.path})
 
 
 def pvinverters(request):
-    pvinv = PVInverter.objects.all()
+    pvinv_set = PVInverter.objects.all()
     return render(request, 'pvinverters.html',
-                  context={'path': request.path, 'pvinverters': pvinv})
+                  context={'path': request.path, 'pvinverters': pvinv_set})
 
