@@ -82,6 +82,36 @@ SyntaxHighlighter.all();
   JsonObject array = jsonReader.readObject();
   jsonReader.close();
   </pre>
+  <h1>Filters</h1>
+  The following fields can be <a target="_blank" href="https://django-tastypie.readthedocs.org/en/latest/resources.html?highlight=filtering#basic-filtering">filtered</a> using <a 
+target="_blank" href="https://docs.djangoproject.com/en/1.6/ref/models/querysets/#field-lookups" >Django 
+ORM</a>.
+  <ul>
+  <li>field: <code>manufacturer</code>
+    <ul>
+    <li>filters: <code>iexact</code>, <code>istartswith</code>, <code>icontains</code>, <code>iregex</code>, <code>iendswith</code></li>
+    <li>example: <code>api/pvinverter/?format=json&manufacturer__istartswith=general</code></li>
+    </ul>
+  </li>
+  <li>field: <code>name</code>
+    <ul>
+    <li>filters: <code>iexact</code>, <code>istartswith</code>, <code>icontains</code>, <code>iregex</code>, <code>iendswith</code></li>
+    <li>example: <code>api/pvinverter/?format=json&name__iregex=^PVI[- ]</code></li>
+    </ul>
+  </li>
+  <li>field: <code>Vaco</code>
+    <ul>
+    <li>filters: <code>exact</code>, <code>lt</code>, <code>lte</code>, <code>gt</code>, <code>gte</code></li>
+    <li>example: <code>api/pvinverter/?format=json&Vaco__gt=200&Vaco__lte=300</code></li>
+    </ul>
+  </li>
+  <li>field: <code>vintage</code>
+    <ul>
+    <li>filters: <code>year</code></li>
+    <li>example: <code>api/pvinverter/?format=json&vintage__year=2010</code></li>
+    </ul>
+  </li>
+  </ul>
   <h1>Contributions</h1>
   <p>Contribute to <a target="_blank" 
 href="https://github.com/SunPower/pvfree">PV Free on GitHub</a>.</p>
