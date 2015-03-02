@@ -6,6 +6,7 @@
 {% endblock headscripts %}
 
 {% block content %}
+{{ pvinverters }}
 <div class="container">
   <h1 class="page-header">PV Inverters</h1>
   {% if pvinverters %}
@@ -62,7 +63,7 @@
           <td>{{ pvinv.MPPT_hi }}</td>
           <td>{{ pvinv.Tamb_low }}</td>
           <td>{{ pvinv.Tamb_max }}</td>
-          <td>{{ pvinv.weigt }}</td>
+          <td>{{ pvinv.weight }}</td>
           <td>{{ pvinv.numberMPPTChannels }}</td>
         </tr>
         {% endfor %}
