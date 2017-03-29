@@ -1,0 +1,8 @@
+gunicorn
+django==1.6.4
+south==1.0.2
+python_dateutil
+openpyxl
+django_tastypie==0.12.1
+nose
+psycopg2
