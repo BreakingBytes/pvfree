@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from openpyxl import load_workbook
 from datetime import date
 from tastypie.resources import ModelResource
+from tastypie.authorization import DjangoAuthorization
 
 MAPPING = {
     "Unique ID#": "Sandia_ID",
@@ -148,10 +149,13 @@ class PVInverterResource(ModelResource):
     class Meta:
         queryset = PVInverter.objects.all()
         filtering = {
-            "manufacturer": ('iexact', 'istartswith', 'icontains', 'iregex', 
-'iendswith'),
-            "name": ('iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'),
+            "manufacturer": (
+                'iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'
+            ),
+            "name": (
+                'iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'
+            ),
             "Vaco": ('exact', 'lt', 'lte', 'gt', 'gte'),
             "vintage": ('year')
         }
-
+        authorization = DjangoAuthorization()
