@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 from pvfree import get_secret
 import socket
+import dj_database_url
 
 HOSTNAME = socket.gethostname()  # hostname of machine
 FQDN = socket.getfqdn(HOSTNAME)  # fully qualified domain name of host
@@ -64,17 +65,7 @@ WSGI_APPLICATION = 'pvfree.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-PSQL_PSWD = get_secret('PSQL_PSWD', '.postgre')
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'pvfree_db',
-        'USER': 'pvfree',
-        'PASSWORD': PSQL_PSWD,
-        'HOST': 'postgresql.alwaysdata.com',
-        'PORT': 5432,
-    }
-}
+DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
