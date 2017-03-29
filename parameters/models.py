@@ -4,6 +4,12 @@ from openpyxl import load_workbook
 from datetime import date
 from tastypie.resources import ModelResource
 from tastypie.authorization import DjangoAuthorization
+from tastypie.authentication import ApiKeyAuthentication
+from django.contrib.auth.models import User
+from django.db.models import signals
+from tastypie.models import create_api_key
+
+signals.post_save.connect(create_api_key, sender=User)
 
 MAPPING = {
     "Unique ID#": "Sandia_ID",
@@ -159,3 +165,4 @@ class PVInverterResource(ModelResource):
             "vintage": ('year')
         }
         authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
