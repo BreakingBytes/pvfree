@@ -5,7 +5,7 @@ A public API for PV modeling parameters.
 Usage
 -----
 Browsing to
-[`pvfree.alwaysdata.net/api/pvinverter/`](pvfree.alwaysdata.net/api/pvinverter/?format=json)
+[`pvfree.alwaysdata.net/api/pvinverter/`](http://pvfree.alwaysdata.net/api/pvinverter/?format=json)
 will display a JSON string with the first 20 records. The endpoint and query
 string to obtain the next set
 [`api/pvinverter/?limit=20&offset=20`](http://pvfree.alwaysdata.net/api/pvinverter/?format=json&limit=20&offset=20)
