@@ -13,7 +13,7 @@ def pvinverters(request):
 
 def pvmodules(request):
     pvmod_set = PVModule.objects.values()
-    for pvmod in PVModule.objects.all():
-        pvmod_set['nameplate'] = pvmod.nameplate()
+    for pvmod in pvmod_set:
+        pvmod['nameplate'] = PVModule.objects.get(pk=pvmod['id']).nameplate()
     return render(request, 'pvmodules.html',
         {'path': request.path, 'pvmod_set': pvmod_set})
