@@ -1,5 +1,5 @@
 from django.contrib import admin
-from parameters.models import PVInverter
+from parameters.models import PVInverter, PVModule
 
 
 class VacoRangeFilter(admin.SimpleListFilter):
@@ -139,4 +139,5 @@ class PVInverterAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(PVInverter, PVInverterAdmin)
+admin.site.register(PVModule)
 

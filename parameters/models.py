@@ -8,8 +8,12 @@ from tastypie.authentication import ApiKeyAuthentication
 from django.contrib.auth.models import User
 from django.db.models import signals
 from tastypie.models import create_api_key
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 signals.post_save.connect(create_api_key, sender=User)
+
 
 MAPPING = {
     "Unique ID#": "Sandia_ID",
@@ -37,7 +41,19 @@ MAPPING = {
     }
 
 
-# Create your models here.
+class ApiKeyAuthOrReadOnly(ApiKeyAuthentication):
+    def _unauthorized(self):
+        return True
+
+
+class IsAuthenticatedOrReadOnly(DjangoAuthorization):
+    def read_list(self, object_list, bundle):
+        return object_list
+
+    def read_detail(self, object_list, bundle):
+        return True
+
+
 class PVInverter(models.Model):
     """
     Sandia model PV inverter parameters.
@@ -164,5 +180,100 @@ class PVInverterResource(ModelResource):
             "Vaco": ('exact', 'lt', 'lte', 'gt', 'gte'),
             "vintage": ('year')
         }
-        authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
+        authorization = IsAuthenticatedOrReadOnly()
+        authentication = ApiKeyAuthOrReadOnly()
+
+
+class PVModule(models.Model):
+    """
+    Sandia model PV module parameters.
+    """
+
+    MATERIALS = [
+        (1, '2-a-Si'),
+        (2, '3-a-Si'),
+        (3, 'CIS'),
+        (4, 'CdTe'),
+        (5, 'EFG'),
+        (6, 'GaAs'),
+        (7, 'HIT-Si'),
+        (8, 'Si-Film'),
+        (9, 'a-Si'),
+        (10, 'c-Si'),
+        (11, 'mc-Si'),
+        (12, 'mono-Si')
+    ]
+
+    name = models.CharField(max_length=100)
+    vintage = models.DateField(default=date(1999, 1, 1))
+    vintage_estimated = models.BooleanField(default=False)
+    area = models.FloatField(default=-999)
+    material = models.IntegerField(choices=MATERIALS, default=10)
+    cells_in_series = models.IntegerField(default=-999)
+    parallel_strings = models.IntegerField(default=-999)
+    isc0 = models.FloatField(default=-999)
+    voc0 = models.FloatField(default=-999)
+    imp0 = models.FloatField(default=-999)
+    vmp0 = models.FloatField(default=-999)
+    ix0 = models.FloatField(default=-999)
+    ixx0 = models.FloatField(default=-999)
+    c0 = models.FloatField(default=-999)
+    c1 = models.FloatField(default=-999)
+    c2 = models.FloatField(default=-999)
+    c3 = models.FloatField(default=-999)
+    c4 = models.FloatField(default=-999)
+    c5 = models.FloatField(default=-999)
+    c6 = models.FloatField(default=-999)
+    c7 = models.FloatField(default=-999)
+    aisc = models.FloatField(default=-999)
+    aimp = models.FloatField(default=-999)
+    bvoc0 = models.FloatField(default=-999)
+    mbvoc = models.FloatField(default=-999)
+    bvmp0 = models.FloatField(default=-999)
+    mbvmp = models.FloatField(default=-999)
+    n = models.FloatField(default=-999)
+    a0 = models.FloatField(default=-999)
+    a1 = models.FloatField(default=-999)
+    a2 = models.FloatField(default=-999)
+    a3 = models.FloatField(default=-999)
+    a4 = models.FloatField(default=-999)
+    b0 = models.FloatField(default=-999)
+    b1 = models.FloatField(default=-999)
+    b2 = models.FloatField(default=-999)
+    b3 = models.FloatField(default=-999)
+    b4 = models.FloatField(default=-999)
+    b5 = models.FloatField(default=-999)
+    dt = models.FloatField(default=-999)
+    a = models.FloatField(default=-999)
+    b = models.FloatField(default=-999)
+    notes = models.CharField(max_length=100)
+
+    def nameplate(self):
+        return self.imp0 * self.vmp0
+
+    def fill_factor(self):
+        return self.nameplate() / self.isc0 / self.voc0
+
+    def module_eff(self):
+        return self.nameplate() / self.area / 1000.0
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Module"
+        unique_together = ('name', 'vintage', 'vintage_estimated', 'notes')
+
+
+class PVModuleResource(ModelResource):
+    class Meta:
+        queryset = PVModule.objects.all()
+        filtering = {
+            "name": (
+                'iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'
+            ),
+            "nameplate": ('exact', 'lt', 'lte', 'gt', 'gte'),
+            "vintage": ('year')
+        }
+        authorization = IsAuthenticatedOrReadOnly()
+        authentication = ApiKeyAuthOrReadOnly()
