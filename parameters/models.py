@@ -211,6 +211,7 @@ class PVModule(models.Model):
     material = models.IntegerField(choices=MATERIALS, default=10)
     cells_in_series = models.IntegerField(default=-999)
     parallel_strings = models.IntegerField(default=-999)
+    fd = models.FloatField('diffuse fraction', default=-999)
     isc0 = models.FloatField(default=-999)
     voc0 = models.FloatField(default=-999)
     imp0 = models.FloatField(default=-999)
@@ -231,7 +232,7 @@ class PVModule(models.Model):
     mbvoc = models.FloatField(default=-999)
     bvmp0 = models.FloatField(default=-999)
     mbvmp = models.FloatField(default=-999)
-    n = models.FloatField(default=-999)
+    n = models.FloatField('ideality', default=-999)
     a0 = models.FloatField(default=-999)
     a1 = models.FloatField(default=-999)
     a2 = models.FloatField(default=-999)
@@ -244,8 +245,8 @@ class PVModule(models.Model):
     b4 = models.FloatField(default=-999)
     b5 = models.FloatField(default=-999)
     dt = models.FloatField(default=-999)
-    a = models.FloatField(default=-999)
-    b = models.FloatField(default=-999)
+    a = models.FloatField('natural convection', default=-999)
+    b = models.FloatField('forced convection', default=-999)
     notes = models.CharField(max_length=100)
 
     def nameplate(self):
