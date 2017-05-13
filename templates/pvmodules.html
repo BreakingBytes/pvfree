@@ -64,7 +64,7 @@
       {% for pvmod in pvmod_set %}
       <tr>
         <td>{{ pvmod.name }}</td>
-        <td>{{ pvmod.nameplate()|floatformat }}</td>
+        <td>{{ pvmod.nameplate|floatformat }}</td>
         <td>{{ pvmod.vintage|date:"Y" }}{% if pvmod.vintage_estimated %}E{% endif %}</td>
         <td>{{ pvmod.area }}</td>
         <td>{{ pvmod.material }}</td>
