@@ -43,15 +43,11 @@ MAPPING = {
 
 class ApiKeyAuthOrReadOnly(ApiKeyAuthentication):
     def _unauthorized(self):
-        LOGGER.debug(self)
         return True
 
 
 class IsAuthenticatedOrReadOnly(DjangoAuthorization):
     def read_list(self, object_list, bundle):
-        LOGGER.debug(self)
-        LOGGER.debug(object_list)
-        LOGGER.debug(bundle)
         return object_list
 
     def read_detail(self, object_list, bundle):
