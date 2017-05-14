@@ -7,3 +7,6 @@ django_tastypie==0.12.1
 nose
 psycopg2
 dj_database_url
+lxml
+defusedxml
+pyyaml
