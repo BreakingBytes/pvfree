@@ -50,12 +50,12 @@
 &gt;&gt;&gt; response.status_code
   200
 &gt;&gt;&gt; response.content
-  {"objects": [{"C0": -2.48104842861e-05, "C1": -9.0149429405099999e-05, "C2": 0.00066889632690700005, "C3": -0.018880466688599998, "Idcmax": 10.0, "MPPT_hi": 50.0, "MPPT_low": 20.0, "Paco": 250.0, "Pdco": 259.52205054799998, "Pnt": 0.02, "Pso": 1.7716142241299999, "Sandia_ID": 1399, "Tamb_low": -40.0, "Tamb_max": 85.0, "Vaco": 208.0, "Vdcmax": 65.0, "Vdco": 40.242603174599999, "id": 1, "manufacturer": "ABB", "name": "MICRO-0.25-I-OUTD-US-208", "numberMPPTChannels": 1, "resource_uri": "/api/v1/pvinverter/1/", "source": "CEC", "vintage": "2014-01-01", "weight": 1.6499999999999999}, ...]}
+  {"objects": [{"C0": -2.48104842861e-05, "C1": -9.0149429405099999e-05, "C2": 0.00066889632690700005, "C3": -0.018880466688599998, "Idcmax": 10.0, "Mppt_high": 50.0, "Mppt_low": 20.0, "Paco": 250.0, "Pdco": 259.52205054799998, "Pnt": 0.02, "Pso": 1.7716142241299999, "Vac": 208.0, "Vdcmax": 65.0, "Vdco": 40.242603174599999, "id": 1, "Name": "MICRO-0.25-I-OUTD-US-208", "resource_uri": "/api/v1/pvinverter/1/"}, ...]}
 </code></pre>
   <h2><a target="_blank" href="https://curl.haxx.se/">cURL</a></h2>
   <p>Use <code>curl</code> from the command line or libcurl programmatically</p>
 <pre><code class="language-bash">$ curl -H "Accept: application/json" https://pvfree.herokuapp.com/api/v1/pvinverter/
-  {"meta": {"limit": 20, "next": "/api/v1/pvinverter/?limit=20&amp;offset=20", "offset": 0, "previous": null, "total_count": 1742}, "objects": [{"C0": -2.48104842861e-05, "C1": -9.0149429405099999e-05, "C2": 0.00066889632690700005, "C3": -0.018880466688599998, "Idcmax": 10.0, "MPPT_hi": 50.0, "MPPT_low": 20.0, "Paco": 250.0, "Pdco": 259.52205054799998, "Pnt": 0.02, "Pso": 1.7716142241299999, "Sandia_ID": 1399, "Tamb_low": -40.0, "Tamb_max": 85.0, "Vaco": 208.0, "Vdcmax": 65.0, "Vdco": 40.242603174599999, "id": 1, "manufacturer": "ABB", "name": "MICRO-0.25-I-OUTD-US-208", "numberMPPTChannels": 1, "resource_uri": "/api/v1/pvinverter/1/", "source": "CEC", "vintage": "2014-01-01", "weight": 1.6499999999999999}, ...]}
+  {"meta": {"limit": 20, "next": "/api/v1/pvinverter/?limit=20&amp;offset=20", "offset": 0, "previous": null, "total_count": 1742}, "objects": [{"C0": -2.48104842861e-05, "C1": -9.0149429405099999e-05, "C2": 0.00066889632690700005, "C3": -0.018880466688599998, "Idcmax": 10.0, "Mppt_high": 50.0, "Mppt_low": 20.0, "Paco": 250.0, "Pdco": 259.52205054799998, "Pnt": 0.02, "Pso": 1.7716142241299999, "Vac": 208.0, "Vdcmax": 65.0, "Vdco": 40.242603174599999, "id": 1, "Name": "MICRO-0.25-I-OUTD-US-208", "resource_uri": "/api/v1/pvinverter/1/"}, ...]}
 </code></pre>
   <h2><a target="_blank" href="https://oracle.com/java">Java</a></h2>
   <p>Use <a target="_blank" href="https://docs.oracle.com/javase/7/docs/api/java/net/package-summary.html"><code>java.net</code></a> package to connect and <a target="_blank" href="https://docs.oracle.com/javaee/7/api/javax/json/package-summary.html"><code>javax.json</code></a> to use the resource.</p>
@@ -83,32 +83,18 @@ use
 <b>"%26"</b>, for <b>"+"</b> use <b>"%2B"</b>, for <b>"?"</b> 
 use <b>"%3F"</b> and for <b>"="</b> use <b>"%3D"</b>.</p>
   <ul>
-  <li>field: <code>manufacturer</code>
+  <li>field: <code>Name</code>
     <ul>
     <li>filters: <code>iexact</code>, <code>istartswith</code>, <code>icontains</code>, <code>iregex</code>, <code>iendswith</code></li>
     <li>example: <a target="_blank"
-href="/api/v1/pvinverter/?format=json&manufacturer__istartswith=general"><code>?manufacturer__istartswith=general</code></a></li>
+href="/api/v1/pvinverter/?format=json&Name__iregex=^Power[-%20]One"><code>?Name__iregex=^Power[- ]One</code></a></li>
     </ul>
   </li>
-  <li>field: <code>name</code>
-    <ul>
-    <li>filters: <code>iexact</code>, <code>istartswith</code>, <code>icontains</code>, <code>iregex</code>, <code>iendswith</code></li>
-    <li>example: <a target="_blank"
-href="/api/v1/pvinverter/?format=json&name__iregex=^PVI[- ]"><code>?name__iregex=^PVI[- ]</code></a></li>
-    </ul>
-  </li>
-  <li>field: <code>Vaco</code>
+  <li>field: <code>Vac</code>
     <ul>
     <li>filters: <code>exact</code>, <code>lt</code>, <code>lte</code>, <code>gt</code>, <code>gte</code></li>
     <li>example: <a target="_blank"
-href="/api/v1/pvinverter/?format=json&Vaco__gt=200&Vaco__lte=300"><code>?Vaco__gt=200&amp;Vaco__lte=300</code></a></li>
-    </ul>
-  </li>
-  <li>field: <code>vintage</code>
-    <ul>
-    <li>filters: <code>year</code></li>
-    <li>example: <a target="_blank" 
-href="/api/v1/pvinverter/?format=json&vintage__year=2010"><code>?vintage__year=2010</code></a></li>
+href="/api/v1/pvinverter/?format=json&Vaco__gt=200&Vac__lte=300"><code>?Vac__gt=200&amp;Vaco__lte=300</code></a></li>
     </ul>
   </li>
   </ul>
