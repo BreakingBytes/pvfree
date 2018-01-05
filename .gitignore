@@ -11,3 +11,4 @@ pvfree.log
 assets/highlight/
 fixtures/
 venv/
+.idea/
