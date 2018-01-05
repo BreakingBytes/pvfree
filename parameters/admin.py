@@ -122,7 +122,7 @@ class PVInverterAdmin(admin.ModelAdmin):
         'Vdcmax', 'Idcmax', 'Mppt_low', 'Mppt_high', 'Pnt'
     )
     list_filter = (VacRangeFilter, PacoRangeFilter)
-    fields = (('Manufacturer', 'Name'), 'Vintage', 'Source',
+    fields = ('Name',
               ('Vac', 'Paco'),
               ('Vdco', 'Pdco'), 
               ('C0', 'C1'),
