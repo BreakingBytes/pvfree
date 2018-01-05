@@ -1,6 +1,6 @@
 from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
-from openpyxl import load_workbook
+import csv
 from datetime import date
 from tastypie.resources import ModelResource
 from tastypie.authorization import DjangoAuthorization
@@ -9,36 +9,11 @@ from django.contrib.auth.models import User
 from django.db.models import signals
 from tastypie.models import create_api_key
 import logging
+import re
 
 LOGGER = logging.getLogger(__name__)
 
 signals.post_save.connect(create_api_key, sender=User)
-
-
-MAPPING = {
-    "Unique ID#": "Sandia_ID",
-    "Manufacturer": "manufacturer",
-    "ID": "name",
-    "Source": "source",
-    "Vintage": "vintage",
-    "ac Voltage": "Vaco",
-    "Paco": "Paco",
-    "Pdco": "Pdco",
-    "Vdco": "Vdco",
-    "Pso": "Pso",
-    "Co": "C0",
-    "C1": "C1",
-    "C2": "C2",
-    "C3": "C3",
-    "Vdcmax": "Vdcmax",
-    "Idcmax": "Idcmax",
-    "MPPT-Low": "MPPT_low",
-    "MPPT-Hi": "MPPT_hi",
-    "Pnt": "Pnt",
-    "Tamb Low": "Tamb_low",
-    "Tamb Max": "Tamb_max",
-    "Weight": "weight",
-    }
 
 
 class ApiKeyAuthOrReadOnly(ApiKeyAuthentication):
@@ -58,113 +33,76 @@ class PVInverter(models.Model):
     """
     Sandia model PV inverter parameters.
     """
-    Sandia_ID = models.IntegerField()
-    manufacturer = models.CharField('mfg.', max_length=100)
-    name = models.CharField(max_length=100)
-    source = models.CharField(max_length=10)
-    vintage = models.DateField(default=date(1999, 1, 1))
-    Paco = models.FloatField(default=-999)
-    Vaco = models.FloatField(default=-999)
-    Pdco = models.FloatField(default=-999)
-    Vdco = models.FloatField(default=-999)
-    Pso = models.FloatField(default=-999)
-    C0 = models.FloatField(default=-999)
-    C1 = models.FloatField(default=-999)
-    C2 = models.FloatField(default=-999)
-    C3 = models.FloatField(default=-999)
-    Vdcmax = models.FloatField(default=-999)
-    Idcmax = models.FloatField(default=-999)
-    MPPT_low = models.FloatField(default=-999)
-    MPPT_hi = models.FloatField(default=-999)
-    Pnt = models.FloatField(default=-999)
-    Tamb_low = models.FloatField(default=-999)
-    Tamb_max = models.FloatField(default=-999)
-    weight = models.FloatField(default=-999)
-    numberMPPTChannels = models.IntegerField('number of MPPT channels',
-                                             default=1)
+    Name = models.CharField(max_length=100, unique=True)
+    Vac = models.FloatField('AC Voltage [V]')
+    Paco = models.FloatField('Rated AC power [W]')
+    Pdco = models.FloatField('DC power [W]')
+    Vdco = models.FloatField('DC voltage [V]')
+    Pso = models.FloatField('Self consumption [W]')
+    C0 = models.FloatField()
+    C1 = models.FloatField()
+    C2 = models.FloatField()
+    C3 = models.FloatField()
+    Pnt = models.FloatField('Nighttime consumption [W]')
+    Vdcmax = models.FloatField('Max DC voltage [V]')
+    Idcmax = models.FloatField('Max DC current [A]')
+    Mppt_low = models.FloatField('Lower bound of MPPT [W]')
+    Mppt_high = models.FloatField('Higher bound of MPPT [W]')
+    created_on = models.DateField(auto_now_add=True)
+    modified_on = models.DateField(auto_now=True)
 
-    def full_name(self):
-        return "%s %s (%d) - %d" % (self.manufacturer, self.name, self.Vaco,
-                                    self.vintage.year)
+    def Manufacturer(self):
+        mfg, _ = self.Name.split(':', 1)
+        return mfg
+
+    def Vintage(self):
+        match = re.search('\[(\w*) (\d{4})\]', self.Name)
+        yr = date(1900, 1, 1)
+        if match:
+            src, yr = match.groups()
+            try:
+                yr = int(yr)
+            except ValueError:
+                yr = 1900
+        return date(yr, 1, 1)
+
+    def Source(self):
+        match = re.search('\[(\w*) (\d{4})\]', self.Name)
+        if match:
+            src, yr = match.groups()
+        return src
 
     def __unicode__(self):
-        return self.full_name()
+        return self.Name
 
     class Meta:
         verbose_name = "Inverter"
-        unique_together = ('manufacturer', 'name', 'Vaco', 'vintage')
 
     @classmethod
-    def upload(cls, filename, sheet=None, mapping=MAPPING):
+    def upload(cls, csv_file='CEC_Inverters.csv'):
         """
         Class method for creating and updating records from file.
 
-        :param filename: Name of file.
-        :param sheet: Name of sheet (None).
-        :param mapping: Map of worksheet headers to model fields.
-        :type mapping: dict
+        :param csv_file: CSV file
         """
-        # load workbook
-        wb = load_workbook(filename, use_iterators = True)
-        # use first sheet by default
-        if not sheet:
-            sheet = wb.get_sheet_names()[0]
-        # load worksheet
-        ws = wb.get_sheet_by_name(sheet)
-        rows = ws.iter_rows()  # row iterator
-        # get headers
-        headers = [row.value for row in rows.next() if row.value in mapping]
-        # check headers match mapping
-        if len(headers) < len(mapping):
-            raise ValidationError('There are missing or incorrect headers.')
-        # iterate over all rows
-        for row in rows:
-            # using Python-2.6 - doesn't have dictionary comprehension
-            # zip will limit size to smaller list, ie: headers
-            kwargs = dict([(mapping[h], r.value) for h, r in zip(headers, row)
-                           if r.value])
-            # convert vintage to date
-            if 'vintage' in kwargs:
-                kwargs['vintage'] = date(kwargs['vintage'], 1, 1)
-            # ducktype temperature range for floats, pop otherwise
-            should_be_floats = ('Tamb_low', 'Tamb_max', 'weight', 'Pnt')
-            for val in should_be_floats:
-                if val in kwargs:
-                    try:
-                        float(kwargs[val])
-                    except ValueError:
-                        kwargs.pop(val)
-                        # TODO: put these in a "notes" catchall field
-            try:
-                # create new PVInverter record
-                pvinv, created = cls.objects.get_or_create(**kwargs)
-            except (IntegrityError, ValidationError) as err:
-                # get key of existing record
-                vintage = kwargs.get('vintage', date(1999, 1, 1))
-                Vaco = kwargs.get('Vaco', -999)
-                if cls.objects.filter(manufacturer=kwargs['manufacturer'],
-                                      name=kwargs['name'], Vaco=Vaco,
-                                      vintage=vintage).exists():
-                    if Vaco != -999:
-                        kwargs.pop('Vaco')
-                    if vintage != date(1999, 1, 1):
-                        kwargs.pop('vintage')
-                    pvinv = cls.objects.get(
-                        manufacturer=kwargs.pop('manufacturer'),
-                        name=kwargs.pop('name'),Vaco=Vaco, vintage=vintage)
-                    # update existing record
-                    for k, v in kwargs.iteritems():
-                        setattr(pvinv, k, v)
-                    pvinv.save()
-                    created = True
+        with open(csv_file, 'rb') as f:
+            spamreader = csv.reader(f)
+            columns = spamreader.next()
+            spamreader.next()
+            spamreader.next()
+            for spam in spamreader:
+                # using Python-2.6 - doesn't have dictionary comprehension
+                kwargs = dict(zip(columns, spam))
+                try:
+                    # create new PVInverter record
+                    pvinv, created = cls.objects.get_or_create(**kwargs)
+                except (ValueError, IntegrityError, ValidationError) as exc:
+                    LOGGER.exception(exc)
                 else:
-                    raise err  # raise caught exception
-            if created:
-                # TODO: use logger
-                print 'created or updated %s' % pvinv
-            else:
-                print '%s already exists' % pvinv
-            created = False
+                    if created:
+                        LOGGER.info('Created Inverter:\n%r', pvinv)
+                    else:
+                        LOGGER.warning('Inverter Exists:\n%r', pvinv)
 
 
 class PVInverterResource(ModelResource):
