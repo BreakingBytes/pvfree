@@ -71,7 +71,7 @@ DATABASES = {
         'NAME': 'pvfree_db',
         'USER': 'pvfree',
         'PASSWORD': PSQL_PSWD,
-        'HOST': 'postgresql.alwaysdata.com',
+        'HOST': 'postgresql-pvfree.alwaysdata.net',
         'PORT': 5432,
     }
 }
