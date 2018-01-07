@@ -68,6 +68,7 @@ class PVInverter(models.Model):
 
     def Source(self):
         match = re.search('\[(\w*) (\d{4})\]', self.Name)
+        src = "UNK"
         if match:
             src, yr = match.groups()
         return src
