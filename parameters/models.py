@@ -92,13 +92,13 @@ class PVInverter(models.Model):
             spamreader.next()
             spamreader.next()
             for spam in spamreader:
-                # using Python-2.6 - doesn't have dictionary comprehension
                 kwargs = dict(zip(columns, spam))
                 try:
                     # create new PVInverter record
                     pvinv, created = cls.objects.get_or_create(**kwargs)
                 except (ValueError, IntegrityError, ValidationError) as exc:
                     LOGGER.exception(exc)
+                    LOGGER.error('Inverter Upload Failed:\n%r', kwargs)
                 else:
                     if created:
                         LOGGER.info('Created Inverter:\n%r', pvinv)
@@ -130,87 +130,140 @@ class PVModule(models.Model):
         (2, '3-a-Si'),
         (3, 'CIS'),
         (4, 'CdTe'),
-        (5, 'EFG'),
+        (5, 'EFG mc-Si'),
         (6, 'GaAs'),
         (7, 'HIT-Si'),
         (8, 'Si-Film'),
-        (9, 'a-Si'),
+        (9, 'a-Si / mono-Si'),
         (10, 'c-Si'),
-        (11, 'mc-Si'),
-        (12, 'mono-Si')
+        (11, 'mc-Si')
     ]
 
-    name = models.CharField(max_length=100)
-    vintage = models.DateField(default=date(1999, 1, 1))
-    vintage_estimated = models.BooleanField(default=False)
-    area = models.FloatField(default=-999)
-    material = models.IntegerField(choices=MATERIALS, default=10)
-    cells_in_series = models.IntegerField(default=-999)
-    parallel_strings = models.IntegerField(default=-999)
-    fd = models.FloatField('diffuse fraction', default=-999)
-    isc0 = models.FloatField(default=-999)
-    voc0 = models.FloatField(default=-999)
-    imp0 = models.FloatField(default=-999)
-    vmp0 = models.FloatField(default=-999)
-    ix0 = models.FloatField(default=-999)
-    ixx0 = models.FloatField(default=-999)
-    c0 = models.FloatField(default=-999)
-    c1 = models.FloatField(default=-999)
-    c2 = models.FloatField(default=-999)
-    c3 = models.FloatField(default=-999)
-    c4 = models.FloatField(default=-999)
-    c5 = models.FloatField(default=-999)
-    c6 = models.FloatField(default=-999)
-    c7 = models.FloatField(default=-999)
-    aisc = models.FloatField(default=-999)
-    aimp = models.FloatField(default=-999)
-    bvoc0 = models.FloatField(default=-999)
-    mbvoc = models.FloatField(default=-999)
-    bvmp0 = models.FloatField(default=-999)
-    mbvmp = models.FloatField(default=-999)
-    n = models.FloatField('ideality', default=-999)
-    a0 = models.FloatField(default=-999)
-    a1 = models.FloatField(default=-999)
-    a2 = models.FloatField(default=-999)
-    a3 = models.FloatField(default=-999)
-    a4 = models.FloatField(default=-999)
-    b0 = models.FloatField(default=-999)
-    b1 = models.FloatField(default=-999)
-    b2 = models.FloatField(default=-999)
-    b3 = models.FloatField(default=-999)
-    b4 = models.FloatField(default=-999)
-    b5 = models.FloatField(default=-999)
-    dt = models.FloatField(default=-999)
-    a = models.FloatField('natural convection', default=-999)
-    b = models.FloatField('forced convection', default=-999)
-    notes = models.CharField(max_length=100)
+    Name = models.CharField(max_length=100)
+    Vintage = models.DateField()
+    Area = models.FloatField()
+    Material = models.IntegerField(choices=MATERIALS)
+    Cells_in_Series = models.IntegerField()
+    Parallel_Strings = models.IntegerField()
+    Isco = models.FloatField('Short Circuit Current [A]')
+    Voco = models.FloatField('Open Circuit Voltage [V]')
+    Impo = models.FloatField('Max Power Current [A]')
+    Vmpo = models.FloatField('Max Power Voltage [V]')
+    Aisc = models.FloatField('Short Circuit Current Tempco')
+    Aimp = models.FloatField('Max Power Current Tempco')
+    C0 = models.FloatField()
+    C1 = models.FloatField()
+    Bvoco = models.FloatField('Open Circuit Voltage Tempco')
+    Mbvoc = models.FloatField()
+    Bvmpo = models.FloatField('Max Power Voltage Tempco')
+    Mbvmp = models.FloatField()
+    N = models.FloatField('Diode Ideality Factor')
+    C2 = models.FloatField()
+    C3 = models.FloatField()
+    A0 = models.FloatField()
+    A1 = models.FloatField()
+    A2 = models.FloatField()
+    A3 = models.FloatField()
+    A4 = models.FloatField()
+    B0 = models.FloatField()
+    B1 = models.FloatField()
+    B2 = models.FloatField()
+    B3 = models.FloatField()
+    B4 = models.FloatField()
+    B5 = models.FloatField()
+    DTC = models.FloatField('Cell Temp Delta')
+    FD = models.FloatField('Diffuse Fraction')
+    A = models.FloatField('Natural Convection Coeff')
+    B = models.FloatField('Forced Convection Coeff')
+    C4 = models.FloatField(null=True, blank=True)
+    C5 = models.FloatField(null=True, blank=True)
+    IXO = models.FloatField(null=True, blank=True)
+    IXXO = models.FloatField(null=True, blank=True)
+    C6 = models.FloatField(null=True, blank=True)
+    C7 = models.FloatField(null=True, blank=True)
+    Notes = models.CharField(max_length=100)
+    is_vintage_estimated = models.BooleanField(default=False)
 
     def nameplate(self):
-        return self.imp0 * self.vmp0
+        return self.Impo * self.Vmpo
 
     def fill_factor(self):
-        return self.nameplate() / self.isc0 / self.voc0
+        return self.nameplate() / self.Isco / self.Voco
 
     def module_eff(self):
-        return self.nameplate() / self.area / 1000.0
+        return self.nameplate() / self.Area / 1000.0
 
     def __unicode__(self):
-        return self.name
+        return self.Name
 
     class Meta:
         verbose_name = "Module"
-        unique_together = ('name', 'vintage', 'vintage_estimated', 'notes')
+        unique_together = ('Name', 'Vintage', 'Notes')
+
+    @classmethod
+    def upload(cls, csv_file='Sandia_Modules.csv'):
+        # FIXME: be DRY - this is an exact copy of PVInverter.upload()
+        field_map = {
+            'a': 'A', 'b': 'B', 'dT': 'DTC',
+            'Cells in Series': 'Cells_in_Series',
+            'Parallel Strings': 'Parallel_Strings'}
+        _, celltypes = zip(*cls.MATERIALS)
+        nan_fields = ('C4', 'C5', 'C6', 'C7', 'IXO', 'IXXO')
+        with open(csv_file, 'rb') as f:
+            spamreader = csv.reader(f)
+            columns = spamreader.next()
+            spamreader.next()
+            spamreader.next()
+            for f, m in field_map.iteritems():
+                columns[columns.index(f)] = m
+                LOGGER.debug('replaced %s with %s', f, m)
+            for spam in spamreader:
+                kwargs = dict(zip(columns, spam))
+                for f in nan_fields:
+                    if not kwargs[f]:
+                        nan = kwargs.pop(f)
+                        LOGGER.debug('popped "%s" from %s', nan, f)
+                yr = kwargs['Vintage']
+                if yr.endswith('(E)'):
+                    yr = yr[:4]
+                    kwargs['is_vintage_estimated'] = True
+                try:
+                    yr = int(yr)
+                except ValueError:
+                    yr = 1900
+                kwargs['Vintage'] = date(yr, 1, 1)
+                LOGGER.debug('year = %d', yr)
+                celltype = kwargs['Material']
+                try:
+                    celltype = celltypes.index(celltype) + 1
+                except IndexError:
+                    celltype = 10
+                kwargs['Material'] = celltype
+                LOGGER.debug('cell type = %d', celltype)
+                try:
+                    # create new PVInverter record
+                    pvmod, created = cls.objects.get_or_create(**kwargs)
+                except (ValueError, IntegrityError, ValidationError) as exc:
+                    LOGGER.exception(exc)
+                    LOGGER.error('Module Upload Failed:\n%r', kwargs)
+                else:
+                    if created:
+                        LOGGER.info('Created Module:\n%r', pvmod)
+                    else:
+                        LOGGER.warning('Module Exists:\n%r', pvmod)
+
+
 
 
 class PVModuleResource(ModelResource):
     class Meta:
         queryset = PVModule.objects.all()
         filtering = {
-            "name": (
+            "Name": (
                 'iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'
             ),
             "nameplate": ('exact', 'lt', 'lte', 'gt', 'gte'),
-            "vintage": ('year')
+            "Vintage": ('year')
         }
         authorization = IsAuthenticatedOrReadOnly()
         authentication = ApiKeyAuthOrReadOnly()
