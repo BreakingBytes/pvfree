@@ -23,12 +23,12 @@
         <th>Cells in Series<br/><br/></th>
         <th>Parallel Strings<br/><br/></th>
         <th>fd<br/><br/></th>
-        <th>Isc0<br/><br/></th>
-        <th>Voc0<br/><br/></th>
-        <th>Imp0<br/><br/></th>
-        <th>Vmp0<br/><br/></th>
-        <th>Ix0<br/><br/></th>
-        <th>Ixx0<br/><br/></th>
+        <th>Isco<br/><br/></th>
+        <th>Voco<br/><br/></th>
+        <th>Impo<br/><br/></th>
+        <th>Vmpo<br/><br/></th>
+        <th>IXO<br/><br/></th>
+        <th>IXXO<br/><br/></th>
         <th>C0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
         <th>C1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
         <th>C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
@@ -37,11 +37,11 @@
         <th>C5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
         <th>C6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
         <th>C7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>&alpha;Isc</th>
-        <th>&alpha;Imp</th>
-        <th>&beta;Voc0</th>
+        <th>&alpha;Isc&nbsp;&nbsp;</th>
+        <th>&alpha;Imp&nbsp;&nbsp;</th>
+        <th>&beta;Voco</th>
         <th>m&beta;Voc</th>
-        <th>&beta;Vmp0</th>
+        <th>&beta;Vmpo</th>
         <th>m&beta;Vmp</th>
         <th>n<br/><br/></th>
         <th>A0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
@@ -85,11 +85,11 @@
         <td>{{ pvmod.C5|stringformat:"5.2E" }}</td>
         <td>{{ pvmod.C6|stringformat:"5.2E" }}</td>
         <td>{{ pvmod.C7|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.Aisc|floatformat }}</td>
-        <td>{{ pvmod.Aimp|floatformat }}</td>
-        <td>{{ pvmod.Bvoc0|floatformat }}</td>
+        <td>{{ pvmod.Aisc|stringformat:"5.2E" }}</td>
+        <td>{{ pvmod.Aimp|stringformat:"5.2E" }}</td>
+        <td>{{ pvmod.Bvoco|stringformat:"6.4F" }}</td>
         <td>{{ pvmod.Mbvoc|floatformat }}</td>
-        <td>{{ pvmod.Bvmp0|floatformat }}</td>
+        <td>{{ pvmod.Bvmpo|stringformat:"6.4F" }}</td>
         <td>{{ pvmod.Mbvmp|floatformat }}</td>
         <td>{{ pvmod.N|floatformat }}</td>
         <td>{{ pvmod.A0|stringformat:"5.2E" }}</td>
