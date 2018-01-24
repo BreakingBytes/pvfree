@@ -17,3 +17,11 @@ def pvmodules(request):
         pvmod['nameplate'] = PVModule.objects.get(pk=pvmod['id']).nameplate()
     return render(request, 'pvmodules.html',
         {'path': request.path, 'pvmod_set': pvmod_set})
+
+
+def cec_modules(request):
+    return render(request, 'cec_modules.html')
+
+
+def pvlib(request):
+    return render(request, 'pvlib.html')
