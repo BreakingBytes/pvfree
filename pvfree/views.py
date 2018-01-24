@@ -8,7 +8,8 @@ def home(request):
 
 def pvinverters(request):
     return render(request, 'pvinverters.html',
-        {'path': request.path, 'pvinv_set': PVInverter.objects.values()})
+                  {'path': request.path,
+                   'pvinv_set': PVInverter.objects.values()})
 
 
 def pvmodules(request):
@@ -16,12 +17,12 @@ def pvmodules(request):
     for pvmod in pvmod_set:
         pvmod['nameplate'] = PVModule.objects.get(pk=pvmod['id']).nameplate()
     return render(request, 'pvmodules.html',
-        {'path': request.path, 'pvmod_set': pvmod_set})
+                  {'path': request.path, 'pvmod_set': pvmod_set})
 
 
 def cec_modules(request):
-    return render(request, 'cec_modules.html')
+    return render(request, 'cec_modules.html', {'path': request.path})
 
 
 def pvlib(request):
-    return render(request, 'pvlib.html')
+    return render(request, 'pvlib.html', {'path': request.path})
