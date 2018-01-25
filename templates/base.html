@@ -74,18 +74,18 @@
             {% url 'cec_modules' as cec_modules_path %}
             {% url 'pvlib' as pvlib_path %}
             <li {% if path == pvinverters_path %}class="active"{% endif %}>
-              <a href="pvinverters">PVInverters {% if path == pvinverters_path %}<span class="sr-only">(current)</span>{% endif %}</a></li>
-            <li {% if path == pvmodules_path or path == cec_modules_path %}class="active"{% endif %} class="dropdown">
+              <a href={{ pvinverters_path }}>PVInverters {% if path == pvinverters_path %}<span class="sr-only">(current)</span>{% endif %}</a></li>
+            <li {% if pvmodules_path in path or path == cec_modules_path %}class="active"{% endif %} class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown"
                  role="button" aria-haspopup="true" aria-expanded="false">PVModules <span class="caret"></span>
-                {% if path == pvmodules_path or path == cec_modules_path %}<span class="sr-only">(current)</span>{% endif %}</a>
+                {% if pvmodules_path in path or path == cec_modules_path %}<span class="sr-only">(current)</span>{% endif %}</a>
               <ul class="dropdown-menu">
-                <li><a href="pvmodules">Sandia</a></li>
-                <li><a href="cec_modules">CEC</a></li>
+                <li><a href={{ pvmodules_path }}>Sandia</a></li>
+                <li><a href={{ cec_modules_path }}>CEC</a></li>
               </ul>
             </li>
             <li {% if path == pvlib_path %}class="active"{% endif %}>
-              <a href="pvlib">PVLIB {% if path == pvlib_path %}<span class="sr-only">(current)</span>{% endif %}</a></li>
+              <a href={{ pvlib_path }}>PVLIB {% if path == pvlib_path %}<span class="sr-only">(current)</span>{% endif %}</a></li>
             <!-- include navbar dropdown snippet -->
           </ul>
           <ul class="nav navbar-nav navbar-right">

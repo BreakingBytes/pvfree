@@ -10,3 +10,9 @@ dj_database_url
 lxml
 defusedxml
 pyyaml
+numpy
+pandas
+pytz
+matplotlib
+mpld3
+pvlib

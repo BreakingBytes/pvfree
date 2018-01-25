@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from parameters.models import PVInverter, PVModule
 
 
@@ -18,6 +18,12 @@ def pvmodules(request):
         pvmod['nameplate'] = PVModule.objects.get(pk=pvmod['id']).nameplate()
     return render(request, 'pvmodules.html',
                   {'path': request.path, 'pvmod_set': pvmod_set})
+
+
+def pvmodule_detail(request, pvmodule_id):
+    pvmod = get_object_or_404(PVModule, pk=pvmodule_id)
+    return render(request, 'pvmodule_detail.html',
+                  {'path': request.path, 'pvmod': pvmod})
 
 
 def cec_modules(request):

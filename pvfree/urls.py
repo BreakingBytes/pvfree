@@ -14,6 +14,8 @@ urlpatterns = [
     url(r'^$', 'pvfree.views.home', name='home'),
     url(r'^pvinverters$', 'pvfree.views.pvinverters', name='pvinverters'),
     url(r'^pvmodules$', 'pvfree.views.pvmodules', name='pvmodules'),
+    url(r'^pvmodules/(?P<pvmodule_id>\d+)/$', 'pvfree.views.pvmodule_detail',
+        name='pvmodule_detail'),
     url(r'^cec_modules$', 'pvfree.views.cec_modules', name='cec_modules'),
     url(r'^pvlib$', 'pvfree.views.pvlib', name='pvlib'),
     url(r'^api/', include(v1_api.urls)),

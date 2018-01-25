@@ -63,7 +63,7 @@
     <tbody>
       {% for pvmod in pvmod_set %}
       <tr>
-        <td>{{ pvmod.Name }}</td>
+        <td><a href="{% url 'pvmodule_detail' pvmod.id %}">{{ pvmod.Name }}</a></td>
         <td>{{ pvmod.nameplate|floatformat }}</td>
         <td>{{ pvmod.Vintage|date:"Y" }}{% if pvmod.vintage_estimated %}E{% endif %}</td>
         <td>{{ pvmod.Area }}</td>

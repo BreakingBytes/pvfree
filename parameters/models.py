@@ -253,8 +253,6 @@ class PVModule(models.Model):
                         LOGGER.warning('Module Exists:\n%r', pvmod)
 
 
-
-
 class PVModuleResource(ModelResource):
     class Meta:
         queryset = PVModule.objects.all()
