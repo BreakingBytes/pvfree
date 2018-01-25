@@ -13,11 +13,15 @@
   <div class="jumbotron">
     <div class="container">
       <h1>{{ pvmod.Name }}</h1>
-      <p class="lead">Comming Soon!</p>
+      <p class="lead">Module efficiency verus irradiance and temperature.</p>
     </div><!-- /.container -->
   </div>
 </div>
-
+<div style="text-align:center">
+<div class="container">
+{{ plotdata|safe }}
+</div>
+</div>
 {% endblock %}
 
 {% block footers %}
