@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 from django.shortcuts import render, get_object_or_404
 from parameters.models import PVInverter, PVModule
 import matplotlib.pyplot as plt, mpld3
