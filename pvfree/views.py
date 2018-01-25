@@ -29,7 +29,10 @@ def pvmodule_detail(request, pvmodule_id):
     pvmod = get_object_or_404(PVModule, pk=pvmodule_id)
     fieldnames = PVModule._meta.get_all_field_names()
     pvmod_dict = {k: getattr(pvmod, k) for k in fieldnames}
-    celltemps = np.linspace(25, 125, 5)
+    for k in ['IXO', 'IXXO', 'C4', 'C5', 'C6', 'C7']:
+        if pvmod_dict[k] is None:
+            pvmod_dict[k] = 0.
+    celltemps = np.linspace(0, 100, 5)
     effirrad, celltemp = np.meshgrid(np.linspace(0.1, 1, 10), celltemps)
     results = sapm(effirrad, celltemp, pvmod_dict)
     eff = results['p_mp'] / effirrad / pvmod.Area * 100
