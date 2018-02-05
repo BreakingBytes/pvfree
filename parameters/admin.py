@@ -2,13 +2,13 @@ from django.contrib import admin
 from parameters.models import PVInverter, PVModule
 
 
-class VacoRangeFilter(admin.SimpleListFilter):
+class VacRangeFilter(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
-    title = 'Vaco'
+    title = 'Vac'
 
     # Parameter for the filter that will be used in the URL query.
-    parameter_name = 'Vaco'
+    parameter_name = 'Vac'
 
     _incr = 100
     _stop = 1000
@@ -37,10 +37,10 @@ class VacoRangeFilter(admin.SimpleListFilter):
         if not self.value():
             return
         elif self.value() == '-999':
-            return queryset.filter(Vaco=float(self.value()))                
+            return queryset.filter(Vac=float(self.value()))
         else:
-            return queryset.filter(Vaco__gt=(float(self.value()) - self._incr),
-                                   Vaco__lte=float(self.value()))
+            return queryset.filter(Vac__gt=(float(self.value()) - self._incr),
+                                   Vac__lte=float(self.value()))
 
 
 class PacoRangeFilter(admin.SimpleListFilter):
@@ -117,23 +117,19 @@ class PacoRangeFilter(admin.SimpleListFilter):
 
 class PVInverterAdmin(admin.ModelAdmin):
     list_display = (
-        'full_name', 'source', 'Sandia_ID', 'manufacturer', 'name', 'vintage',
-        'Vaco', 'Paco', 'Vdco', 'Pdco', 'Pso', 'C0', 'C1', 'C2', 'C3',
-        'Vdcmax', 'Idcmax', 'MPPT_low', 'MPPT_hi', 'Pnt', 'Tamb_low',
-        'Tamb_max', 'weight', 'numberMPPTChannels'
+        'Name', 'Source', 'Manufacturer', 'Vintage',
+        'Vac', 'Paco', 'Vdco', 'Pdco', 'Pso', 'C0', 'C1', 'C2', 'C3',
+        'Vdcmax', 'Idcmax', 'Mppt_low', 'Mppt_high', 'Pnt'
     )
-    list_filter = (VacoRangeFilter, PacoRangeFilter, 'vintage', 'manufacturer')
-    fields = (('manufacturer', 'name'), 'vintage',
-              ('Sandia_ID', 'source'),
-              ('Vaco', 'Paco'),
+    list_filter = (VacRangeFilter, PacoRangeFilter)
+    fields = ('Name',
+              ('Vac', 'Paco'),
               ('Vdco', 'Pdco'), 
               ('C0', 'C1'),
               ('C2', 'C3'),
               ('Pso', 'Pnt'),
               ('Vdcmax', 'Idcmax'),
-              ('MPPT_low', 'MPPT_hi'),
-              ('Tamb_low', 'Tamb_max'),
-              ('weight', 'numberMPPTChannels'))
+              ('Mppt_low', 'Mppt_high'))
 
 
 
