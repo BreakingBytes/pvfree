@@ -26,7 +26,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['pvfree.alwaysdata.net', 'pvfree.herokuapp.com']
+ALLOWED_HOSTS = ['pvfree.alwaysdata.net', 'pvfree.herokuapp.com', 'localhost']
 
 # Application definition
 
@@ -39,7 +39,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'parameters',
     'tastypie',
-    'south',
 )
 
 MIDDLEWARE_CLASSES = (
