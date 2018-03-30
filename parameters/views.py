@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from parameters.models import PVInverter, PVModule
 from django.contrib.auth.decorators import login_required
 
+
 @login_required(redirect_field_name=None, login_url='/admin/')
 def file_upload(request):
     if request.method == 'POST':
@@ -11,5 +12,7 @@ def file_upload(request):
             PVModule.upload(upload_file)
         elif upload_select == 'CEC Inverters':
             PVInverter.upload(upload_file)
-            return redirect(request.POST['path'])
+        else:
+            pass
+        return redirect(request.POST['next'])
     return render(request, 'index.html')
