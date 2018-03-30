@@ -17,3 +17,4 @@ matplotlib
 jinja2
 mpld3
 pvlib
+whitenoise
