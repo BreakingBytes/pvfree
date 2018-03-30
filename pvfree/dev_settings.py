@@ -8,25 +8,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import base64
-import socket
-
-HOSTNAME = socket.gethostname()  # hostname of machine
-FQDN = socket.getfqdn(HOSTNAME)  # fully qualified domain name of host
-IP_ADDR = socket.gethostbyname(HOSTNAME)  # IP address of host
+from pvfree import get_secret
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open(os.path.join(BASE_DIR, '.secretkey'), 'rb') as f:
-    _SECRETKEY = base64.b64decode(f.read())
+_SECRETKEY = get_secret('SECRET_KEY', '.secretkey')
 SECRET_KEY = _SECRETKEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -34,8 +26,7 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-#ALLOWED_HOSTS = ['pvfree.alwaysdata.net']
-
+ALLOWED_HOSTS = ['pvfree.alwaysdata.net', 'pvfree.herokuapp.com']
 
 # Application definition
 

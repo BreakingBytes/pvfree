@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block headers %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/default.min.css">
+<!-- <link rel="stylesheet" href="{% static 'highlight/styles/default.css' %}"> -->
+{% endblock headers %}
+
+{% block content %}
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div style="text-align:center">
+  <div class="jumbotron">
+    <div class="container">
+      <h1>{{ pvmod.Name }}</h1>
+      <p class="lead">Module efficiency vs. irradiance and cell temperature.</p>
+    </div><!-- /.container -->
+  </div>
+</div>
+<div style="text-align:center">
+<div class="container">
+{{ plotdata|safe }}
+</div>
+</div>
+{% endblock %}
+
+{% block footers %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js"></script>
+<!-- <script src="{% static 'highlight/highlight.pack.js' %}"></script> -->
+<script>hljs.initHighlightingOnLoad();</script>
+{% endblock footers %}
