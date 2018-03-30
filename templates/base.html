@@ -89,7 +89,16 @@
             <!-- include navbar dropdown snippet -->
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            <li><a target="_blank" href="/admin/">Admin</a></li>
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                 role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a target="_blank" href="/admin/">Sign in</a></li>
+                <li><a type="button" data-toggle="modal" data-target="#uploadModal">Upload</a></li>
+              </ul>
+            </li>
           </ul>
           <!-- include navbar search form snippet -->
           <!-- include nabar right snippet -->
@@ -100,10 +109,44 @@
     {% block content %}
     {% endblock %}
 
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Modal title</h4>
+      </div>
+      <div class="modal-body">
+
+        <form enctype="multipart/form-data" method="post" action="/upload">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="uploadSelect">select upload</label>
+            <select class="form-control" id="uploadSelect" name="uploadSelect">
+              <option>CEC Inverters</option>
+              <option>Sandia Modules</option>
+              <option>CEC Modules</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="uploadFile">Upload File</label>
+            <input type="file" id="uploadFile" name="uploadFile">
+            <p class="help-block">Select the CSV file to upload.</p>
+          </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Upload</button>
+      </div>
+        </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
     <div class="container">
       <hr> <!-- horizontal line -->
       <footer>
-        <p>&copy; SunPower 2014</p>
+        <p>&copy; BreakingBytes 2014</p>
       </footer>
     </div> <!-- /container -->
 

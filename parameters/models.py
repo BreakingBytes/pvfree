@@ -80,30 +80,36 @@ class PVInverter(models.Model):
         verbose_name = "Inverter"
 
     @classmethod
-    def upload(cls, csv_file='CEC_Inverters.csv'):
+    def upload_csv(cls, csv_file='CEC_Inverters.csv'):
         """
         Class method for creating and updating records from file.
 
         :param csv_file: CSV file
         """
         with open(csv_file, 'rb') as f:
-            spamreader = csv.reader(f)
-            columns = spamreader.next()
-            spamreader.next()
-            spamreader.next()
-            for spam in spamreader:
-                kwargs = dict(zip(columns, spam))
-                try:
-                    # create new PVInverter record
-                    pvinv, created = cls.objects.get_or_create(**kwargs)
-                except (ValueError, IntegrityError, ValidationError) as exc:
-                    LOGGER.exception(exc)
-                    LOGGER.error('Inverter Upload Failed:\n%r', kwargs)
+            cls.upload(f)
+
+    @classmethod
+    def upload(cls, f):
+        if isinstance(f, basestring):
+            cls.upload_csv(f)
+        spamreader = csv.reader(f)
+        columns = spamreader.next()
+        spamreader.next()
+        spamreader.next()
+        for spam in spamreader:
+            kwargs = dict(zip(columns, spam))
+            try:
+                # create new PVInverter record
+                pvinv, created = cls.objects.get_or_create(**kwargs)
+            except (ValueError, IntegrityError, ValidationError) as exc:
+                LOGGER.exception(exc)
+                LOGGER.error('Inverter Upload Failed:\n%r', kwargs)
+            else:
+                if created:
+                    LOGGER.info('Created Inverter:\n%r', pvinv)
                 else:
-                    if created:
-                        LOGGER.info('Created Inverter:\n%r', pvinv)
-                    else:
-                        LOGGER.warning('Inverter Exists:\n%r', pvinv)
+                    LOGGER.warning('Inverter Exists:\n%r', pvinv)
 
 
 class PVInverterResource(ModelResource):
@@ -201,7 +207,14 @@ class PVModule(models.Model):
         unique_together = ('Name', 'Vintage', 'Notes')
 
     @classmethod
-    def upload(cls, csv_file='Sandia_Modules.csv'):
+    def upload_csv(cls, csv_file='Sandia_Modules.csv'):
+        with open(csv_file, 'rb') as f:
+            cls.upload(f)
+
+    @classmethod
+    def upload(cls, f):
+        if isinstance(f, basestring):
+            cls.upload_csv(f)
         # FIXME: be DRY - this is an exact copy of PVInverter.upload()
         field_map = {
             'a': 'A', 'b': 'B', 'dT': 'DTC',
@@ -209,48 +222,47 @@ class PVModule(models.Model):
             'Parallel Strings': 'Parallel_Strings'}
         _, celltypes = zip(*cls.MATERIALS)
         nan_fields = ('C4', 'C5', 'C6', 'C7', 'IXO', 'IXXO')
-        with open(csv_file, 'rb') as f:
-            spamreader = csv.reader(f)
-            columns = spamreader.next()
-            spamreader.next()
-            spamreader.next()
-            for f, m in field_map.iteritems():
-                columns[columns.index(f)] = m
-                LOGGER.debug('replaced %s with %s', f, m)
-            for spam in spamreader:
-                kwargs = dict(zip(columns, spam))
-                for f in nan_fields:
-                    if not kwargs[f]:
-                        nan = kwargs.pop(f)
-                        LOGGER.debug('popped "%s" from %s', nan, f)
-                yr = kwargs['Vintage']
-                if yr.endswith('(E)'):
-                    yr = yr[:4]
-                    kwargs['is_vintage_estimated'] = True
-                try:
-                    yr = int(yr)
-                except ValueError:
-                    yr = 1900
-                kwargs['Vintage'] = date(yr, 1, 1)
-                LOGGER.debug('year = %d', yr)
-                celltype = kwargs['Material']
-                try:
-                    celltype = celltypes.index(celltype) + 1
-                except IndexError:
-                    celltype = 10
-                kwargs['Material'] = celltype
-                LOGGER.debug('cell type = %d', celltype)
-                try:
-                    # create new PVInverter record
-                    pvmod, created = cls.objects.get_or_create(**kwargs)
-                except (ValueError, IntegrityError, ValidationError) as exc:
-                    LOGGER.exception(exc)
-                    LOGGER.error('Module Upload Failed:\n%r', kwargs)
+        spamreader = csv.reader(f)
+        columns = spamreader.next()
+        spamreader.next()
+        spamreader.next()
+        for f, m in field_map.iteritems():
+            columns[columns.index(f)] = m
+            LOGGER.debug('replaced %s with %s', f, m)
+        for spam in spamreader:
+            kwargs = dict(zip(columns, spam))
+            for f in nan_fields:
+                if not kwargs[f]:
+                    nan = kwargs.pop(f)
+                    LOGGER.debug('popped "%s" from %s', nan, f)
+            yr = kwargs['Vintage']
+            if yr.endswith('(E)'):
+                yr = yr[:4]
+                kwargs['is_vintage_estimated'] = True
+            try:
+                yr = int(yr)
+            except ValueError:
+                yr = 1900
+            kwargs['Vintage'] = date(yr, 1, 1)
+            LOGGER.debug('year = %d', yr)
+            celltype = kwargs['Material']
+            try:
+                celltype = celltypes.index(celltype) + 1
+            except IndexError:
+                celltype = 10
+            kwargs['Material'] = celltype
+            LOGGER.debug('cell type = %d', celltype)
+            try:
+                # create new PVInverter record
+                pvmod, created = cls.objects.get_or_create(**kwargs)
+            except (ValueError, IntegrityError, ValidationError) as exc:
+                LOGGER.exception(exc)
+                LOGGER.error('Module Upload Failed:\n%r', kwargs)
+            else:
+                if created:
+                    LOGGER.info('Created Module:\n%r', pvmod)
                 else:
-                    if created:
-                        LOGGER.info('Created Module:\n%r', pvmod)
-                    else:
-                        LOGGER.warning('Module Exists:\n%r', pvmod)
+                    LOGGER.warning('Module Exists:\n%r', pvmod)
 
 
 class PVModuleResource(ModelResource):

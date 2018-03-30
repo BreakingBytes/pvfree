@@ -18,6 +18,7 @@ urlpatterns = [
         name='pvmodule_detail'),
     url(r'^cec_modules$', 'pvfree.views.cec_modules', name='cec_modules'),
     url(r'^pvlib$', 'pvfree.views.pvlib', name='pvlib'),
+    url(r'^upload$', 'parameters.views.file_upload', name='file_upload'),
     url(r'^api/', include(v1_api.urls)),
     url(r'^admin/', include(admin.site.urls)),
 ]
