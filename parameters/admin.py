@@ -1,5 +1,5 @@
 from django.contrib import admin
-from parameters.models import PVInverter, PVModule
+from parameters.models import PVInverter, PVModule, CEC_Module
 
 
 class VacRangeFilter(admin.SimpleListFilter):
@@ -136,4 +136,4 @@ class PVInverterAdmin(admin.ModelAdmin):
 # Register your models here.
 admin.site.register(PVInverter, PVInverterAdmin)
 admin.site.register(PVModule)
-
+admin.site.register(CEC_Module)

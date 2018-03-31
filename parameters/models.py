@@ -1,7 +1,7 @@
 from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
 import csv
-from datetime import date
+from datetime import date, datetime
 from tastypie.resources import ModelResource
 from tastypie.authorization import DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
@@ -277,3 +277,118 @@ class PVModuleResource(ModelResource):
         }
         authorization = IsAuthenticatedOrReadOnly()
         authentication = ApiKeyAuthOrReadOnly()
+
+
+class CEC_Module(models.Model):
+    """
+    CEC module parameters for DeSoto 1-diode model.
+    """
+    VERSION = [
+        (0, ''), (1, 'MM105'), (2, 'MM106'), (3, 'MM107'), (4, 'NRELv1')
+    ]
+    TECH = [
+        (0, '1-a-Si'),
+        (1, '2-a-Si'),
+        (2, '3-a-Si'),
+        (3, 'CIGS'),
+        (4, 'CIS'),
+        (5, 'CdTe'),
+        (6, 'HIT-Si'),
+        (7, 'Mono-c-Si'),
+        (8, 'Multi-c-Si'),
+        (9, 'Thin Film'),
+        (10, 'a-Si'),
+        (11, 'a-Si/nc')
+    ]
+
+    Name = models.CharField(max_length=100, unique=True)
+    BIPV = models.BooleanField()
+    Date = models.DateField()
+    T_NOCT = models.FloatField()
+    A_c = models.FloatField()
+    N_s = models.FloatField()
+    I_sc_ref = models.FloatField()
+    V_oc_ref = models.FloatField()
+    I_mp_ref = models.FloatField()
+    V_mp_ref = models.FloatField()
+    alpha_sc = models.FloatField()
+    beta_oc = models.FloatField()
+    a_ref = models.FloatField()
+    I_L_ref = models.FloatField()
+    I_o_ref = models.FloatField()
+    R_s = models.FloatField()
+    R_sh_ref = models.FloatField()
+    Adjust = models.FloatField()
+    gamma_r = models.FloatField()
+    Version = models.IntegerField(choices=VERSION, default=0, blank=True)
+    PTC = models.FloatField()
+    Technology = models.IntegerField(choices=TECH)
+
+    def __unicode__(self):
+        return self.Name
+
+    class Meta:
+        verbose_name = "CEC Module"
+
+    @classmethod
+    def upload_csv(cls, csv_file='CEC_Modules.csv'):
+        """
+        Class method for creating and updating records from file.
+
+        :param csv_file: CSV file
+        """
+        with open(csv_file, 'rb') as f:
+            cls.upload(f)
+
+    @classmethod
+    def upload(cls, f):
+        if isinstance(f, basestring):
+            cls.upload_csv(f)
+        _, vertypes = zip(*cls.VERSION)
+        _, techtypes = zip(*cls.TECH)
+        spamreader = csv.reader(f)
+        columns = spamreader.next()
+        spamreader.next()
+        spamreader.next()
+        for spam in spamreader:
+            kwargs = dict(zip(columns, spam))
+            # handle technology
+            tech = kwargs['Technology']
+            try:
+                tech = techtypes.index(tech)
+            except IndexError:
+                tech = 0
+            kwargs['Technology'] = tech
+            LOGGER.debug('Technology = %d', tech)
+            # handle version
+            ver = kwargs['Version']
+            try:
+                ver = vertypes.index(ver)
+            except IndexError:
+                ver = 0
+            kwargs['Version'] = ver
+            LOGGER.debug('Version = %d', ver)
+            # handle BIPV
+            bipv = kwargs['BIPV'] == 'Y'
+            kwargs['BIPV'] = bipv
+            LOGGER.debug('BIPV = %r', bipv)
+            # handle date
+            timestamp = kwargs['Date']
+            try:
+                timestamp = datetime.strptime(timestamp, '%m/%d/%Y')
+            except (ValueError, TypeError) as exc:
+                LOGGER.exception(exc)
+                timestamp = datetime.now()
+            kwargs['Date'] = timestamp
+            LOGGER.debug('Date = %s', timestamp.isoformat())
+            try:
+                # create new CEC_Module record
+                cecmod, created = cls.objects.get_or_create(**kwargs)
+            except (ValueError, IntegrityError, ValidationError) as exc:
+                LOGGER.exception(exc)
+                LOGGER.error('CEC Module Upload Failed:\n%r', kwargs)
+            else:
+                if created:
+                    LOGGER.info('Created CEC Module:\n%r', cecmod)
+                else:
+                    LOGGER.warning('CEC_Module Exists:\n%r', cecmod)

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from parameters.models import PVInverter, PVModule
+from parameters.models import PVInverter, PVModule, CEC_Module
 from django.contrib.auth.decorators import login_required
 
 
@@ -12,6 +12,8 @@ def file_upload(request):
             PVModule.upload(upload_file)
         elif upload_select == 'CEC Inverters':
             PVInverter.upload(upload_file)
+        elif upload_select == 'CEC Modules':
+            CEC_Module.upload(upload_file)
         else:
             pass
         return redirect(request.POST['next'])
