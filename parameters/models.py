@@ -306,7 +306,7 @@ class CEC_Module(models.Model):
     Date = models.DateField()
     T_NOCT = models.FloatField()
     A_c = models.FloatField()
-    N_s = models.FloatField()
+    N_s = models.IntegerField()
     I_sc_ref = models.FloatField()
     V_oc_ref = models.FloatField()
     I_mp_ref = models.FloatField()
@@ -392,3 +392,17 @@ class CEC_Module(models.Model):
                     LOGGER.info('Created CEC Module:\n%r', cecmod)
                 else:
                     LOGGER.warning('CEC_Module Exists:\n%r', cecmod)
+
+
+class CECModuleResource(ModelResource):
+    class Meta:
+        queryset = CEC_Module.objects.all()
+        filtering = {
+            "Name": (
+                'iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'
+            ),
+            "V_oc_ref": ('exact', 'lt', 'lte', 'gt', 'gte'),
+            "I_sc_ref": ('exact', 'lt', 'lte', 'gt', 'gte'),
+        }
+        authorization = IsAuthenticatedOrReadOnly()
+        authentication = ApiKeyAuthOrReadOnly()

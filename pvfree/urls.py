@@ -1,12 +1,16 @@
 from django.conf.urls import include, url
 from tastypie.api import Api
-from parameters.models import PVInverterResource, PVModuleResource
+from parameters.models import (
+    PVInverterResource, PVModuleResource, CECModuleResource
+)
 from django.contrib import admin
 
 admin.autodiscover()
 v1_api = Api(api_name='v1')
 v1_api.register(PVInverterResource())
 v1_api.register(PVModuleResource())
+v1_api.register(PVInverterResource())
+v1_api.register(CECModuleResource())
 
 # patterns(prefix, ...) deprecated since django-1.8
 

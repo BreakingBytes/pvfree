@@ -16,12 +16,30 @@
     <thead>
       <tr>
         <th>Name<br/><br/></th>
+        <th>BIPV<br/><br/></th>
+        <th>Date<br/><br/></th>
+        <th>NOCT<br/><br/></th>
+        <th>A<sub>c</sub><br/><br/></th>
+        <th>Cells in Series<br/><br/></th>
+        <th>I<sub>sc,ref</sub><br/><br/></th>
+        <th>V<sub>oc,ref</sub><br/><br/></th>
+        <th>I<sub>mp,ref</sub><br/><br/></th>
+        <th>V<sub>mp,ref</sub><br/><br/></th>
       </tr>
     </thead>
     <tbody>
       {% for cec_mod in cec_mod_set %}
       <tr>
         <td>{{ cec_mod.Name }}</td>
+        <td>{{ cec_mod.BIPV }}</td>
+        <td>{{ cec_mod.Date }}</td>
+        <td>{{ cec_mod.T_NOCT }}</td>
+        <td>{{ cec_mod.A_c }}</td>
+        <td>{{ cec_mod.N_s }}</td>
+        <td>{{ cec_mod.I_sc_ref }}</td>
+        <td>{{ cec_mod.V_oc_ref }}</td>
+        <td>{{ cec_mod.I_mp_ref }}</td>
+        <td>{{ cec_mod.V_mp_ref }}</td>
       </tr>
       {% endfor %}
     </tbody>
