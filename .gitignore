@@ -12,3 +12,5 @@ assets/highlight/
 fixtures/
 venv/
 .idea/
+*.csv
+.DS_Store

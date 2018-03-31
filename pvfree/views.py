@@ -1,7 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
 from django.shortcuts import render, get_object_or_404
-from parameters.models import PVInverter, PVModule
+from parameters.models import PVInverter, PVModule, CEC_Module
 import matplotlib.pyplot as plt, mpld3
 from pvlib.pvsystem import sapm
 import numpy as np
@@ -49,7 +49,9 @@ def pvmodule_detail(request, pvmodule_id):
 
 
 def cec_modules(request):
-    return render(request, 'cec_modules.html', {'path': request.path})
+    return render(request, 'cec_modules.html',
+                  {'path': request.path,
+                   'cec_mod_set': CEC_Module.objects.values()})
 
 
 def pvlib(request):
