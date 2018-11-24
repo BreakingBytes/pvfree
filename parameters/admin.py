@@ -1,5 +1,6 @@
 from django.contrib import admin
 from parameters.models import PVInverter, PVModule, CEC_Module
+from past.builtins import xrange
 
 
 class VacRangeFilter(admin.SimpleListFilter):

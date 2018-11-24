@@ -10,6 +10,8 @@ from django.db.models import signals
 from tastypie.models import create_api_key
 import logging
 import re
+from past.builtins import basestring
+from io import open, StringIO
 
 LOGGER = logging.getLogger(__name__)
 
@@ -93,10 +95,12 @@ class PVInverter(models.Model):
     def upload(cls, f):
         if isinstance(f, basestring):
             cls.upload_csv(f)
+        f.seek(0)
+        f = StringIO(f.read().decode('utf-8'), newline='')
         spamreader = csv.reader(f)
-        columns = spamreader.next()
-        spamreader.next()
-        spamreader.next()
+        columns = next(spamreader)
+        next(spamreader)
+        next(spamreader)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
             try:
@@ -215,6 +219,8 @@ class PVModule(models.Model):
     def upload(cls, f):
         if isinstance(f, basestring):
             cls.upload_csv(f)
+        f.seek(0)
+        f = StringIO(f.read().decode('utf-8'), newline='')
         # FIXME: be DRY - this is an exact copy of PVInverter.upload()
         field_map = {
             'a': 'A', 'b': 'B', 'dT': 'DTC',
@@ -223,10 +229,10 @@ class PVModule(models.Model):
         _, celltypes = zip(*cls.MATERIALS)
         nan_fields = ('C4', 'C5', 'C6', 'C7', 'IXO', 'IXXO')
         spamreader = csv.reader(f)
-        columns = spamreader.next()
-        spamreader.next()
-        spamreader.next()
-        for f, m in field_map.iteritems():
+        columns = next(spamreader)
+        next(spamreader)
+        next(spamreader)
+        for f, m in field_map.items():
             columns[columns.index(f)] = m
             LOGGER.debug('replaced %s with %s', f, m)
         for spam in spamreader:
@@ -344,12 +350,14 @@ class CEC_Module(models.Model):
     def upload(cls, f):
         if isinstance(f, basestring):
             cls.upload_csv(f)
+        f.seek(0)
+        f = StringIO(f.read().decode('utf-8'), newline='')
         _, vertypes = zip(*cls.VERSION)
         _, techtypes = zip(*cls.TECH)
         spamreader = csv.reader(f)
-        columns = spamreader.next()
-        spamreader.next()
-        spamreader.next()
+        columns = next(spamreader)
+        next(spamreader)
+        next(spamreader)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
             # handle technology
