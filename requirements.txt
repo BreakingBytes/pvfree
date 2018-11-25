@@ -1,8 +1,8 @@
 gunicorn
-django==1.8.19
+django==1.9.13
 python_dateutil
 openpyxl
-django_tastypie==0.14.0
+django_tastypie==0.14.2
 nose
 psycopg2
 dj_database_url

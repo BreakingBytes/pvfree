@@ -11,6 +11,8 @@ pvfree.log
 assets/highlight/
 fixtures/
 venv/
+venv3/
 .idea/
 *.csv
 .DS_Store
+.vscode/
