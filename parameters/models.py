@@ -11,7 +11,7 @@ from tastypie.models import create_api_key
 import logging
 import re
 from past.builtins import basestring
-from io import open, StringIO
+from io import StringIO
 
 LOGGER = logging.getLogger(__name__)
 
@@ -95,6 +95,8 @@ class PVInverter(models.Model):
     def upload(cls, f):
         if isinstance(f, basestring):
             cls.upload_csv(f)
+            # TODO: return collection of objects created or their status 
+            return
         f.seek(0)
         f = StringIO(f.read().decode('utf-8'), newline='')
         spamreader = csv.reader(f)
@@ -219,6 +221,8 @@ class PVModule(models.Model):
     def upload(cls, f):
         if isinstance(f, basestring):
             cls.upload_csv(f)
+            # TODO: return collection of objects created or their status 
+            return
         f.seek(0)
         f = StringIO(f.read().decode('utf-8'), newline='')
         # FIXME: be DRY - this is an exact copy of PVInverter.upload()
@@ -350,8 +354,11 @@ class CEC_Module(models.Model):
     def upload(cls, f):
         if isinstance(f, basestring):
             cls.upload_csv(f)
+            # TODO: return collection of objects created or their status 
+            return
         f.seek(0)
         f = StringIO(f.read().decode('utf-8'), newline='')
+        # FIXME: be DRY - this is an exact copy of PVInverter.upload()
         _, vertypes = zip(*cls.VERSION)
         _, techtypes = zip(*cls.TECH)
         spamreader = csv.reader(f)
