@@ -22,7 +22,7 @@ _SECRETKEY = get_secret('SECRET_KEY', '.secretkey')
 SECRET_KEY = _SECRETKEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['pvfree.alwaysdata.net']
 
