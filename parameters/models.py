@@ -191,7 +191,7 @@ class PVModule(models.Model):
     IXXO = models.FloatField(null=True, blank=True)
     C6 = models.FloatField(null=True, blank=True)
     C7 = models.FloatField(null=True, blank=True)
-    Notes = models.CharField(max_length=100)
+    Notes = models.TextField(max_length=100)
     is_vintage_estimated = models.BooleanField(default=False)
 
     def nameplate(self):

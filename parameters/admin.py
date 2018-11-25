@@ -133,8 +133,23 @@ class PVInverterAdmin(admin.ModelAdmin):
               ('Mppt_low', 'Mppt_high'))
 
 
+class PVModuleAdmin(admin.ModelAdmin):
+    list_display = ('Name', 'nameplate', 'Vintage', 'Isco', 'Voco', 'Impo',
+                    'Vmpo')
+    fields = (
+        'Name', ('Vintage', 'is_vintage_estimated'),
+        ('Area', 'Material'), ('Cells_in_Series', 'Parallel_Strings'),
+        ('Isco', 'Voco'), ('Impo', 'Vmpo'), ('IXO', 'IXXO'),
+        ('Aisc', 'Aimp'), ('Bvoco', 'Bvmpo'), ('Mbvoc', 'Mbvmp'),
+        ('C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7'),
+        ('A0', 'A1', 'A2', 'A3', 'A4'),
+        ('B0', 'B1', 'B2', 'B3', 'B4', 'B5'),
+        ('N', 'DTC', 'FD'), ('A', 'B'),
+        'Notes'
+    )
+
 
 # Register your models here.
 admin.site.register(PVInverter, PVInverterAdmin)
-admin.site.register(PVModule)
+admin.site.register(PVModule, PVModuleAdmin)
 admin.site.register(CEC_Module)
