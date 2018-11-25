@@ -17,3 +17,5 @@ jinja2
 mpld3
 pvlib
 whitenoise
+future
+six
