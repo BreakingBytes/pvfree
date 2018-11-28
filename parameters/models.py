@@ -60,7 +60,7 @@ class PVInverter(models.Model):
             src, yr = match.groups()
         return src
 
-    def __unicode__(self):
+    def __str__(self):
         return self.Name
 
     class Meta:
@@ -176,7 +176,7 @@ class PVModule(models.Model):
     def module_eff(self):
         return self.nameplate() / self.Area / 1000.0
 
-    def __unicode__(self):
+    def __str__(self):
         return self.Name
 
     class Meta:
@@ -291,7 +291,10 @@ class CEC_Module(models.Model):
     PTC = models.FloatField()
     Technology = models.IntegerField(choices=TECH)
 
-    def __unicode__(self):
+    def nameplate(self):
+        return self.I_mp_ref * self.V_mp_ref
+
+    def __str__(self):
         return self.Name
 
     class Meta:

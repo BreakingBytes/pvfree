@@ -122,6 +122,7 @@ class PVInverterAdmin(admin.ModelAdmin):
         'Vac', 'Paco', 'Vdco', 'Pdco', 'Pso', 'C0', 'C1', 'C2', 'C3',
         'Vdcmax', 'Idcmax', 'Mppt_low', 'Mppt_high', 'Pnt'
     )
+    search_fields = ('Name',)
     list_filter = (VacRangeFilter, PacoRangeFilter)
     fields = ('Name',
               ('Vac', 'Paco'),
@@ -134,8 +135,8 @@ class PVInverterAdmin(admin.ModelAdmin):
 
 
 class PVModuleAdmin(admin.ModelAdmin):
-    list_display = ('Name', 'nameplate', 'Vintage', 'Isco', 'Voco', 'Impo',
-                    'Vmpo')
+    list_display = ('Name', 'nameplate', 'Vintage', 'Material',
+                    'Isco', 'Voco', 'Impo', 'Vmpo')
     fields = (
         'Name', ('Vintage', 'is_vintage_estimated'),
         ('Area', 'Material'), ('Cells_in_Series', 'Parallel_Strings'),
@@ -147,9 +148,25 @@ class PVModuleAdmin(admin.ModelAdmin):
         ('N', 'DTC', 'FD'), ('A', 'B'),
         'Notes'
     )
+    search_fields = ('Name',)
+    list_filter = ('Material',)
+
+
+class CEC_ModuleAdmin(admin.ModelAdmin):
+    list_display = ('Name', 'nameplate', 'Date', 'Technology',
+                    'I_sc_ref', 'V_oc_ref', 'I_mp_ref', 'V_mp_ref')
+    fields = (
+        ('Name', 'BIPV'), ('Date', 'Technology'),
+        ('A_c', 'N_s'), ('I_sc_ref', 'V_oc_ref'), ('I_mp_ref', 'V_mp_ref'),
+        ('I_L_ref', 'I_o_ref'), ('alpha_sc', 'beta_oc'), ('R_s', 'R_sh_ref'),
+        ('a_ref', 'gamma_r'), ('Adjust', 'T_NOCT'),
+        ('PTC', 'Version')
+    )
+    search_fields = ('Name',)
+    list_filter = ('Technology',)
 
 
 # Register your models here.
 admin.site.register(PVInverter, PVInverterAdmin)
 admin.site.register(PVModule, PVModuleAdmin)
-admin.site.register(CEC_Module)
+admin.site.register(CEC_Module, CEC_ModuleAdmin)
