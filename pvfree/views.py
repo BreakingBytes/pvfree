@@ -27,8 +27,8 @@ def pvmodules(request):
 
 def pvmodule_detail(request, pvmodule_id):
     pvmod = get_object_or_404(PVModule, pk=pvmodule_id)
-    fieldnames = PVModule._meta.get_all_field_names()
-    pvmod_dict = {k: getattr(pvmod, k) for k in fieldnames}
+    fieldnames = PVModule._meta.get_fields()
+    pvmod_dict = {k.name: getattr(pvmod, k.name) for k in fieldnames}
     for k in ['IXO', 'IXXO', 'C4', 'C5', 'C6', 'C7']:
         if pvmod_dict[k] is None:
             pvmod_dict[k] = 0.
