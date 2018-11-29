@@ -15,6 +15,8 @@ LOGGER = logging.getLogger(__name__)
 # auto-create API keys
 signals.post_save.connect(create_api_key, sender=User)
 
+MISSING_VINTAGE = 1900
+
 
 class PVInverter(models.Model):
     """
@@ -44,13 +46,14 @@ class PVInverter(models.Model):
 
     def Vintage(self):
         match = re.search('\[(\w*) (\d{4})\]', self.Name)
-        yr = date(1900, 1, 1)
         if match:
             src, yr = match.groups()
             try:
                 yr = int(yr)
             except ValueError:
-                yr = 1900
+                yr = MISSING_VINTAGE
+        else:
+            yr = MISSING_VINTAGE
         return date(yr, 1, 1)
 
     def Source(self):
