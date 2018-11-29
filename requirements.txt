@@ -1,5 +1,5 @@
 gunicorn
-django==1.9.13
+django==1.10.8
 python_dateutil
 openpyxl
 django_tastypie==0.14.2
@@ -19,3 +19,4 @@ pvlib
 whitenoise
 future
 six
+bokeh

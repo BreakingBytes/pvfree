@@ -2,9 +2,6 @@ from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
 import csv
 from datetime import date, datetime
-from tastypie.resources import ModelResource
-from tastypie.authorization import DjangoAuthorization
-from tastypie.authentication import ApiKeyAuthentication
 from django.contrib.auth.models import User
 from django.db.models import signals
 from tastypie.models import create_api_key
@@ -15,20 +12,8 @@ from io import StringIO
 
 LOGGER = logging.getLogger(__name__)
 
+# auto-create API keys
 signals.post_save.connect(create_api_key, sender=User)
-
-
-class ApiKeyAuthOrReadOnly(ApiKeyAuthentication):
-    def _unauthorized(self):
-        return True
-
-
-class IsAuthenticatedOrReadOnly(DjangoAuthorization):
-    def read_list(self, object_list, bundle):
-        return object_list
-
-    def read_detail(self, object_list, bundle):
-        return True
 
 
 class PVInverter(models.Model):
@@ -75,7 +60,7 @@ class PVInverter(models.Model):
             src, yr = match.groups()
         return src
 
-    def __unicode__(self):
+    def __str__(self):
         return self.Name
 
     class Meta:
@@ -116,20 +101,6 @@ class PVInverter(models.Model):
                     LOGGER.info('Created Inverter:\n%r', pvinv)
                 else:
                     LOGGER.warning('Inverter Exists:\n%r', pvinv)
-
-
-class PVInverterResource(ModelResource):
-    class Meta:
-        queryset = PVInverter.objects.all()
-        filtering = {
-            "Name": (
-                'iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'
-            ),
-            "Vac": ('exact', 'lt', 'lte', 'gt', 'gte'),
-            "Paco": ('exact', 'lt', 'lte', 'gt', 'gte'),
-        }
-        authorization = IsAuthenticatedOrReadOnly()
-        authentication = ApiKeyAuthOrReadOnly()
 
 
 class PVModule(models.Model):
@@ -205,7 +176,7 @@ class PVModule(models.Model):
     def module_eff(self):
         return self.nameplate() / self.Area / 1000.0
 
-    def __unicode__(self):
+    def __str__(self):
         return self.Name
 
     class Meta:
@@ -275,20 +246,6 @@ class PVModule(models.Model):
                     LOGGER.warning('Module Exists:\n%r', pvmod)
 
 
-class PVModuleResource(ModelResource):
-    class Meta:
-        queryset = PVModule.objects.all()
-        filtering = {
-            "Name": (
-                'iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'
-            ),
-            "nameplate": ('exact', 'lt', 'lte', 'gt', 'gte'),
-            "Vintage": ('year')
-        }
-        authorization = IsAuthenticatedOrReadOnly()
-        authentication = ApiKeyAuthOrReadOnly()
-
-
 class CEC_Module(models.Model):
     """
     CEC module parameters for DeSoto 1-diode model.
@@ -334,7 +291,10 @@ class CEC_Module(models.Model):
     PTC = models.FloatField()
     Technology = models.IntegerField(choices=TECH)
 
-    def __unicode__(self):
+    def nameplate(self):
+        return self.I_mp_ref * self.V_mp_ref
+
+    def __str__(self):
         return self.Name
 
     class Meta:
@@ -407,17 +367,3 @@ class CEC_Module(models.Model):
                     LOGGER.info('Created CEC Module:\n%r', cecmod)
                 else:
                     LOGGER.warning('CEC_Module Exists:\n%r', cecmod)
-
-
-class CECModuleResource(ModelResource):
-    class Meta:
-        queryset = CEC_Module.objects.all()
-        filtering = {
-            "Name": (
-                'iexact', 'istartswith', 'icontains', 'iregex', 'iendswith'
-            ),
-            "V_oc_ref": ('exact', 'lt', 'lte', 'gt', 'gte'),
-            "I_sc_ref": ('exact', 'lt', 'lte', 'gt', 'gte'),
-        }
-        authorization = IsAuthenticatedOrReadOnly()
-        authentication = ApiKeyAuthOrReadOnly()

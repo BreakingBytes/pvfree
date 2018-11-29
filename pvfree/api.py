@@ -6,6 +6,7 @@ from django.shortcuts import Http404
 import datetime
 import pandas as pd
 
+
 def solarposition_resource(request):
     if request.method == 'GET':
         lat = request.GET.get('lat')

@@ -1,8 +1,7 @@
 from django.conf.urls import include, url
 from tastypie.api import Api
-from parameters.models import (
-    PVInverterResource, PVModuleResource, CECModuleResource
-)
+from parameters.api import (
+    PVInverterResource, PVModuleResource, CECModuleResource)
 from pvfree import views as pvfree_views
 from parameters import views as param_views
 from django.contrib import admin
