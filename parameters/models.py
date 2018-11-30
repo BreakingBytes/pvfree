@@ -53,12 +53,19 @@ def _upload_csv(cls, csv_file, user, field_map=None):
     return columns, spamreader
 
 
-def _upload_helper(cls, kwargs, user):
+def _upload_helper(cls, kwargs, user, handler=None):
     kwargs['created_by'] = user
     kwargs['modified_by'] = user
     try:
         # create new PVInverter record
         obj, created = cls.objects.get_or_create(**kwargs)
+    except IntegrityError as exc:
+        if handler is not None:
+            kwargs = handler(cls, kwargs)
+            _upload_helper(cls, kwargs, user)
+        else:
+            LOGGER.exception(exc)
+            LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
     except (ValueError, ValidationError) as exc:
         LOGGER.exception(exc)
         LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
@@ -125,13 +132,18 @@ class PVInverter(PVBaseModel):
         columns, spamreader = _upload_csv(cls, csv_file, user)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
-            qs = cls.objects.filter(Name=kwargs['Name']).order_by('revision').last()
-            if qs:
-                rev = qs.revision + 1
-                kwargs['revision'] = rev
-                LOGGER.warning('%s Incremented to Revision %d:\n%r',
-                               cls.__name__, rev, qs)
-            _upload_helper(cls, kwargs, user)
+
+            def handler(cls, kwargs):
+                name = kwargs['Name']
+                qs = cls.objects.filter(Name=name).order_by('revision').last()
+                if qs:
+                    rev = qs.revision + 1
+                    kwargs['revision'] = rev
+                    LOGGER.warning('%s Incremented to Revision %d:\n%r',
+                                   cls.__name__, rev, qs)
+                    return kwargs
+
+            _upload_helper(cls, kwargs, user, handler)
 
 
 class PVModule(PVBaseModel):
