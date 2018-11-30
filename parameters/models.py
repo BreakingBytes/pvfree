@@ -18,11 +18,69 @@ signals.post_save.connect(create_api_key, sender=User)
 MISSING_VINTAGE = 1900
 
 
-class PVInverter(models.Model):
+class PVBaseModel(models.Model):
+    created_on = models.DateField(auto_now_add=True)
+    modified_on = models.DateField(auto_now=True)
+    created_by = models.ForeignKey(
+        User, related_name='+', on_delete=models.PROTECT)
+    modified_by = models.ForeignKey(
+        User, related_name='+', on_delete=models.PROTECT)
+
+    class Meta:
+        abstract = True
+
+
+def _upload_csv(cls, csv_file, user, field_map=None):
+    if isinstance(csv_file, basestring):  
+        with open(csv_file, 'rb') as f:
+            cls.upload(f, user)
+        # TODO: return collection of objects created or their status 
+        return None, ()
+    csv_file.seek(0)
+    csv_file = StringIO(csv_file.read().decode('utf-8'), newline='')
+    spamreader = csv.reader(csv_file)
+    columns = next(spamreader)
+    if field_map is not None:
+        for f, m in field_map.items():
+            try:
+                columns[columns.index(f)] = m
+            except ValueError as exc:
+                LOGGER.exception(exc)
+                LOGGER.error('field %s is not in columns', f)
+            LOGGER.debug('replaced %s with %s', f, m)
+    next(spamreader)
+    next(spamreader)
+    return columns, spamreader
+
+
+def _upload_helper(cls, kwargs, user, handler=None):
+    kwargs['created_by'] = user
+    kwargs['modified_by'] = user
+    try:
+        # create new PVInverter record
+        obj, created = cls.objects.get_or_create(**kwargs)
+    except IntegrityError as exc:
+        if handler is not None:
+            kwargs = handler(cls, kwargs)
+            _upload_helper(cls, kwargs, user)
+        else:
+            LOGGER.exception(exc)
+            LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
+    except (ValueError, ValidationError) as exc:
+        LOGGER.exception(exc)
+        LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
+    else:
+        if created:
+            LOGGER.info('%s Created:\n%r', cls.__name__, obj)
+        else:
+            LOGGER.warning('%s Already Exists:\n%r', cls.__name__, obj)
+
+
+class PVInverter(PVBaseModel):
     """
     Sandia model PV inverter parameters.
     """
-    Name = models.CharField(max_length=100, unique=True)
+    Name = models.CharField(max_length=100)
     Vac = models.FloatField('AC Voltage [V]')
     Paco = models.FloatField('Rated AC power [W]')
     Pdco = models.FloatField('DC power [W]')
@@ -37,8 +95,7 @@ class PVInverter(models.Model):
     Idcmax = models.FloatField('Max DC current [A]')
     Mppt_low = models.FloatField('Lower bound of MPPT [W]')
     Mppt_high = models.FloatField('Higher bound of MPPT [W]')
-    created_on = models.DateField(auto_now_add=True)
-    modified_on = models.DateField(auto_now=True)
+    revision = models.IntegerField(default=0, editable=False)
 
     def Manufacturer(self):
         mfg, _ = self.Name.split(':', 1)
@@ -68,50 +125,34 @@ class PVInverter(models.Model):
 
     class Meta:
         verbose_name = "Inverter"
+        unique_together = ('Name', 'revision')
 
     @classmethod
-    def upload_csv(cls, csv_file='CEC_Inverters.csv'):
-        """
-        Class method for creating and updating records from file.
-
-        :param csv_file: CSV file
-        """
-        with open(csv_file, 'rb') as f:
-            cls.upload(f)
-
-    @classmethod
-    def upload(cls, f):
-        if isinstance(f, basestring):
-            cls.upload_csv(f)
-            # TODO: return collection of objects created or their status 
-            return
-        f.seek(0)
-        f = StringIO(f.read().decode('utf-8'), newline='')
-        spamreader = csv.reader(f)
-        columns = next(spamreader)
-        next(spamreader)
-        next(spamreader)
+    def upload(cls, csv_file, user):
+        columns, spamreader = _upload_csv(cls, csv_file, user)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
-            try:
-                # create new PVInverter record
-                pvinv, created = cls.objects.get_or_create(**kwargs)
-            except (ValueError, IntegrityError, ValidationError) as exc:
-                LOGGER.exception(exc)
-                LOGGER.error('Inverter Upload Failed:\n%r', kwargs)
-            else:
-                if created:
-                    LOGGER.info('Created Inverter:\n%r', pvinv)
-                else:
-                    LOGGER.warning('Inverter Exists:\n%r', pvinv)
+
+            def handler(cls, kwargs):
+                name = kwargs['Name']
+                qs = cls.objects.filter(Name=name).order_by('revision').last()
+                if qs:
+                    rev = qs.revision + 1
+                    kwargs['revision'] = rev
+                    LOGGER.warning('%s Incremented to Revision %d:\n%r',
+                                   cls.__name__, rev, qs)
+                    return kwargs
+
+            _upload_helper(cls, kwargs, user, handler)
 
 
-class PVModule(models.Model):
+class PVModule(PVBaseModel):
     """
     Sandia model PV module parameters.
     """
 
     MATERIALS = [
+        (0, ''),
         (1, '2-a-Si'),
         (2, '3-a-Si'),
         (3, 'CIS'),
@@ -124,6 +165,12 @@ class PVModule(models.Model):
         (10, 'c-Si'),
         (11, 'mc-Si')
     ]
+    CELL_TYPES = {name: idx for idx, name in MATERIALS}
+    FIELD_MAP = {
+        'a': 'A', 'b': 'B', 'dT': 'DTC',
+        'Cells in Series': 'Cells_in_Series',
+        'Parallel Strings': 'Parallel_Strings'}
+    NAN_FIELDS = ('C4', 'C5', 'C6', 'C7', 'IXO', 'IXXO')
 
     Name = models.CharField(max_length=100)
     Vintage = models.DateField()
@@ -187,35 +234,11 @@ class PVModule(models.Model):
         unique_together = ('Name', 'Vintage', 'Notes')
 
     @classmethod
-    def upload_csv(cls, csv_file='Sandia_Modules.csv'):
-        with open(csv_file, 'rb') as f:
-            cls.upload(f)
-
-    @classmethod
-    def upload(cls, f):
-        if isinstance(f, basestring):
-            cls.upload_csv(f)
-            # TODO: return collection of objects created or their status 
-            return
-        f.seek(0)
-        f = StringIO(f.read().decode('utf-8'), newline='')
-        # FIXME: be DRY - this is an exact copy of PVInverter.upload()
-        field_map = {
-            'a': 'A', 'b': 'B', 'dT': 'DTC',
-            'Cells in Series': 'Cells_in_Series',
-            'Parallel Strings': 'Parallel_Strings'}
-        _, celltypes = zip(*cls.MATERIALS)
-        nan_fields = ('C4', 'C5', 'C6', 'C7', 'IXO', 'IXXO')
-        spamreader = csv.reader(f)
-        columns = next(spamreader)
-        next(spamreader)
-        next(spamreader)
-        for f, m in field_map.items():
-            columns[columns.index(f)] = m
-            LOGGER.debug('replaced %s with %s', f, m)
+    def upload(cls, csv_file, user):
+        columns, spamreader = _upload_csv(cls, csv_file, user, cls.FIELD_MAP)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
-            for f in nan_fields:
+            for f in cls.NAN_FIELDS:
                 if not kwargs[f]:
                     nan = kwargs.pop(f)
                     LOGGER.debug('popped "%s" from %s', nan, f)
@@ -229,49 +252,39 @@ class PVModule(models.Model):
                 yr = 1900
             kwargs['Vintage'] = date(yr, 1, 1)
             LOGGER.debug('year = %d', yr)
-            celltype = kwargs['Material']
-            try:
-                celltype = celltypes.index(celltype) + 1
-            except IndexError:
-                celltype = 10
+            celltype = cls.CELL_TYPES.get(kwargs['Material'], 0)
             kwargs['Material'] = celltype
             LOGGER.debug('cell type = %d', celltype)
-            try:
-                # create new PVInverter record
-                pvmod, created = cls.objects.get_or_create(**kwargs)
-            except (ValueError, IntegrityError, ValidationError) as exc:
-                LOGGER.exception(exc)
-                LOGGER.error('Module Upload Failed:\n%r', kwargs)
-            else:
-                if created:
-                    LOGGER.info('Created Module:\n%r', pvmod)
-                else:
-                    LOGGER.warning('Module Exists:\n%r', pvmod)
+            _upload_helper(cls, kwargs, user)
 
 
-class CEC_Module(models.Model):
+class CEC_Module(PVBaseModel):
     """
     CEC module parameters for DeSoto 1-diode model.
     """
     VERSION = [
-        (0, ''), (1, 'MM105'), (2, 'MM106'), (3, 'MM107'), (4, 'NRELv1')
+        (0, ''), (1, 'MM105'), (2, 'MM106'), (3, 'MM107'), (4, 'NRELv1'),
+        (5,'SAM 2018.9.27'), (6, 'SAM 2018.10.29')
     ]
     TECH = [
-        (0, '1-a-Si'),
-        (1, '2-a-Si'),
-        (2, '3-a-Si'),
-        (3, 'CIGS'),
-        (4, 'CIS'),
-        (5, 'CdTe'),
-        (6, 'HIT-Si'),
-        (7, 'Mono-c-Si'),
-        (8, 'Multi-c-Si'),
-        (9, 'Thin Film'),
-        (10, 'a-Si'),
-        (11, 'a-Si/nc')
+        (0, ''),
+        (1, '1-a-Si'),
+        (2, '2-a-Si'),
+        (3, '3-a-Si'),
+        (4, 'CIGS'),
+        (5, 'CIS'),
+        (6, 'CdTe'),
+        (7, 'HIT-Si'),
+        (8, 'Mono-c-Si'),
+        (9, 'Multi-c-Si'),
+        (10, 'Thin Film'),
+        (11, 'a-Si'),
+        (12, 'a-Si/nc')
     ]
+    VER_TYPES = {name: idx for idx, name in VERSION}
+    TECH_TYPES = {name: idx for idx, name in TECH}
 
-    Name = models.CharField(max_length=100, unique=True)
+    Name = models.CharField(max_length=100)
     BIPV = models.BooleanField()
     Date = models.DateField()
     T_NOCT = models.FloatField()
@@ -293,6 +306,10 @@ class CEC_Module(models.Model):
     Version = models.IntegerField(choices=VERSION, default=0, blank=True)
     PTC = models.FloatField()
     Technology = models.IntegerField(choices=TECH)
+    Bifacial = models.BooleanField(default=0)
+    STC = models.FloatField()
+    Length = models.FloatField(blank=True, null=True)
+    Width = models.FloatField(blank=True, null=True)
 
     def nameplate(self):
         return self.I_mp_ref * self.V_mp_ref
@@ -302,48 +319,19 @@ class CEC_Module(models.Model):
 
     class Meta:
         verbose_name = "CEC Module"
+        unique_together = ('Name', 'Date', 'Version')
 
     @classmethod
-    def upload_csv(cls, csv_file='CEC_Modules.csv'):
-        """
-        Class method for creating and updating records from file.
-
-        :param csv_file: CSV file
-        """
-        with open(csv_file, 'rb') as f:
-            cls.upload(f)
-
-    @classmethod
-    def upload(cls, f):
-        if isinstance(f, basestring):
-            cls.upload_csv(f)
-            # TODO: return collection of objects created or their status 
-            return
-        f.seek(0)
-        f = StringIO(f.read().decode('utf-8'), newline='')
-        # FIXME: be DRY - this is an exact copy of PVInverter.upload()
-        _, vertypes = zip(*cls.VERSION)
-        _, techtypes = zip(*cls.TECH)
-        spamreader = csv.reader(f)
-        columns = next(spamreader)
-        next(spamreader)
-        next(spamreader)
+    def upload(cls, csv_file, user):
+        columns, spamreader = _upload_csv(cls, csv_file, user)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
             # handle technology
-            tech = kwargs['Technology']
-            try:
-                tech = techtypes.index(tech)
-            except IndexError:
-                tech = 0
+            tech = cls.TECH_TYPES.get(kwargs['Technology'], 0)
             kwargs['Technology'] = tech
             LOGGER.debug('Technology = %d', tech)
             # handle version
-            ver = kwargs['Version']
-            try:
-                ver = vertypes.index(ver)
-            except IndexError:
-                ver = 0
+            ver = cls.VER_TYPES.get(kwargs['Version'], 0)
             kwargs['Version'] = ver
             LOGGER.debug('Version = %d', ver)
             # handle BIPV
@@ -359,14 +347,9 @@ class CEC_Module(models.Model):
                 timestamp = datetime.now()
             kwargs['Date'] = timestamp
             LOGGER.debug('Date = %s', timestamp.isoformat())
-            try:
-                # create new CEC_Module record
-                cecmod, created = cls.objects.get_or_create(**kwargs)
-            except (ValueError, IntegrityError, ValidationError) as exc:
-                LOGGER.exception(exc)
-                LOGGER.error('CEC Module Upload Failed:\n%r', kwargs)
-            else:
-                if created:
-                    LOGGER.info('Created CEC Module:\n%r', cecmod)
-                else:
-                    LOGGER.warning('CEC_Module Exists:\n%r', cecmod)
+            # handle Length and Width
+            if not kwargs['Length']:
+                kwargs['Length'] = None
+            if not kwargs['Width']:
+                kwargs['Width'] = None
+            _upload_helper(cls, kwargs, user)

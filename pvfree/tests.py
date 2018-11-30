@@ -14,9 +14,8 @@ class SolPosTestCase(TestCase):
             'start': '2018-01-01T07:00:00',
             'end': '2018-01-01T08:00:00'
         }
-        c = Client()
-        r = c.get('/api/v1/pvlib/solarposition/', data)
-        assert r.status_code == 200
+        r = self.client.get('/api/v1/pvlib/solarposition/', data)
+        self.assertEqual(r.status_code, 200)
         s = pd.DataFrame(r.json()).T
         t = pd.DatetimeIndex(s.index)
         times = pd.DatetimeIndex(

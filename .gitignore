@@ -14,5 +14,6 @@ venv/
 venv3/
 .idea/
 *.csv
+!parameters/data/sandia_modules.csv
 .DS_Store
 .vscode/
