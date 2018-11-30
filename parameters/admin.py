@@ -127,9 +127,9 @@ class PVModuleAdmin(admin.ModelAdmin):
 
 
 class CEC_ModuleAdmin(admin.ModelAdmin):
-    list_display = ('Name', 'nameplate', 'Date', 'Technology', 'Version',
-                    'I_sc_ref', 'V_oc_ref', 'I_mp_ref', 'V_mp_ref',
-                    'created_on', 'modified_on')
+    list_display = (
+        'Name', 'nameplate', 'Date', 'Technology', 'Version', 'I_sc_ref',
+        'V_oc_ref', 'I_mp_ref', 'V_mp_ref', 'created_on', 'modified_on')
     fields = (
         ('Name', 'BIPV'), ('Date', 'Version'), ('Technology', 'Bifacial'),
         ('Length', 'Width'), ('A_c', 'N_s'), ('I_sc_ref', 'V_oc_ref'),

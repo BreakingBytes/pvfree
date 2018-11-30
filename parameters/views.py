@@ -19,5 +19,5 @@ def file_upload(request):
             CEC_Module.upload(upload_file, user)
         else:
             pass
-        return redirect(request.POST['next'])
+        return redirect(request.POST.get('next', 'home'))
     return redirect('home')

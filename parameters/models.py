@@ -166,6 +166,11 @@ class PVModule(PVBaseModel):
         (11, 'mc-Si')
     ]
     CELL_TYPES = {name: idx for idx, name in MATERIALS}
+    FIELD_MAP = {
+        'a': 'A', 'b': 'B', 'dT': 'DTC',
+        'Cells in Series': 'Cells_in_Series',
+        'Parallel Strings': 'Parallel_Strings'}
+    NAN_FIELDS = ('C4', 'C5', 'C6', 'C7', 'IXO', 'IXXO')
 
     Name = models.CharField(max_length=100)
     Vintage = models.DateField()
@@ -230,15 +235,10 @@ class PVModule(PVBaseModel):
 
     @classmethod
     def upload(cls, csv_file, user):
-        field_map = {
-            'a': 'A', 'b': 'B', 'dT': 'DTC',
-            'Cells in Series': 'Cells_in_Series',
-            'Parallel Strings': 'Parallel_Strings'}
-        nan_fields = ('C4', 'C5', 'C6', 'C7', 'IXO', 'IXXO')
-        columns, spamreader = _upload_csv(cls, csv_file, user, field_map)
+        columns, spamreader = _upload_csv(cls, csv_file, user, cls.FIELD_MAP)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
-            for f in nan_fields:
+            for f in cls.NAN_FIELDS:
                 if not kwargs[f]:
                     nan = kwargs.pop(f)
                     LOGGER.debug('popped "%s" from %s', nan, f)
