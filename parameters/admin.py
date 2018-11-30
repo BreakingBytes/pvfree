@@ -1,6 +1,7 @@
 from django.contrib import admin
 from parameters.models import PVInverter, PVModule, CEC_Module
 from past.builtins import xrange
+from itertools import chain
 
 
 class VacRangeFilter(admin.SimpleListFilter):
@@ -22,10 +23,10 @@ class VacRangeFilter(admin.SimpleListFilter):
         human-readable name for the option that will appear
         in the right sidebar.
         """
-        return tuple(
-            [('-999', 'Missing')] +
-            [(str(x), '%d - %d [V]' % ((x - self._incr + 1), x))
-             for x in xrange(self._incr, self._stop + self._incr, self._incr)])
+        return [('-999', 'Missing')] + [
+            (str(x), '%d - %d [V]' % ((x - self._incr + 1), x))
+            for x in xrange(self._incr, self._stop + self._incr, self._incr)
+        ] + [('+1000', '> 1000 [V]')]
 
     def queryset(self, request, queryset):
         """
@@ -39,6 +40,8 @@ class VacRangeFilter(admin.SimpleListFilter):
             return
         elif self.value() == '-999':
             return queryset.filter(Vac=float(self.value()))
+        elif self.value() == '+1000':
+            return queryset.filter(Vac__gt=float(self.value()))
         else:
             return queryset.filter(Vac__gt=(float(self.value()) - self._incr),
                                    Vac__lte=float(self.value()))
@@ -60,36 +63,10 @@ class PacoRangeFilter(admin.SimpleListFilter):
         human-readable name for the option that will appear
         in the right sidebar.
         """
-        return (('-999', 'Missing'),
-                ('1', '< 1 [kW]'),
-                ('2', '1 - 2 [kW]'),
-                ('3', '2 - 3 [kW]'),
-                ('4', '3 - 4 [kW]'),
-                ('5', '4 - 5 [kW]'),
-                ('6', '5 - 6 [kW]'),
-                ('7', '6 - 7 [kW]'),
-                ('8', '7 - 8 [kW]'),
-                ('9', '8 - 9 [kW]'),
-                ('10', '9 - 10 [kW]'),
-                ('20', '10 - 20 [kW]'),
-                ('30', '20 - 30 [kW]'),
-                ('40', '30 - 40 [kW]'),
-                ('50', '40 - 50 [kW]'),
-                ('60', '50 - 60 [kW]'),
-                ('70', '60 - 70 [kW]'),
-                ('80', '70 - 80 [kW]'),
-                ('90', '80 - 90 [kW]'),
-                ('100', '90 - 100 [kW]'),
-                ('200', '100 - 200 [kW]'),
-                ('300', '200 - 300 [kW]'),
-                ('400', '300 - 400 [kW]'),
-                ('500', '400 - 500 [kW]'),
-                ('600', '500 - 600 [kW]'),
-                ('700', '600 - 700 [kW]'),
-                ('800', '700 - 800 [kW]'),
-                ('900', '800 - 900 [kW]'),
-                ('1000', '900 [kW] - 1 [MW]'),
-                ('+1000', '> 1 [MW]'))
+        return [('-999', 'Missing')] + [
+            (str(z), '{:d} - {:d} [kW]'.format(z-10**(len(str(z-1))-1), z))
+            for z in chain(*[[x*10**y for x in range(2,11)] for y in range(3)])
+        ] + [('+1000', '> 1 [MW]')]
 
     def queryset(self, request, queryset):
         """
@@ -104,39 +81,36 @@ class PacoRangeFilter(admin.SimpleListFilter):
         elif self.value() == '-999':
             return queryset.filter(Paco=float(self.value()))
         elif self.value() == '+1000':
-            return queryset.filter(Paco__gt=float(self.value()) * 1000)
+            return queryset.filter(Paco__gt=float(self.value())*1000)
         elif float(self.value()) > 100:
-            return queryset.filter(Paco__gt=((float(self.value()) - 100) * 1000),
-                                   Paco__lte=float(self.value()) * 1000)
+            return queryset.filter(Paco__gt=((float(self.value()) - 100)*1000),
+                                   Paco__lte=float(self.value())*1000)
         elif float(self.value()) > 10:
-            return queryset.filter(Paco__gt=((float(self.value()) - 10) * 1000),
-                                   Paco__lte=float(self.value()) * 1000)
+            return queryset.filter(Paco__gt=((float(self.value()) - 10)*1000),
+                                   Paco__lte=float(self.value())*1000)
         else:
-            return queryset.filter(Paco__gt=((float(self.value()) - 1) * 1000),
-                                   Paco__lte=float(self.value()) * 1000)
+            return queryset.filter(Paco__gt=((float(self.value()) - 1)*1000),
+                                   Paco__lte=float(self.value())*1000)
 
 
 class PVInverterAdmin(admin.ModelAdmin):
     list_display = (
-        'Name', 'Source', 'Manufacturer', 'Vintage',
+        'Name', 'Source', 'Manufacturer', 'Vintage', 'revision',
         'Vac', 'Paco', 'Vdco', 'Pdco', 'Pso', 'C0', 'C1', 'C2', 'C3',
-        'Vdcmax', 'Idcmax', 'Mppt_low', 'Mppt_high', 'Pnt'
+        'Vdcmax', 'Idcmax', 'Mppt_low', 'Mppt_high', 'Pnt', 'created_on',
+        'modified_on'
     )
     search_fields = ('Name',)
-    list_filter = (VacRangeFilter, PacoRangeFilter)
-    fields = ('Name',
-              ('Vac', 'Paco'),
-              ('Vdco', 'Pdco'), 
-              ('C0', 'C1'),
-              ('C2', 'C3'),
-              ('Pso', 'Pnt'),
-              ('Vdcmax', 'Idcmax'),
-              ('Mppt_low', 'Mppt_high'))
+    list_filter = ('revision', VacRangeFilter, PacoRangeFilter)
+    fields = (
+        'Name', ('Vac', 'Paco'), ('Vdco', 'Pdco'), ('C0', 'C1'), ('C2', 'C3'),
+        ('Pso', 'Pnt'), ('Vdcmax', 'Idcmax'), ('Mppt_low', 'Mppt_high'),
+        ('created_by', 'modified_by'))
 
 
 class PVModuleAdmin(admin.ModelAdmin):
     list_display = ('Name', 'nameplate', 'Vintage', 'Material',
-                    'Isco', 'Voco', 'Impo', 'Vmpo')
+                    'Isco', 'Voco', 'Impo', 'Vmpo', 'created_on', 'modified_on')
     fields = (
         'Name', ('Vintage', 'is_vintage_estimated'),
         ('Area', 'Material'), ('Cells_in_Series', 'Parallel_Strings'),
@@ -146,24 +120,25 @@ class PVModuleAdmin(admin.ModelAdmin):
         ('A0', 'A1', 'A2', 'A3', 'A4'),
         ('B0', 'B1', 'B2', 'B3', 'B4', 'B5'),
         ('N', 'DTC', 'FD'), ('A', 'B'),
-        'Notes'
+        'Notes', ('created_by', 'modified_by')
     )
     search_fields = ('Name',)
     list_filter = ('Material',)
 
 
 class CEC_ModuleAdmin(admin.ModelAdmin):
-    list_display = ('Name', 'nameplate', 'Date', 'Technology',
-                    'I_sc_ref', 'V_oc_ref', 'I_mp_ref', 'V_mp_ref')
+    list_display = ('Name', 'nameplate', 'Date', 'Technology', 'Version',
+                    'I_sc_ref', 'V_oc_ref', 'I_mp_ref', 'V_mp_ref',
+                    'created_on', 'modified_on')
     fields = (
-        ('Name', 'BIPV'), ('Date', 'Technology'),
-        ('A_c', 'N_s'), ('I_sc_ref', 'V_oc_ref'), ('I_mp_ref', 'V_mp_ref'),
-        ('I_L_ref', 'I_o_ref'), ('alpha_sc', 'beta_oc'), ('R_s', 'R_sh_ref'),
-        ('a_ref', 'gamma_r'), ('Adjust', 'T_NOCT'),
-        ('PTC', 'Version')
+        ('Name', 'BIPV'), ('Date', 'Version'), ('Technology', 'Bifacial'),
+        ('Length', 'Width'), ('A_c', 'N_s'), ('I_sc_ref', 'V_oc_ref'),
+        ('I_mp_ref', 'V_mp_ref'), ('I_L_ref', 'I_o_ref'),
+        ('alpha_sc', 'beta_oc'), ('R_s', 'R_sh_ref'), ('a_ref', 'gamma_r'),
+        ('Adjust', 'T_NOCT'), ('PTC', 'STC'), ('created_by', 'modified_by')
     )
     search_fields = ('Name',)
-    list_filter = ('Technology',)
+    list_filter = ('Technology', 'BIPV', 'Bifacial', 'Version')
 
 
 # Register your models here.

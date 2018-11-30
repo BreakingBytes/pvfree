@@ -125,8 +125,8 @@
         <h4 class="modal-title">Modal title</h4>
       </div>
       <div class="modal-body">
-
-        <form enctype="multipart/form-data" method="post" action="/upload">
+        {% url 'file_upload' as upload_path %}
+        <form enctype="multipart/form-data" method="post" action={{ upload_path }}>
           {% csrf_token %}
           <div class="form-group">
             <label for="uploadSelect">select upload</label>
