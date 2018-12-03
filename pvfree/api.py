@@ -5,43 +5,36 @@ from django.http import JsonResponse
 from django.shortcuts import Http404
 import datetime
 import pandas as pd
+from pvfree.forms import SolarPositionForm
 
 
 def solarposition_resource(request):
     if request.method == 'GET':
-        lat = request.GET.get('lat')
-        lon = request.GET.get('lon')
-        start = request.GET.get('start')
-        end = request.GET.get('end')
-        tz = request.GET.get('tz', 0)
-        freq = request.GET.get('freq')
-        #altiude = request.GET.get('altitude')
-        #method = request.GET.get('method')
+        params = SolarPositionForm(request.GET)
     else:
-        raise Http404('Bad Request')
-    # TODO: use forms and validators
-    try:
-        lat = float(lat)
-    except (TypeError, ValueError):
-        raise Http404('Bad latitude')
-    try:
-        lon = float(lon)
-    except (TypeError, ValueError):
-        raise Http404('Bad longitude')
-    try:
-        start = datetime.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
-    except (TypeError, ValueError):
-        raise Http404('Bad start time')
-    try:
-        end = datetime.datetime.strptime(end, '%Y-%m-%dT%H:%M:%S')
-    except (TypeError, ValueError):
-        raise Http404('Bad end time')
-    try:
-        tz = int(tz)
-    except (TypeError, ValueError):
-        raise Http404('Bad timezone')
+        params = SolarPositionForm(request.POST)
+    if params.is_valid():
+        lat = params.cleaned_data['lat']
+        lon = params.cleaned_data['lon']
+        start = params.cleaned_data['start']
+        end = params.cleaned_data['end']
+        tz = params.cleaned_data['tz']
+        freq = params.cleaned_data['freq']
+    else:
+        return JsonResponse(params.errors, status=400)
+    tz = tz or 0  # if tz is None then use zero
+    freq = freq or 'H'  # if freq if '' then use 'H'
+    if start > end:
+        return JsonResponse(
+            {'start': ['End time must be after start.']}, status=400)
+    # drop the timezone
+    start = start.replace(tzinfo=None)
+    end = end.replace(tzinfo=None)
     tz = 'Etc/GMT{:+d}'.format(-tz)
-    times = pd.DatetimeIndex(start=start, end=end, freq=freq, tz=tz)
+    try:
+        times = pd.DatetimeIndex(start=start, end=end, freq=freq, tz=tz)
+    except ValueError as exc:
+        return JsonResponse({'freq': [str(exc)]}, status=400)
     solpos = solarposition.get_solarposition(times, lat, lon)
     solpos.index = times.strftime('%Y-%m-%dT%H:%M:%S%z')
     # [t.isoformat() for t in times.to_pydatetime()]

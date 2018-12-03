@@ -3,6 +3,7 @@ matplotlib.use('Agg')
 from django.shortcuts import render, get_object_or_404
 from parameters.models import PVInverter, PVModule, CEC_Module
 import matplotlib.pyplot as plt, mpld3
+from pvfree.forms import SolarPositionForm
 from pvlib.pvsystem import sapm
 import numpy as np
 
@@ -12,17 +13,18 @@ def home(request):
 
 
 def pvinverters(request):
-    return render(request, 'pvinverters.html',
-                  {'path': request.path,
-                   'pvinv_set': PVInverter.objects.values()})
+    return render(
+        request, 'pvinverters.html',
+        {'path': request.path, 'pvinv_set': PVInverter.objects.values()})
 
 
 def pvmodules(request):
     pvmod_set = PVModule.objects.values()
     for pvmod in pvmod_set:
         pvmod['nameplate'] = PVModule.objects.get(pk=pvmod['id']).nameplate()
-    return render(request, 'pvmodules.html',
-                  {'path': request.path, 'pvmod_set': pvmod_set})
+    return render(
+        request, 'pvmodules.html',
+        {'path': request.path, 'pvmod_set': pvmod_set})
 
 
 def pvmodule_detail(request, pvmodule_id):
@@ -44,15 +46,21 @@ def pvmodule_detail(request, pvmodule_id):
     plt.title(pvmod.Name)
     plt.legend(celltemps)
     plotdata = mpld3.fig_to_html(fig)
-    return render(request, 'pvmodule_detail.html',
-                  {'path': request.path, 'pvmod': pvmod, 'plotdata': plotdata})
+    return render(
+        request, 'pvmodule_detail.html',
+        {'path': request.path, 'pvmod': pvmod, 'plotdata': plotdata})
 
 
 def cec_modules(request):
-    return render(request, 'cec_modules.html',
-                  {'path': request.path,
-                   'cec_mod_set': CEC_Module.objects.values()})
+    return render(
+        request, 'cec_modules.html',
+        {'path': request.path, 'cec_mod_set': CEC_Module.objects.values()})
 
 
 def pvlib(request):
-    return render(request, 'pvlib.html', {'path': request.path})
+    forms = {}
+    if request.method == 'GET':
+        forms['solposform'] = SolarPositionForm()
+    elif request.method == 'POST':
+        forms['solposform'] = SolarPositionForm(request.POST)
+    return render(request, 'pvlib.html', {'path': request.path, 'forms': forms})
