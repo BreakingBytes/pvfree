@@ -2,6 +2,8 @@ PV Free
 =======
 A public API for PV modeling parameters.
 
+[![travis](https://travis-ci.org/BreakingBytes/pvfree.svg?branch=master)](https://travis-ci.org/BreakingBytes/pvfree)
+
 Usage
 -----
 Browsing to
