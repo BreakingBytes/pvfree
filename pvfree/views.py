@@ -2,7 +2,9 @@ import matplotlib
 matplotlib.use('Agg')
 from django.shortcuts import render, get_object_or_404
 from parameters.models import PVInverter, PVModule, CEC_Module
-import matplotlib.pyplot as plt, mpld3
+#import matplotlib.pyplot as plt, mpld3
+from bokeh.plotting import figure
+from bokeh.embed import components
 from pvfree.forms import SolarPositionForm
 from pvlib.pvsystem import sapm
 import numpy as np
@@ -38,12 +40,12 @@ def pvmodule_detail(request, pvmodule_id):
     effirrad, celltemp = np.meshgrid(np.linspace(0.1, 1, 10), celltemps)
     results = sapm(effirrad, celltemp, pvmod_dict)
     eff = results['p_mp'] / effirrad / pvmod.Area * 100
-    fig = plt.figure(figsize=(8, 6))
-    plt.plot(effirrad.T, eff.T)
-    plt.grid()
-    plt.xlabel('effective irradiance, Ee [suns]')
-    plt.ylabel('efficiency [%]')
-    plt.title(pvmod.Name)
+    fig = figure(
+        x_axis_label='effective irradiance, Ee [suns]',
+        y_axis_label='efficiency [%]',
+        title=pvmod.Name,
+    )
+    fig.line(effirrad.T, eff.T)
     plt.legend(celltemps)
     plotdata = mpld3.fig_to_html(fig)
     return render(
