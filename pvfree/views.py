@@ -1,10 +1,9 @@
-import matplotlib
-matplotlib.use('Agg')
 from django.shortcuts import render, get_object_or_404
 from parameters.models import PVInverter, PVModule, CEC_Module
-#import matplotlib.pyplot as plt, mpld3
 from bokeh.plotting import figure
+from bokeh.models import Legend, LegendItem
 from bokeh.embed import components
+from bokeh.palettes import Colorblind5 as cmap
 from pvfree.forms import SolarPositionForm
 from pvlib.pvsystem import sapm
 import numpy as np
@@ -39,18 +38,24 @@ def pvmodule_detail(request, pvmodule_id):
     celltemps = np.linspace(0, 100, 5)
     effirrad, celltemp = np.meshgrid(np.linspace(0.1, 1, 10), celltemps)
     results = sapm(effirrad, celltemp, pvmod_dict)
-    eff = results['p_mp'] / effirrad / pvmod.Area * 100
+    eff = results['p_mp'] / effirrad / pvmod.Area * 100 / 1000
     fig = figure(
         x_axis_label='effective irradiance, Ee [suns]',
         y_axis_label='efficiency [%]',
         title=pvmod.Name,
+        plot_width=800, plot_height=600, sizing_mode='scale_width'
     )
-    fig.line(effirrad.T, eff.T)
-    plt.legend(celltemps)
-    plotdata = mpld3.fig_to_html(fig)
+    r = fig.multi_line(
+        effirrad.tolist(), eff.tolist(), color=cmap, line_width=4)
+    legend = Legend(items=[
+        LegendItem(label='{:d} [C]'.format(int(ct)), renderers=[r], index=n)
+        for n, ct in enumerate(celltemps)])
+    fig.add_layout(legend)
+    plot_script, plot_div = components(fig)
     return render(
-        request, 'pvmodule_detail.html',
-        {'path': request.path, 'pvmod': pvmod, 'plotdata': plotdata})
+        request, 'pvmodule_detail.html', {
+            'path': request.path, 'pvmod': pvmod, 'plot_script': plot_script,
+            'plot_div': plot_div, 'pvmod_dict': pvmod_dict})
 
 
 def cec_modules(request):
