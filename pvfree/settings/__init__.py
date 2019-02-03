@@ -56,9 +56,13 @@ ROOT_URLCONF = 'pvfree.urls'
 WSGI_APPLICATION = 'pvfree.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
+# Databases
+# CEC data
+CEC_DB_URL = get_secret('CEC_DB_URL', '.cec_db_url')
+DATABASES = {
+    'default': dj_database_url.config(conn_max_age=600),
+    'cec_data': dj_database_url.parse(CEC_DB_URL, conn_max_age=600)
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
