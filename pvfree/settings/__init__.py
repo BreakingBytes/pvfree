@@ -57,11 +57,11 @@ WSGI_APPLICATION = 'pvfree.wsgi.application'
 
 
 # Databases
-# CEC data
-CEC_DB_URL = get_secret('CEC_DB_URL', '.cec_db_url')
+# ElephantSQL database
+ELEPHANT_SQL = get_secret('ELEPHANT_SQL', '.elephant.sql')
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600),
-    'cec_data': dj_database_url.parse(CEC_DB_URL, conn_max_age=600)
+    'default': dj_database_url.parse(ELEPHANT_SQL, conn_max_age=600),
+    'heroku': dj_database_url.config(conn_max_age=600),
 }
 
 # Internationalization
