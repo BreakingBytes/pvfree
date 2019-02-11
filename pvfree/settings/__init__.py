@@ -23,7 +23,7 @@ _SECRETKEY = get_secret('SECRET_KEY', '.secretkey')
 SECRET_KEY = _SECRETKEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['pvfree.herokuapp.com']
 
@@ -58,7 +58,7 @@ WSGI_APPLICATION = 'pvfree.wsgi.application'
 
 # Databases
 # ElephantSQL database
-ELEPHANT_SQL = get_secret('ELEPHANT_SQL', '.elephant.sql')
+ELEPHANT_SQL = get_secret('ELEPHANT_SQL')
 DATABASES = {
     'default': dj_database_url.parse(ELEPHANT_SQL, conn_max_age=600),
     'heroku': dj_database_url.config(conn_max_age=600),
