@@ -23,7 +23,7 @@ _SECRETKEY = get_secret('SECRET_KEY', '.secretkey')
 SECRET_KEY = _SECRETKEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['pvfree.herokuapp.com']
 
