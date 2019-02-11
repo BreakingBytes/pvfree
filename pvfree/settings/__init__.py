@@ -57,11 +57,9 @@ WSGI_APPLICATION = 'pvfree.wsgi.application'
 
 
 # Databases
-# ElephantSQL database
-ELEPHANT_SQL = get_secret('ELEPHANT_SQL')
+# use ElephantSQL database instead of heroku
 DATABASES = {
-    'default': dj_database_url.parse(ELEPHANT_SQL, conn_max_age=600),
-    'heroku': dj_database_url.config(conn_max_age=600),
+    'default': dj_database_url.config(env='ELEPHANT_SQL', conn_max_age=600),
 }
 
 # Internationalization
