@@ -26,7 +26,7 @@ def chunk(sam_param_table, chunksize=CHUNKSIZE):
                     lastfile = True
                     break
             savename = sam_param_table[:-4] + '_{:d}.csv'.format(filenum)
-            with open(savename,'w') as g:
+            with open(savename,'w', newline='') as g:
                 y = csv.writer(g)
                 y.writerows(lines)
             LOGGER.debug(savename)
