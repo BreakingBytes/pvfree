@@ -1,5 +1,5 @@
-from django.db import models, IntegrityError
-from django.core.exceptions import ValidationError
+from django.db import models, IntegrityError, DataError
+from django.core.exceptions import ValidationError, MultipleObjectsReturned
 import csv
 from datetime import date, datetime
 from django.contrib.auth.models import User
@@ -66,7 +66,10 @@ def _upload_helper(cls, kwargs, user, handler=None):
         else:
             LOGGER.exception(exc)
             LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
-    except (ValueError, ValidationError) as exc:
+    except ValueError as exc:
+        LOGGER.exception(exc)
+        LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
+    except (ValidationError, MultipleObjectsReturned, DataError) as exc:
         LOGGER.exception(exc)
         LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
     else:
@@ -132,6 +135,9 @@ class PVInverter(PVBaseModel):
         columns, spamreader = _upload_csv(cls, csv_file, user)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
+            # skip blank lines
+            if not kwargs:
+                continue
 
             def handler(cls, kwargs):
                 name = kwargs['Name']
@@ -238,6 +244,9 @@ class PVModule(PVBaseModel):
         columns, spamreader = _upload_csv(cls, csv_file, user, cls.FIELD_MAP)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
+            # skip blank lines
+            if not kwargs:
+                continue
             for f in cls.NAN_FIELDS:
                 if not kwargs[f]:
                     nan = kwargs.pop(f)
@@ -326,6 +335,9 @@ class CEC_Module(PVBaseModel):
         columns, spamreader = _upload_csv(cls, csv_file, user)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
+            # skip blank lines
+            if not kwargs:
+                continue
             # handle technology
             tech = cls.TECH_TYPES.get(kwargs['Technology'], 0)
             kwargs['Technology'] = tech

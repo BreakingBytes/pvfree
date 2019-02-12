@@ -56,9 +56,11 @@ ROOT_URLCONF = 'pvfree.urls'
 WSGI_APPLICATION = 'pvfree.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
+# Databases
+# use ElephantSQL database instead of heroku
+DATABASES = {
+    'default': dj_database_url.config(env='ELEPHANT_SQL', conn_max_age=600),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
