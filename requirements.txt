@@ -19,3 +19,4 @@ future
 six
 bokeh
 tables
+pytest-django
