@@ -1,5 +1,5 @@
 gunicorn
-django==1.11.18
+django==1.11.19
 python_dateutil
 openpyxl
 django_tastypie==0.14.2
@@ -18,3 +18,4 @@ whitenoise
 future
 six
 bokeh
+tables
