@@ -14,3 +14,7 @@ class SolarPositionForm(forms.Form):
         label='timezone', required=False,
         validators=[MaxValueValidator(12), MinValueValidator(-12)])
     freq = forms.CharField(label='frequency', max_length=5, required=False)
+
+
+class LinkeTurbidityForm(SolarPositionForm):
+    pass
