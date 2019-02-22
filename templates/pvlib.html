@@ -4,6 +4,16 @@
 {% block headers %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
 <!-- <link rel="stylesheet" href="{% static 'highlight/styles/default.css' %}"> -->
+<script src="https://cdn.jsdelivr.net/npm/vega@4.4.0/build/vega.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@3.0.0-rc12/build/vega-lite.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@3.29.1/build/vega-embed.js"></script>
+
+<style media="screen">
+  /* Add space between Vega-Embed links  */
+  .vega-actions a {
+    margin-right: 5px;
+  }
+</style>
 {% endblock headers %}
 
 {% block content %}
@@ -99,6 +109,7 @@
   <br/>
   <p>Enter the fields above and submit to see what the request looks like:</p>
   <span id="solpos_code"></span>
+  <div id="vis"></div>
   <div id="solpos"></div>
 </div>
 <div class="container">
@@ -117,6 +128,7 @@
       console.log(event);
       console.log(this);
       var items = [];
+      var vega_data = [];
       var headers = ["date/time"];
       var is_first_row = true;
       var params = $("#solposform").serialize();
@@ -129,8 +141,10 @@
       $("<pre>", {html: solpos_url + "?" + params}).appendTo("#solpos_code");
       $.getJSON( solpos_url, params, function( data ) {
         $.each( data, function( date, record ) {
+          vega_record = {"date": date};
           row = "<tr><td><b>" + date + "</b></td>";
           $.each( record, function( col, val ) {
+            vega_record[col] = val;
             row += "<td>" + val + "</td>" ;
             if (is_first_row) {
               headers.push( col );
@@ -139,6 +153,7 @@
           row += "</tr>"
           is_first_row = false;
           items.push( row );
+          vega_data.push(vega_record);
         });
         items = "<tbody>" + items.join( "" ) + "</tbody>";
         headers = "<th>" + headers.join("</th><th>") + "</th>";
@@ -148,6 +163,23 @@
           "class": "table table-striped table-bordered table-condensed",
           html: "<thead>" + headers + "</thead>" + items
         }).appendTo( "#solpos" );
+
+      // Assign the specification to a local variable vlSpec.
+      var vlSpec = {
+        $schema: 'https://vega.github.io/schema/vega-lite/v3.json',
+        title: "solar position", width: 1000, height: 500,
+        data: {values: vega_data},
+        mark: {type: 'point', clip: true},
+        encoding: {
+          y: {field: 'apparent_zenith', type: 'quantitative', scale: {domain: [0, 90]}},
+          x: {field: 'azimuth', type: 'quantitative'},
+          color: {field: 'date', type: 'temporal'}
+        }
+      };
+
+      // Embed the visualization in the container with id `vis`
+      vegaEmbed('#vis', vlSpec);
+
       });
     });
   });
