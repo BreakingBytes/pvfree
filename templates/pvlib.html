@@ -278,6 +278,10 @@ crossorigin=""></script>
       vegaEmbed('#vis', vlSpec);
 
       });
+      // copy inputs from solpos to linke-turbidity
+      $("#id_tl_lat").val($('#id_lat').val());
+      $("#id_tl_lon").val($('#id_lon').val());
+      $("#id_tl_tz").val($('#id_tz').val());
       $("#id_tl_start").val($('#id_start').val());
       $("#id_tl_end").val($('#id_end').val());
       $("#id_tl_freq").val($('#id_freq').val());
