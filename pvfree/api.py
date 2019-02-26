@@ -49,12 +49,12 @@ def linke_turbidity_resource(request):
     else:
         params = LinkeTurbidityForm(request.POST)
     if params.is_valid():
-        lat = params.cleaned_data['lat']
-        lon = params.cleaned_data['lon']
-        start = params.cleaned_data['start']
-        end = params.cleaned_data['end']
-        tz = params.cleaned_data['tz']
-        freq = params.cleaned_data['freq']
+        lat = params.cleaned_data['tl_lat']
+        lon = params.cleaned_data['tl_lon']
+        start = params.cleaned_data['tl_start']
+        end = params.cleaned_data['tl_end']
+        tz = params.cleaned_data['tl_tz']
+        freq = params.cleaned_data['tl_freq']
     else:
         return JsonResponse(params.errors, status=400)
     tz = tz or 0  # if tz is None then use zero

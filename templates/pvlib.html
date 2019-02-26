@@ -122,7 +122,10 @@ crossorigin=""></script>
     </div>
   </form>
   <br/>
-  <p>Enter the fields above and submit to see what the request looks like:</p>
+  <p>Click on the map and enter the dates and frequency fields above, then
+    click submit to see what your request looks like, a plot of azimuth vs.
+    zenith, and a <a href="#solpos">table of solar positions</a> below:</p>
+  <span id="solpos_code"></span>
 
   <div id="map"></div>
   <script>
@@ -136,17 +139,74 @@ crossorigin=""></script>
       marker.bindPopup(e.latlng.toString()).openPopup();
       $("#id_lat").val(e.latlng.lat);
       $("#id_lon").val(e.latlng.lng);
-      $("#id_tz").val(Math.ceil(e.latlng.lng/15));
+      $("#id_tz").val(Math.round(e.latlng.lng/15));
+      $("#id_tl_lat").val(e.latlng.lat);
+      $("#id_tl_lon").val(e.latlng.lng);
+      $("#id_tl_tz").val(Math.round(e.latlng.lng/15));
     }
 
     solpos_map.on('click', onMapClick);
   </script>
 
-  <span id="solpos_code"></span>
   <div id="vis"></div>
   <div id="solpos"></div>
 </div>
 <div class="container">
+  <h1 class="page-header">Linke Turbidity</h1>
+  <p>If you want to calculate clear sky you may need Linke Turbidity or AOD and precipitable water.</p>
+  <br/>
+  <form id="tl_form">
+    <div class="row">
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.tl_form.tl_lat.errors }}
+        {{ forms.tl_form.tl_lat.label_tag }}
+        {{ forms.tl_form.tl_lat }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.tl_form.tl_lon.errors }}
+        {{ forms.tl_form.tl_lon.label_tag }}
+        {{ forms.tl_form.tl_lon }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.tl_form.tl_start.errors }}
+        {{ forms.tl_form.tl_start.label_tag }}
+        {{ forms.tl_form.tl_start }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.tl_form.tl_end.errors }}
+        {{ forms.tl_form.tl_end.label_tag }}
+        {{ forms.tl_form.tl_end }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.tl_form.tl_freq.errors }}
+        {{ forms.tl_form.tl_freq.label_tag }}
+        {{ forms.tl_form.tl_freq }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.tl_form.tl_tz.errors }}
+        {{ forms.tl_form.tl_tz.label_tag }}
+        {{ forms.tl_form.tl_tz }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        <button id="tl_button" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </form>
+  <br/>
 </div>
 {% endblock %}
 
@@ -203,7 +263,7 @@ crossorigin=""></script>
       var vis_height = vis_width/2;
       var vlSpec = {
         $schema: 'https://vega.github.io/schema/vega-lite/v3.json',
-        title: "solar position",
+        title: "solar position at ("+Math.round($('#id_lat').val(),5)+","+Math.round($('#id_lon').val(),5)+") from "+$('#id_start').val()+" to "+$('#id_end').val(),
         width: vis_width, height: vis_height,
         data: {values: vega_data},
         mark: {type: 'point', clip: true},
@@ -218,6 +278,9 @@ crossorigin=""></script>
       vegaEmbed('#vis', vlSpec);
 
       });
+      $("#id_tl_start").val($('#id_start').val());
+      $("#id_tl_end").val($('#id_end').val());
+      $("#id_tl_freq").val($('#id_freq').val());
     });
   });
 </script>
