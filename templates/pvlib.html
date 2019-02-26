@@ -165,13 +165,16 @@
         }).appendTo( "#solpos" );
 
       // Assign the specification to a local variable vlSpec.
+      var vis_width = $("#solpos").width()-200;
+      var vis_height = vis_width/2;
       var vlSpec = {
         $schema: 'https://vega.github.io/schema/vega-lite/v3.json',
-        title: "solar position", width: 1000, height: 500,
+        title: "solar position",
+        width: vis_width, height: vis_height,
         data: {values: vega_data},
         mark: {type: 'point', clip: true},
         encoding: {
-          y: {field: 'apparent_zenith', type: 'quantitative', scale: {domain: [0, 90]}},
+          y: {field: 'apparent_zenith', type: 'quantitative'},
           x: {field: 'azimuth', type: 'quantitative'},
           color: {field: 'date', type: 'temporal'}
         }
