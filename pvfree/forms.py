@@ -6,14 +6,14 @@ class SolarPositionForm(forms.Form):
         label='Latitude',
         validators=[MaxValueValidator(90), MinValueValidator(-90)])
     lon = forms.FloatField(
-        label='Lonitude',
+        label='Longitude',
         validators=[MaxValueValidator(180), MinValueValidator(-180)])
-    start = forms.DateTimeField(label='Start date/time')
-    end = forms.DateTimeField(label="End date/time")
+    start = forms.DateTimeField(label='Start Timestamp')
+    end = forms.DateTimeField(label="End Timestamp")
     tz = forms.IntegerField(
-        label='timezone', required=False,
+        label='Timezone', required=False,
         validators=[MaxValueValidator(12), MinValueValidator(-12)])
-    freq = forms.CharField(label='frequency', max_length=5, required=False)
+    freq = forms.CharField(label='Frequency', max_length=5, required=False)
 
 
 class LinkeTurbidityForm(forms.Form):
@@ -21,11 +21,24 @@ class LinkeTurbidityForm(forms.Form):
         label='Latitude',
         validators=[MaxValueValidator(90), MinValueValidator(-90)])
     tl_lon = forms.FloatField(
-        label='Lonitude',
+        label='Longitude',
         validators=[MaxValueValidator(180), MinValueValidator(-180)])
-    tl_start = forms.DateTimeField(label='Start date/time')
-    tl_end = forms.DateTimeField(label="End date/time")
+    tl_start = forms.DateTimeField(label='Start Timestamp')
+    tl_end = forms.DateTimeField(label="End Timestamp")
     tl_tz = forms.IntegerField(
-        label='timezone', required=False,
+        label='Timezone', required=False,
         validators=[MaxValueValidator(12), MinValueValidator(-12)])
-    tl_freq = forms.CharField(label='frequency', max_length=5, required=False)
+    tl_freq = forms.CharField(label='Frequency', max_length=5, required=False)
+
+
+class AirmassForm(forms.Form):
+    FILETYPES = [('CSV', 'CSV'), ('XLSX', 'XLSX'), ('JSON', 'JSON')]
+    FILEFIELDS = [
+        (0, 'Apparent Zenith'), (1, 'Zenith'), (2, 'Apparent Elevation'),
+        (3, 'Elevation')]
+    use_solpos = forms.BooleanField(label='Use Calculated Solar Position?')
+    zenith_file = forms.FileField(label='Solar Position File', required=False)
+    filetype = forms.ChoiceField(
+        label='File Type', required=False, choices=FILETYPES)
+    filecolumns = forms.MultipleChoiceField(
+        label='File Fields', choices=FILEFIELDS, required=False)
