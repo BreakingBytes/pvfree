@@ -154,6 +154,12 @@ crossorigin=""></script>
 <div class="container">
   <h1 class="page-header">Linke Turbidity</h1>
   <p>If you want to calculate clear sky you may need Linke Turbidity or AOD and precipitable water.</p>
+  <h2>Example</h2>
+  <p>
+    Try the following:
+    <a href="/api/v1/pvlib/linke-turbidity/?tl_lat=38&tl_lon=-122&tl_start=2018-01-01 7:00&tl_end=2018-01-01 8:00&tl_freq=T&tl_tz=-8" target="_blank">
+    <code>/api/v1/pvlib/linke-turbidity/?tl_lat=38&tl_lon=-122&tl_start=2018-01-01 7:00&tl_end=2018-01-01 8:00&tl_freq=T&tl_tz=-8</code></a>
+  </p>
   <br/>
   <form id="tl_form">
     <div class="row">
@@ -207,6 +213,11 @@ crossorigin=""></script>
     </div>
   </form>
   <br/>
+  <p>Enter the fields above and then click submit to see what your request
+    looks like and a <a href="#linketurbidity">table of Linke Turbidity</a>
+    values below:</p>
+  <span id="tl_code"></span>
+  <div id="linketurbidity"></div>
 </div>
 {% endblock %}
 
@@ -223,7 +234,7 @@ crossorigin=""></script>
       console.log(this);
       var items = [];
       var vega_data = [];
-      var headers = ["date/time"];
+      var headers = ["Timestamp"];
       var is_first_row = true;
       var params = $("#solposform").serialize();
       var solpos_url = "/api/v1/pvlib/solarposition/";
@@ -263,7 +274,9 @@ crossorigin=""></script>
       var vis_height = vis_width/2;
       var vlSpec = {
         $schema: 'https://vega.github.io/schema/vega-lite/v3.json',
-        title: "solar position at ("+Math.round($('#id_lat').val(),5)+","+Math.round($('#id_lon').val(),5)+") from "+$('#id_start').val()+" to "+$('#id_end').val(),
+        title: ("solar position at (" + Math.round($('#id_lat').val(), 5)
+                + "," + Math.round($('#id_lon').val(), 5) + ") from "
+                + $('#id_start').val() + " to " + $('#id_end').val()),
         width: vis_width, height: vis_height,
         data: {values: vega_data},
         mark: {type: 'point', clip: true},
@@ -287,5 +300,39 @@ crossorigin=""></script>
       $("#id_tl_freq").val($('#id_freq').val());
     });
   });
+</script>
+<script>
+  $(function() {
+    $("#tl_button").click( function( event ) {
+      event.preventDefault();
+      console.log(event);
+      console.log(this);
+      var items = [];
+      var headers = ["Timestamp", "Linke Turbidity"];
+      var params = $("#tl_form").serialize();
+      var tl_url = "/api/v1/pvlib/linke-turbidity/";
+      $("#linketurbidity").empty();
+      if ($("#linketurbidity").attr("style") != null) {
+        $("#linketurbidity").removeAttr("style");
+      };
+      $("#tl_code").empty();
+      $("<pre>", {html: tl_url + "?" + params}).appendTo("#tl_code");
+      $.getJSON( tl_url, params, function( data ) {
+        $.each( data, function( date, record ) {
+          row = "<tr><td><b>" + date + "</b></td><td>" + record + "</td></tr>"
+          items.push( row );
+        });
+        items = "<tbody>" + items.join( "" ) + "</tbody>";
+        headers = "<th>" + headers.join("</th><th>") + "</th>";
+        $("#linketurbidity").css({"height": "500px", "overflow": "auto"});
+        $( "<table>", {
+          "id": "linketurbidityTable",
+          "class": "table table-striped table-bordered table-condensed",
+          html: "<thead>" + headers + "</thead>" + items
+        }).appendTo( "#linketurbidity" );
+      });
+    });
+  });
+
 </script>
 {% endblock footers %}
