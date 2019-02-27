@@ -35,7 +35,7 @@ class AirmassForm(forms.Form):
     FILETYPES = [('CSV', 'CSV'), ('XLSX', 'XLSX'), ('JSON', 'JSON')]
     FILEFIELDS = [
         (0, 'Apparent Zenith'), (1, 'Zenith'), (2, 'Apparent Elevation'),
-        (3, 'Elevation')]
+        (3, 'Elevation'), (4, 'Azimuth')]
     use_solpos = forms.BooleanField(label='Use Calculated Solar Position?')
     zenith_file = forms.FileField(label='Solar Position File', required=False)
     filetype = forms.ChoiceField(
