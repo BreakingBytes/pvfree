@@ -4,6 +4,31 @@
 {% block headers %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
 <!-- <link rel="stylesheet" href="{% static 'highlight/styles/default.css' %}"> -->
+<script src="https://cdn.jsdelivr.net/npm/vega@5.0.0-rc2/build/vega.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@3.0.0-rc13/build/vega-lite.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@3.29.1/build/vega-embed.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+crossorigin=""/>
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+crossorigin=""></script>
+<!-- Load Esri Leaflet from CDN -->
+<script src="https://unpkg.com/esri-leaflet@2.2.3/dist/esri-leaflet.js"
+integrity="sha512-YZ6b5bXRVwipfqul5krehD9qlbJzc6KOGXYsDjU9HHXW2gK57xmWl2gU6nAegiErAqFXhygKIsWPKbjLPXVb2g=="
+crossorigin=""></script>
+<style>
+  #map { height: 500px; }
+</style>
+
+<style media="screen">
+  /* Add space between Vega-Embed links  */
+  .vega-actions a {
+    margin-right: 5px;
+  }
+</style>
 {% endblock headers %}
 
 {% block content %}
@@ -98,7 +123,27 @@
   </form>
   <br/>
   <p>Enter the fields above and submit to see what the request looks like:</p>
+
+  <div id="map"></div>
+  <script>
+    var solpos_map = L.map("map").setView([37.75, -122.23], 10);
+    L.esri.basemapLayer("Topographic").addTo(solpos_map);
+    var marker_layer = L.layerGroup().addTo(solpos_map);
+
+    function onMapClick(e) {
+      marker_layer.clearLayers();
+      var marker = L.marker(e.latlng).addTo(marker_layer);
+      marker.bindPopup(e.latlng.toString()).openPopup();
+      $("#id_lat").val(e.latlng.lat);
+      $("#id_lon").val(e.latlng.lng);
+      $("#id_tz").val(Math.ceil(e.latlng.lng/15));
+    }
+
+    solpos_map.on('click', onMapClick);
+  </script>
+
   <span id="solpos_code"></span>
+  <div id="vis"></div>
   <div id="solpos"></div>
 </div>
 <div class="container">
@@ -117,6 +162,7 @@
       console.log(event);
       console.log(this);
       var items = [];
+      var vega_data = [];
       var headers = ["date/time"];
       var is_first_row = true;
       var params = $("#solposform").serialize();
@@ -129,8 +175,10 @@
       $("<pre>", {html: solpos_url + "?" + params}).appendTo("#solpos_code");
       $.getJSON( solpos_url, params, function( data ) {
         $.each( data, function( date, record ) {
+          vega_record = {"date": date};
           row = "<tr><td><b>" + date + "</b></td>";
           $.each( record, function( col, val ) {
+            vega_record[col] = val;
             row += "<td>" + val + "</td>" ;
             if (is_first_row) {
               headers.push( col );
@@ -139,15 +187,36 @@
           row += "</tr>"
           is_first_row = false;
           items.push( row );
+          vega_data.push(vega_record);
         });
         items = "<tbody>" + items.join( "" ) + "</tbody>";
         headers = "<th>" + headers.join("</th><th>") + "</th>";
-        $("#solpos").attr("style", "height: 500px; overflow: auto;");
+        $("#solpos").css({"height": "500px", "overflow": "auto"});
         $( "<table>", {
           "id": "solposTable",
           "class": "table table-striped table-bordered table-condensed",
           html: "<thead>" + headers + "</thead>" + items
         }).appendTo( "#solpos" );
+
+      // Assign the specification to a local variable vlSpec.
+      var vis_width = $("#solpos").width()-200;
+      var vis_height = vis_width/2;
+      var vlSpec = {
+        $schema: 'https://vega.github.io/schema/vega-lite/v3.json',
+        title: "solar position",
+        width: vis_width, height: vis_height,
+        data: {values: vega_data},
+        mark: {type: 'point', clip: true},
+        encoding: {
+          y: {field: 'apparent_zenith', type: 'quantitative'},
+          x: {field: 'azimuth', type: 'quantitative'},
+          color: {field: 'date', type: 'temporal'}
+        }
+      };
+
+      // Embed the visualization in the container with id `vis`
+      vegaEmbed('#vis', vlSpec);
+
       });
     });
   });
