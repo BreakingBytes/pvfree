@@ -36,7 +36,7 @@ class AirmassForm(forms.Form):
     FILETYPES = [('CSV', 'CSV'), ('XLSX', 'XLSX'), ('JSON', 'JSON')]
     FILEFIELDS = [
         (0, 'Apparent Zenith'), (1, 'Zenith'), (2, 'Apparent Elevation'),
-        (3, 'Elevation')]
+        (3, 'Elevation'), (4, 'Azimuth')]
     zenith_data = forms.CharField(label='Solar Position Data', required=False, widget=forms.Textarea)
     zenith_file = forms.FileField(label='Solar Position File', required=False)
     filetype = forms.ChoiceField(
@@ -47,9 +47,9 @@ class AirmassForm(forms.Form):
 
     def clean_zenith_data(self):
     # https://stackoverflow.com/questions/14626702/django-forms-with-json-fields
-         zdata = self.cleaned_data['zenith_data']
-         try:
-             json.loads(zdata)
-         except:
-             raise forms.ValidationError("Invalid data in zenith dat")
-         return zdata
+        zdata = self.cleaned_data['zenith_data']
+        try:
+            json.loads(zdata)
+        except:
+            raise forms.ValidationError("Invalid data in zenith dat")
+        return zdata
