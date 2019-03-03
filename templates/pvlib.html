@@ -219,6 +219,43 @@ crossorigin=""></script>
   <span id="tl_code"></span>
   <div id="linketurbidity"></div>
 </div>
+
+<div class="container">
+  <h1 class="page-header">Air Mass</h1>
+  <p>Air mass is a measure of the path length through the atmosphere measured
+  in atmospheres. On the equator at solar noon on the equinox, when the sun is
+  directly overhead, the air mass is 1 atmospere. The reference atmosphere,
+  <a href="https://rredc.nrel.gov/solar//spectra/am1.5/">ASTM G173-03</a>, has
+  an air mass of 1.5 atmospheres, and is usually called AM1.5. It's equivalent
+  to a spring noon in the southwest USA.</p>
+  <h2>Example</h2>
+  <p>
+    You'll need to send a <code>POST</code> request with solar position data.
+  </p>
+  <br/>
+  <form id="am_form">
+    <div class="row">
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.am_form.zenith_data.errors }}
+        {{ forms.am_form.zenith_data.label_tag }}
+        {{ forms.am_form.zenith_data }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        <button id="am_button" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </form>
+  <br/>
+  <p>Enter the fields above and then click submit to see what your request
+    looks like and a <a href="#airmass">table of Linke Turbidity</a>
+    values below:</p>
+  <span id="am_code"></span>
+  <div id="airmass"></div>
+</div>
 {% endblock %}
 
 {% block footers %}

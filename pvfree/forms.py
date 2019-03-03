@@ -1,3 +1,4 @@
+import json
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -36,9 +37,19 @@ class AirmassForm(forms.Form):
     FILEFIELDS = [
         (0, 'Apparent Zenith'), (1, 'Zenith'), (2, 'Apparent Elevation'),
         (3, 'Elevation')]
-    use_solpos = forms.BooleanField(label='Use Calculated Solar Position?')
+    zenith_data = forms.CharField(label='Solar Position Data', required=False, widget=forms.Textarea)
     zenith_file = forms.FileField(label='Solar Position File', required=False)
     filetype = forms.ChoiceField(
         label='File Type', required=False, choices=FILETYPES)
     filecolumns = forms.MultipleChoiceField(
         label='File Fields', choices=FILEFIELDS, required=False)
+
+
+    def clean_zenith_data(self):
+    # https://stackoverflow.com/questions/14626702/django-forms-with-json-fields
+         zdata = self.cleaned_data['zenith_data']
+         try:
+             json.loads(zdata)
+         except:
+             raise forms.ValidationError("Invalid data in zenith dat")
+         return zdata

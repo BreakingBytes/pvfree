@@ -69,9 +69,9 @@ def pvlib(request):
     if request.method == 'GET':
         forms['solposform'] = SolarPositionForm()
         forms['tl_form'] = LinkeTurbidityForm()
-        forms['airmass_form'] = AirmassForm()
+        forms['am_form'] = AirmassForm()
     elif request.method == 'POST':
         forms['solposform'] = SolarPositionForm(request.POST)
         forms['tl_form'] = LinkeTurbidityForm(request.POST)
-        forms['airmass_form'] = AirmassForm(request.POST)
+        forms['am_form'] = AirmassForm(request.POST)
     return render(request, 'pvlib.html', {'path': request.path, 'forms': forms})
