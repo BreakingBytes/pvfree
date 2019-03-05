@@ -435,7 +435,7 @@ crossorigin=""></script>
         $("#airmass").removeAttr("style");
       };
       $("#am_code").empty();
-      $("<pre>", {html: "curl -X POST " + am_url + " -d '" + JSON.stringify(params) + "' " + '-H "Content-Type: application/json"'}).appendTo("#am_code");
+      $("<pre>", {html: 'curl -H "Content-Type: application/json" -X POST ' + am_url + " -d '" + JSON.stringify(params) + "'"}).appendTo("#am_code");
       $.post( am_url, params, function( data ) {
         console.log(data);
         $.each( data, function( date, record ) {
