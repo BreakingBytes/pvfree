@@ -1,4 +1,5 @@
 import json
+import pandas as pd
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -33,23 +34,36 @@ class LinkeTurbidityForm(forms.Form):
 
 
 class AirmassForm(forms.Form):
-    FILETYPES = [('CSV', 'CSV'), ('XLSX', 'XLSX'), ('JSON', 'JSON')]
-    FILEFIELDS = [
-        (0, 'Apparent Zenith'), (1, 'Zenith'), (2, 'Apparent Elevation'),
-        (3, 'Elevation'), (4, 'Azimuth')]
-    zenith_data = forms.CharField(label='Solar Position Data', required=False, widget=forms.Textarea)
+    FILETYPES = [('csv', 'CSV'), ('xlsx', 'XLSX'), ('json', 'JSON')]
+    MODELS = [
+        ('simple', 'Simple'), ('kasten1966', 'Kasten, 1966'),
+        ('youngirvine1967', 'Young & Irvine, 1967'),
+        ('kastenyoung1989', 'Kasten & Young, 1989'),
+        ('gueymard1993', 'Gueymard, 1993'), ('young1994', 'Young, 1994'),
+        ('pickering2002', 'Pickering, 2002')]
+    zenith_data = forms.CharField(
+        label='Solar Position Data', required=False, widget=forms.Textarea)
     zenith_file = forms.FileField(label='Solar Position File', required=False)
     filetype = forms.ChoiceField(
-        label='File Type', required=False, choices=FILETYPES)
-    filecolumns = forms.MultipleChoiceField(
-        label='File Fields', choices=FILEFIELDS, required=False)
+        label='File Type', required=False, choices=FILETYPES, initial='json')
+    model = forms.ChoiceField(
+        label='Model', required=False, initial='kastenyoung1989',
+        choices=MODELS)
 
 
     def clean_zenith_data(self):
     # https://stackoverflow.com/questions/14626702/django-forms-with-json-fields
         zdata = self.cleaned_data['zenith_data']
         try:
-            json.loads(zdata)
+            zenith_data = json.loads(zdata)
+            times = pd.DatetimeIndex(zenith_data.keys())  # keys not necessary
+            columns = {}
+            for row in zenith_data.values():
+                if not columns:
+                    columns = {k: [float(v)] for k, v in row.items()}
+                else:
+                    for k, v in row.items():
+                        columns[k].append(float(v))
         except:
-            raise forms.ValidationError("Invalid data in zenith dat")
+            raise forms.ValidationError("Invalid data in zenith data")
         return zdata

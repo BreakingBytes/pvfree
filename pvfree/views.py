@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from parameters.models import PVInverter, PVModule, CEC_Module
 from bokeh.plotting import figure
 from bokeh.models import Legend, LegendItem
@@ -64,6 +65,7 @@ def cec_modules(request):
         {'path': request.path, 'cec_mod_set': CEC_Module.objects.values()})
 
 
+@csrf_exempt
 def pvlib(request):
     forms = {}
     if request.method == 'GET':

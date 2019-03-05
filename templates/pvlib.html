@@ -233,6 +233,7 @@ crossorigin=""></script>
   <h2>Example</h2>
   <p>
     You'll need to send a <code>POST</code> request with solar position data.
+    <code></code>
   </p>
   <br/>
   <form id="am_form">
@@ -240,6 +241,11 @@ crossorigin=""></script>
       {{ forms.am_form.zenith_data.errors }}
       {{ forms.am_form.zenith_data.label_tag }}
       {{ forms.am_form.zenith_data }}
+    </div>
+    <div class="form-group">
+      {{ forms.am_form.model.errors }}
+      {{ forms.am_form.model.label_tag }}
+      {{ forms.am_form.model }}
     </div>
     <button id="am_button" class="btn btn-primary" type="submit">Submit</button>
     <button id="am_cp_btn" type="button" class="btn btn-default">Copy Inputs</button>
@@ -263,6 +269,7 @@ crossorigin=""></script>
     // add form-control to inputs and textarea fields
     $("input").addClass("form-control");
     $("textarea").addClass("form-control");
+    $("select").addClass("form-control");
 
     // solar position
     $("#solposbutton").click( function( event ) {
@@ -328,6 +335,8 @@ crossorigin=""></script>
       // Embed the visualization in the container with id `vis`
       vegaEmbed('#vis', vlSpec);
 
+      }).fail(function(err){
+        $("#solpos_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
       });
     });
 
@@ -374,6 +383,8 @@ crossorigin=""></script>
           "class": "table table-striped table-bordered table-condensed",
           html: "<thead>" + headers + "</thead>" + items
         }).appendTo( "#linketurbidity" );
+      }).fail(function(err){
+        $("#tl_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
       });
     });
 
@@ -412,28 +423,36 @@ crossorigin=""></script>
       console.log(this);
 
       var items = [];
-      var headers = ["Timestamp", "Linke Turbidity"];
-      var params = $("#tl_form").serialize();
-      var tl_url = "/api/v1/pvlib/linke-turbidity/";
-      $("#linketurbidity").empty();
-      if ($("#linketurbidity").attr("style") != null) {
-        $("#linketurbidity").removeAttr("style");
+      var headers = ["Timestamp", "Absolute Airmass"];
+      var params = {};
+      $.each($("#am_form").serializeArray(), function(){
+        params[this.name] = this.value;
+      });
+      //params['zenith_data'] = JSON.parse(params['zenith_data']);
+      console.log(params);
+      var am_url = "/api/v1/pvlib/airmass/";
+      $("#airmass").empty();
+      if ($("#airmass").attr("style") != null) {
+        $("#airmass").removeAttr("style");
       };
-      $("#tl_code").empty();
-      $("<pre>", {html: tl_url + "?" + params}).appendTo("#tl_code");
-      $.getJSON( tl_url, params, function( data ) {
+      $("#am_code").empty();
+      $("<pre>", {html: "curl -X POST " + am_url + " -d '" + JSON.stringify(params) + "' " + '-H "Content-Type: application/json"'}).appendTo("#am_code");
+      $.post( am_url, params, function( data ) {
+        console.log(data);
         $.each( data, function( date, record ) {
           row = "<tr><td><b>" + date + "</b></td><td>" + record + "</td></tr>"
           items.push( row );
         });
         items = "<tbody>" + items.join( "" ) + "</tbody>";
         headers = "<th>" + headers.join("</th><th>") + "</th>";
-        $("#linketurbidity").css({"height": "500px", "overflow": "auto"});
+        $("#airmass").css({"height": "500px", "overflow": "auto"});
         $( "<table>", {
-          "id": "linketurbidityTable",
+          "id": "airmassTable",
           "class": "table table-striped table-bordered table-condensed",
           html: "<thead>" + headers + "</thead>" + items
-        }).appendTo( "#linketurbidity" );
+        }).appendTo( "#airmass" );
+      }, "json").fail(function(err){
+        $("#am_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
       });
     });
   });
