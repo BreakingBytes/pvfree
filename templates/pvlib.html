@@ -140,9 +140,6 @@ crossorigin=""></script>
       $("#id_lat").val(e.latlng.lat);
       $("#id_lon").val(e.latlng.lng);
       $("#id_tz").val(Math.round(e.latlng.lng/15));
-      $("#id_tl_lat").val(e.latlng.lat);
-      $("#id_tl_lon").val(e.latlng.lng);
-      $("#id_tl_tz").val(Math.round(e.latlng.lng/15));
     }
 
     solpos_map.on('click', onMapClick);
@@ -261,13 +258,18 @@ crossorigin=""></script>
 <!-- <script src="{% static 'highlight/highlight.pack.js' %}"></script> -->
 <script>hljs.initHighlightingOnLoad();</script>
 <script>
-  $(function(){$("input").addClass("form-control");});
-  $(function(){$("textarea").addClass("form-control");});
-  $(function() {
+  $(function(){
+
+    // add form-control to inputs and textarea fields
+    $("input").addClass("form-control");
+    $("textarea").addClass("form-control");
+
+    // solar position
     $("#solposbutton").click( function( event ) {
       event.preventDefault();
       console.log(event);
       console.log(this);
+
       var items = [];
       var vega_data = [];
       var headers = ["Timestamp"];
@@ -328,15 +330,13 @@ crossorigin=""></script>
 
       });
     });
-  });
-</script>
-<!--Linke Turbidity-->
-<script>
-  $(function() {
-    $("tl_cp_btn").click( function( event ) {
+
+    // Linke Turbidity
+    $("#tl_cp_btn").click( function( event ) {
       event.preventDefault();
       console.log(event);
       console.log(this);
+
       // copy inputs from solpos to linke-turbidity
       $("#id_tl_lat").val($('#id_lat').val());
       $("#id_tl_lon").val($('#id_lon').val());
@@ -345,10 +345,12 @@ crossorigin=""></script>
       $("#id_tl_end").val($('#id_end').val());
       $("#id_tl_freq").val($('#id_freq').val());
     });
+
     $("#tl_button").click( function( event ) {
       event.preventDefault();
       console.log(event);
       console.log(this);
+
       var items = [];
       var headers = ["Timestamp", "Linke Turbidity"];
       var params = $("#tl_form").serialize();
@@ -374,31 +376,41 @@ crossorigin=""></script>
         }).appendTo( "#linketurbidity" );
       });
     });
-  });
-</script>
-<!--airmass-->
-<script>
-  $(function() {
-    $("am_cp_btn").click( function( event ) {
+
+    // airmass copy button
+    $("#am_cp_btn").click( function( event ) {
       event.preventDefault();
       console.log(event);
       console.log(this);
-      // copy solpos to airmass
+
       var items = {};
       var headers = [];
-      $("#solposTable thead tr th").each(function(i, e){
-        console.log(e);
+      $("#solposTable thead tr th").each(function(){
+        // $(this) is the the element
         headers.push($(this).html());
       });
-      $("#solposTable tbody tr").each(function(i, e){
-        console.log($(this).html());
+      $("#solposTable tbody tr").each(function(){
+        item = {};
+        $.each(this.children, function(ind, elem){
+          if (ind == 0){
+            // get innerHTML from <b> element from timestamps
+            timestamp = elem.children[0].innerHTML;
+          } else {
+            item[headers[ind]] = $(elem).html();
+          }
+          items[timestamp] = item;
+        });
       });
-      $("#id_zenith_data").val();
+      console.log(items);
+      $("#id_zenith_data").val(JSON.stringify(items));
     });
+
+    // airmass submit button
     $("#am_button").click( function( event ) {
       event.preventDefault();
       console.log(event);
       console.log(this);
+
       var items = [];
       var headers = ["Timestamp", "Linke Turbidity"];
       var params = $("#tl_form").serialize();
