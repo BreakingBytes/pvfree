@@ -41,9 +41,11 @@ class AtmospherTestCase(TestCase):
         assert np.allclose(am, s)
 
     def test_airmass_errors(self):
-        r = self.client.get('/api/v1/pvlib/airmass/', data={})
+        r = self.client.get(
+            '/api/v1/pvlib/airmass/', data={'zenith_data':'{}'})
         self.assertEqual(r.status_code, 400)
-        r = self.client.post('/api/v1/pvlib/airmass/', data={})
+        r = self.client.post(
+            '/api/v1/pvlib/airmass/', data={'zenith_data':'{}'})
         self.assertEqual(r.status_code, 400)
         r = self.client.get(
             '/api/v1/pvlib/airmass/', data={'zenith_data': '{"bad": "data"}'})

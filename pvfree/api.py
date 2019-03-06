@@ -107,7 +107,8 @@ def airmass_resource(request):
     if zenith_data:
         zenith_data = json.loads(zenith_data)
         if len(zenith_data) == 0:
-            return JsonResponse("Invalid data in zenith data", status=400)
+            return JsonResponse({"zenith_data": ["Invalid data in zenith data"]},
+            status=400)
         times = pd.DatetimeIndex(zenith_data.keys())  # keys not necessary
         columns = {}
         for row in zenith_data.values():
