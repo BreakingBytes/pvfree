@@ -1,3 +1,5 @@
+import json
+import pandas as pd
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -6,14 +8,14 @@ class SolarPositionForm(forms.Form):
         label='Latitude',
         validators=[MaxValueValidator(90), MinValueValidator(-90)])
     lon = forms.FloatField(
-        label='Lonitude',
+        label='Longitude',
         validators=[MaxValueValidator(180), MinValueValidator(-180)])
-    start = forms.DateTimeField(label='Start date/time')
-    end = forms.DateTimeField(label="End date/time")
+    start = forms.DateTimeField(label='Start Timestamp')
+    end = forms.DateTimeField(label="End Timestamp")
     tz = forms.IntegerField(
-        label='timezone', required=False,
+        label='Timezone', required=False,
         validators=[MaxValueValidator(12), MinValueValidator(-12)])
-    freq = forms.CharField(label='frequency', max_length=5, required=False)
+    freq = forms.CharField(label='Frequency', max_length=5, required=False)
 
 
 class LinkeTurbidityForm(forms.Form):
@@ -21,11 +23,47 @@ class LinkeTurbidityForm(forms.Form):
         label='Latitude',
         validators=[MaxValueValidator(90), MinValueValidator(-90)])
     tl_lon = forms.FloatField(
-        label='Lonitude',
+        label='Longitude',
         validators=[MaxValueValidator(180), MinValueValidator(-180)])
-    tl_start = forms.DateTimeField(label='Start date/time')
-    tl_end = forms.DateTimeField(label="End date/time")
+    tl_start = forms.DateTimeField(label='Start Timestamp')
+    tl_end = forms.DateTimeField(label="End Timestamp")
     tl_tz = forms.IntegerField(
-        label='timezone', required=False,
+        label='Timezone', required=False,
         validators=[MaxValueValidator(12), MinValueValidator(-12)])
-    tl_freq = forms.CharField(label='frequency', max_length=5, required=False)
+    tl_freq = forms.CharField(label='Frequency', max_length=5, required=False)
+
+
+class AirmassForm(forms.Form):
+    FILETYPES = [('csv', 'CSV'), ('xlsx', 'XLSX'), ('json', 'JSON')]
+    MODELS = [
+        ('simple', 'Simple'), ('kasten1966', 'Kasten, 1966'),
+        ('youngirvine1967', 'Young & Irvine, 1967'),
+        ('kastenyoung1989', 'Kasten & Young, 1989'),
+        ('gueymard1993', 'Gueymard, 1993'), ('young1994', 'Young, 1994'),
+        ('pickering2002', 'Pickering, 2002')]
+    zenith_data = forms.CharField(
+        label='Solar Position Data', required=False, widget=forms.Textarea)
+    zenith_file = forms.FileField(label='Solar Position File', required=False)
+    filetype = forms.ChoiceField(
+        label='File Type', required=False, choices=FILETYPES, initial='json')
+    model = forms.ChoiceField(
+        label='Model', required=False, initial='kastenyoung1989',
+        choices=MODELS)
+
+
+    def clean_zenith_data(self):
+    # https://stackoverflow.com/questions/14626702/django-forms-with-json-fields
+        zdata = self.cleaned_data['zenith_data']
+        try:
+            zenith_data = json.loads(zdata)
+            times = pd.DatetimeIndex(zenith_data.keys())  # keys not necessary
+            columns = {}
+            for row in zenith_data.values():
+                if not columns:
+                    columns = {k: [float(v)] for k, v in row.items()}
+                else:
+                    for k, v in row.items():
+                        columns[k].append(float(v))
+        except:
+            raise forms.ValidationError("Invalid data in zenith data")
+        return zdata

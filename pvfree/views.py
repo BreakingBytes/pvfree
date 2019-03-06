@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from parameters.models import PVInverter, PVModule, CEC_Module
 from bokeh.plotting import figure
 from bokeh.models import Legend, LegendItem
 from bokeh.embed import components
 from bokeh.palettes import Colorblind5 as cmap
-from pvfree.forms import SolarPositionForm, LinkeTurbidityForm
+from pvfree.forms import SolarPositionForm, LinkeTurbidityForm, AirmassForm
 from pvlib.pvsystem import sapm
 import numpy as np
 
@@ -64,12 +65,15 @@ def cec_modules(request):
         {'path': request.path, 'cec_mod_set': CEC_Module.objects.values()})
 
 
+@csrf_exempt
 def pvlib(request):
     forms = {}
     if request.method == 'GET':
         forms['solposform'] = SolarPositionForm()
         forms['tl_form'] = LinkeTurbidityForm()
+        forms['am_form'] = AirmassForm()
     elif request.method == 'POST':
         forms['solposform'] = SolarPositionForm(request.POST)
         forms['tl_form'] = LinkeTurbidityForm(request.POST)
+        forms['am_form'] = AirmassForm(request.POST)
     return render(request, 'pvlib.html', {'path': request.path, 'forms': forms})

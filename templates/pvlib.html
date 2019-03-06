@@ -42,9 +42,27 @@ crossorigin=""></script>
     </div><!-- /.container -->
   </div>
 </div>
-
 <div class="container">
-  <h1 class="page-header">Solar Position</h1>
+  <h1 class="page-header" id="toc" style="padding-top: 60px; margin-top: -30px;">PV Modeling Steps</h1>
+    <ul class="list-group">
+      <a class="list-group-item" href="#solar-position"><h4 class="list-group-item-heading">Solar Position</h4><span class="badge">1</span>
+        <p class="list-group-item-text">It's important to know where the sun is.</p>
+      </a>
+      <a class="list-group-item" href="#linke-turbidity"><h4 class="list-group-item-heading">Linke Turbidity</h4><span class="badge">2</span>
+        <p class="list-group-item-text">Aerosols and dust in the atmosphere can affect PV power more than you think.</p>
+      </a>
+      <a class="list-group-item" href="#air-mass"><h4 class="list-group-item-heading">Air Mass</h4><span class="badge">3</span>
+        <p class="list-group-item-text">The further light travels through the air, the more its color changes.</p>
+      </a>
+    </ul>
+</div>
+<div class="container">
+  <h1 id="solar-position" class="page-header" style="padding-top: 60px; margin-top: -30px;">
+    Solar Position
+    <a type="button" class="btn btn-default btn-sm" href="#toc" title="back to top">
+      <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+    </a>
+  </h1>
   <p>
     The first step to modeling a PV system is to get the solar position for the
     site. Use the PVLIB API by sending a <code>GET</code> request to
@@ -117,7 +135,7 @@ crossorigin=""></script>
     </div>
     <div class="row">
       <div class="col-md-2">
-        <button id="solposbutton" class="btn btn-primary">Submit</button>
+        <button id="solposbutton" class="btn btn-primary" type="submit">Submit</button>
       </div>
     </div>
   </form>
@@ -140,9 +158,6 @@ crossorigin=""></script>
       $("#id_lat").val(e.latlng.lat);
       $("#id_lon").val(e.latlng.lng);
       $("#id_tz").val(Math.round(e.latlng.lng/15));
-      $("#id_tl_lat").val(e.latlng.lat);
-      $("#id_tl_lon").val(e.latlng.lng);
-      $("#id_tl_tz").val(Math.round(e.latlng.lng/15));
     }
 
     solpos_map.on('click', onMapClick);
@@ -151,9 +166,16 @@ crossorigin=""></script>
   <div id="vis"></div>
   <div id="solpos"></div>
 </div>
+<!--Linke Turbidity-->
 <div class="container">
-  <h1 class="page-header">Linke Turbidity</h1>
-  <p>If you want to calculate clear sky you may need Linke Turbidity or AOD and precipitable water.</p>
+  <h1 id="linke-turbidity" class="page-header" style="padding-top: 60px; margin-top: -30px;">
+    Linke Turbidity
+    <a type="button" class="btn btn-default btn-sm" href="#toc" title="back to top">
+      <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+    </a>
+  </h1>
+  <p>If you want to calculate clear sky irradiance you may need Linke Turbidity
+    or AOD and precipitable water.</p>
   <h2>Example</h2>
   <p>
     Try the following:
@@ -207,8 +229,11 @@ crossorigin=""></script>
       </div>
     </div>
     <div class="row">
-      <div class="col-md-2">
-        <button id="tl_button" class="btn btn-primary">Submit</button>
+      <div class="col-md-1">
+        <button id="tl_button" class="btn btn-primary" type="submit">Submit</button>
+      </div>
+      <div class="col-md-1">
+        <button id="tl_cp_btn" type="button" class="btn btn-default">Copy Inputs</button>
       </div>
     </div>
   </form>
@@ -219,6 +244,48 @@ crossorigin=""></script>
   <span id="tl_code"></span>
   <div id="linketurbidity"></div>
 </div>
+<!--airmass-->
+<div class="container">
+  <h1 class="page-header" id="air-mass" style="padding-top: 60px; margin-top: -30px;">
+    Air Mass
+    <a type="button" class="btn btn-default btn-sm" href="#toc" title="back to top">
+      <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+    </a>
+  </h1>
+  <p>Air mass is a measure of the path length through the atmosphere measured
+  in atmospheres. On the equator at solar noon on the equinox, when the sun is
+  directly overhead, the air mass is 1 atmospere. The reference atmosphere,
+  <a href="https://rredc.nrel.gov/solar//spectra/am1.5/">ASTM G173-03</a>, has
+  an air mass of 1.5 atmospheres, and is usually called AM1.5. It's equivalent
+  to a spring noon in the southwest USA.</p>
+  <h2>Example</h2>
+  <p>
+    You'll need to send a <code>POST</code> request with solar position data.
+    Try this <a target="_blank" href="https://pvfree.herokuapp.com/api/v1/pvlib/airmass/?zenith_data=%7B%222019-01-01T09%3A00%3A00-0800%22%3A%7B%22apparent_zenith%22%3A%2275.64949399351546%22%7D%2C%222019-01-01T12%3A00%3A00-0800%22%3A%7B%22apparent_zenith%22%3A%2260.93578142843924%22%7D%7D&model=kastenyoung1989">
+      <code>curl -H "Content-Type: application/json" -X POST /api/v1/pvlib/airmass/ -d '{"model":"kastenyoung1989","zenith_data":{"2019-01-01T09:00:00-0800":{"apparent_zenith":"75.64949399351546"},"2019-01-01T12:00:00-0800":{"apparent_zenith":"60.93578142843924"}}}'</code></a>.
+  </p>
+  <br/>
+  <form id="am_form">
+    <div class="form-group">
+      {{ forms.am_form.zenith_data.errors }}
+      {{ forms.am_form.zenith_data.label_tag }}
+      {{ forms.am_form.zenith_data }}
+    </div>
+    <div class="form-group">
+      {{ forms.am_form.model.errors }}
+      {{ forms.am_form.model.label_tag }}
+      {{ forms.am_form.model }}
+    </div>
+    <button id="am_button" class="btn btn-primary" type="submit">Submit</button>
+    <button id="am_cp_btn" type="button" class="btn btn-default">Copy Inputs</button>
+  </form>
+  <br/>
+  <p>Enter the fields above and then click submit to see what your request
+    looks like and a <a href="#airmass">table of air mass data.</a>
+    values below:</p>
+  <span id="am_code"></span>
+  <div id="airmass"></div>
+</div>
 {% endblock %}
 
 {% block footers %}
@@ -226,12 +293,19 @@ crossorigin=""></script>
 <!-- <script src="{% static 'highlight/highlight.pack.js' %}"></script> -->
 <script>hljs.initHighlightingOnLoad();</script>
 <script>
-  $(function(){$("input").addClass("form-control");});
-  $(function() {
+  $(function(){
+
+    // add form-control to inputs and textarea fields
+    $("input").addClass("form-control");
+    $("textarea").addClass("form-control");
+    $("select").addClass("form-control");
+
+    // solar position
     $("#solposbutton").click( function( event ) {
       event.preventDefault();
       console.log(event);
       console.log(this);
+
       var items = [];
       var vega_data = [];
       var headers = ["Timestamp"];
@@ -290,7 +364,17 @@ crossorigin=""></script>
       // Embed the visualization in the container with id `vis`
       vegaEmbed('#vis', vlSpec);
 
+      }).fail(function(err){
+        $("#solpos_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
       });
+    });
+
+    // Linke Turbidity
+    $("#tl_cp_btn").click( function( event ) {
+      event.preventDefault();
+      console.log(event);
+      console.log(this);
+
       // copy inputs from solpos to linke-turbidity
       $("#id_tl_lat").val($('#id_lat').val());
       $("#id_tl_lon").val($('#id_lon').val());
@@ -299,14 +383,12 @@ crossorigin=""></script>
       $("#id_tl_end").val($('#id_end').val());
       $("#id_tl_freq").val($('#id_freq').val());
     });
-  });
-</script>
-<script>
-  $(function() {
+
     $("#tl_button").click( function( event ) {
       event.preventDefault();
       console.log(event);
       console.log(this);
+
       var items = [];
       var headers = ["Timestamp", "Linke Turbidity"];
       var params = $("#tl_form").serialize();
@@ -330,9 +412,78 @@ crossorigin=""></script>
           "class": "table table-striped table-bordered table-condensed",
           html: "<thead>" + headers + "</thead>" + items
         }).appendTo( "#linketurbidity" );
+      }).fail(function(err){
+        $("#tl_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
+      });
+    });
+
+    // airmass copy button
+    $("#am_cp_btn").click( function( event ) {
+      event.preventDefault();
+      console.log(event);
+      console.log(this);
+
+      var items = {};
+      var headers = [];
+      $("#solposTable thead tr th").each(function(){
+        // $(this) is the the element
+        headers.push($(this).html());
+      });
+      $("#solposTable tbody tr").each(function(){
+        var item = {};  // make ie11 happy
+        $.each(this.children, function(ind, elem){
+          if (ind == 0){
+            // get innerHTML from <b> element from timestamps
+            timestamp = elem.children[0].innerHTML;
+          } else {
+            item[headers[ind]] = $(elem).html();
+          }
+          items[timestamp] = item;
+        });
+      });
+      console.log(items);
+      $("#id_zenith_data").val(JSON.stringify(items));
+    });
+
+    // airmass submit button
+    $("#am_button").click( function( event ) {
+      event.preventDefault();
+      console.log(event);
+      console.log(this);
+
+      var items = [];
+      var headers = ["Timestamp", "Absolute Airmass"];
+      var params = {};
+      $.each($("#am_form").serializeArray(), function(){
+        params[this.name] = this.value;
+      });
+      //params['zenith_data'] = JSON.parse(params['zenith_data']);
+      console.log(params);
+      var am_url = "/api/v1/pvlib/airmass/";
+      $("#airmass").empty();
+      if ($("#airmass").attr("style") != null) {
+        $("#airmass").removeAttr("style");
+      };
+      $("#am_code").empty();
+      $("<pre>", {html: 'curl -H "Content-Type: application/json" -X POST ' + am_url + " -d '" + JSON.stringify(params) + "'"}).appendTo("#am_code");
+      $.post( am_url, params, function( data ) {
+        console.log(data);
+        $.each( data, function( date, record ) {
+          row = "<tr><td><b>" + date + "</b></td><td>" + record + "</td></tr>"
+          items.push( row );
+        });
+        items = "<tbody>" + items.join( "" ) + "</tbody>";
+        headers = "<th>" + headers.join("</th><th>") + "</th>";
+        $("#airmass").css({"height": "500px", "overflow": "auto"});
+        $( "<table>", {
+          "id": "airmassTable",
+          "class": "table table-striped table-bordered table-condensed",
+          html: "<thead>" + headers + "</thead>" + items
+        }).appendTo( "#airmass" );
+      }, "json").fail(function(err){
+        $("#am_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
       });
     });
   });
-
 </script>
 {% endblock footers %}

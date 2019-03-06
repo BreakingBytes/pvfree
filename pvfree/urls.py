@@ -5,7 +5,8 @@ from parameters.api import (
 from pvfree import views as pvfree_views
 from parameters import views as param_views
 from django.contrib import admin
-from pvfree.api import solarposition_resource, linke_turbidity_resource
+from pvfree.api import (
+    solarposition_resource, linke_turbidity_resource, airmass_resource)
 
 admin.autodiscover()
 v1_api = Api(api_name='v1')
@@ -30,6 +31,8 @@ urlpatterns = [
         name='solarposition'),
     url(r'^api/v1/pvlib/linke-turbidity/$', linke_turbidity_resource,
         name='linke_turbidity'),
+    url(r'^api/v1/pvlib/airmass/$', airmass_resource,
+        name='airmass'),
 ]
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
