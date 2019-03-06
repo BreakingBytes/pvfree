@@ -42,9 +42,30 @@ crossorigin=""></script>
     </div><!-- /.container -->
   </div>
 </div>
-
 <div class="container">
-  <h1 class="page-header">Solar Position</h1>
+  <h1 class="page-header" id="toc" style="padding-top: 60px; margin-top: -30px;">PV Modeling Steps</h1>
+  <!--div class="row">
+    <div class="col-md-6"-->
+      <ul class="list-group">
+        <a class="list-group-item" href="#solar-position"><h4 class="list-group-item-heading">Solar Position</h4><span class="badge">1</span>
+          <p class="list-group-item-text">It's important to know where the sun is for solar power.</p>
+        </a>
+        <a class="list-group-item" href="#linke-turbidity"><h4 class="list-group-item-heading">Linke Turbidity</h4><span class="badge">2</span>
+          <p class="list-group-item-text">Aerosols and dust can affect PV power more than you think.</p>
+        </a>
+        <a class="list-group-item" href="#air-mass"><h4 class="list-group-item-heading">Airmass</h4><span class="badge">3</span>
+          <p class="list-group-item-text">Have you ever wondered why sunsets are red? The further light travels through the air, the more its color changes.</p>
+        </a>
+      </ul>
+    <!--/div>
+  </div-->
+</div>
+<div class="container">
+  <h1 id="solar-position" class="page-header" style="padding-top: 60px; margin-top: -30px;">Solar Position
+    <a type="button" class="btn btn-default btn-sm" href="#toc" title="back to top">
+      <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+    </a>
+  </h1>
   <p>
     The first step to modeling a PV system is to get the solar position for the
     site. Use the PVLIB API by sending a <code>GET</code> request to
@@ -150,7 +171,11 @@ crossorigin=""></script>
 </div>
 <!--Linke Turbidity-->
 <div class="container">
-  <h1 class="page-header">Linke Turbidity</h1>
+  <h1 id="linke-turbidity" class="page-header" style="padding-top: 60px; margin-top: -30px;">Linke Turbidity
+    <a type="button" class="btn btn-default btn-sm" href="#toc" title="back to top">
+      <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+    </a>
+  </h1>
   <p>If you want to calculate clear sky irradiance you may need Linke Turbidity
     or AOD and precipitable water.</p>
   <h2>Example</h2>
@@ -223,7 +248,11 @@ crossorigin=""></script>
 </div>
 <!--airmass-->
 <div class="container">
-  <h1 class="page-header">Air Mass</h1>
+  <h1 class="page-header" id="air-mass" style="padding-top: 60px; margin-top: -30px;">Air Mass
+    <a type="button" class="btn btn-default btn-sm" href="#toc" title="back to top">
+      <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+    </a>
+  </h1>
   <p>Air mass is a measure of the path length through the atmosphere measured
   in atmospheres. On the equator at solar noon on the equinox, when the sun is
   directly overhead, the air mass is 1 atmospere. The reference atmosphere,
@@ -233,6 +262,8 @@ crossorigin=""></script>
   <h2>Example</h2>
   <p>
     You'll need to send a <code>POST</code> request with solar position data.
+    Try this <a target="_blank" href="https://pvfree.herokuapp.com/api/v1/pvlib/airmass/?zenith_data=%7B%222019-01-01T09%3A00%3A00-0800%22%3A%7B%22apparent_zenith%22%3A%2275.64949399351546%22%7D%2C%222019-01-01T12%3A00%3A00-0800%22%3A%7B%22apparent_zenith%22%3A%2260.93578142843924%22%7D%7D&model=kastenyoung1989">
+      <code>curl -H "Content-Type: application/json" -X POST /api/v1/pvlib/airmass/ -d '{"model":"kastenyoung1989","zenith_data":{"2019-01-01T09:00:00-0800":{"apparent_zenith":"75.64949399351546"},"2019-01-01T12:00:00-0800":{"apparent_zenith":"60.93578142843924"}}}'</code></a>.
   </p>
   <br/>
   <form id="am_form">
@@ -400,7 +431,7 @@ crossorigin=""></script>
         headers.push($(this).html());
       });
       $("#solposTable tbody tr").each(function(){
-        item = {};
+        var item = {};  // make ie11 happy
         $.each(this.children, function(ind, elem){
           if (ind == 0){
             // get innerHTML from <b> element from timestamps
