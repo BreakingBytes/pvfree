@@ -17,3 +17,4 @@ venv3/
 !parameters/data/sandia_modules.csv
 .DS_Store
 .vscode/
+.pytest_cache
