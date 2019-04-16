@@ -30,7 +30,7 @@
     <tbody>
       {% for cec_mod in cec_mod_set %}
       <tr>
-        <td>{{ cec_mod.Name }}</td>
+        <td><a href="{% url 'cec_module_detail' cec_mod.id %}">{{ cec_mod.Name }}</a></td>
         <td>{{ cec_mod.BIPV }}</td>
         <td>{{ cec_mod.Date }}</td>
         <td>{{ cec_mod.T_NOCT }}</td>

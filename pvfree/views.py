@@ -6,7 +6,7 @@ from bokeh.models import Legend, LegendItem
 from bokeh.embed import components
 from bokeh.palettes import Colorblind5 as cmap
 from pvfree.forms import SolarPositionForm, LinkeTurbidityForm, AirmassForm
-from pvlib.pvsystem import sapm
+from pvlib.pvsystem import sapm, calcparams_cec, singlediode
 import numpy as np
 
 
@@ -65,6 +65,57 @@ def cec_modules(request):
         {'path': request.path, 'cec_mod_set': CEC_Module.objects.values()})
 
 
+def cec_module_detail(request, cec_module_id):
+    cec_mod = get_object_or_404(CEC_Module, pk=cec_module_id)
+    fieldnames = CEC_Module._meta.get_fields()
+    cec_mod_dict = {k.name: getattr(cec_mod, k.name) for k in fieldnames}
+    # for k in ['IXO', 'IXXO', 'C4', 'C5', 'C6', 'C7']:
+    #     if cec_mod_dict[k] is None:
+    #         cec_mod_dict[k] = 0.
+    celltemps = [0.0, 25.0, 50.0, 75.0, 100.0]
+    effirrad = 1000
+    results = []
+    for tc in celltemps:
+        params = calcparams_cec(
+            effective_irradiance=effirrad, temp_cell=tc,
+            alpha_sc=cec_mod_dict['alpha_sc'],
+            a_ref=cec_mod_dict['a_ref'],
+            I_L_ref=cec_mod_dict['I_L_ref'],
+            I_o_ref=cec_mod_dict['I_o_ref'],
+            R_sh_ref=cec_mod_dict['R_sh_ref'],
+            R_s=cec_mod_dict['R_s'],
+            Adjust=cec_mod_dict['Adjust'])
+        results.append(singlediode(*params, ivcurve_pnts=100, method='newton'))
+    current = np.concatenate([r['i'].reshape(1, 100) for r in results], axis=0)
+    voltage = np.concatenate([r['v'].reshape(1, 100) for r in results], axis=0)
+    # eff = results['p_mp'] / effirrad / cec_mod.Area * 100 / 1000
+    fig = figure(
+        x_axis_label='voltage, V [V]',
+        y_axis_label='current, I [A]',
+        title=cec_mod.Name,
+        plot_width=800, plot_height=600, sizing_mode='scale_width'
+    )
+    plot = fig.multi_line(
+        voltage.tolist(), current.tolist(), color=cmap, line_width=4)
+    legend = Legend(items=[
+        LegendItem(label='{:d} [C]'.format(int(ct)), renderers=[plot], index=n)
+        for n, ct in enumerate(celltemps)])
+    fig.scatter(
+        0, [r['i_sc'] for r in results], size=15, color=cmap, marker='square')
+    fig.scatter(
+        [r['v_oc'] for r in results], 0, size=15, color=cmap)
+    fig.scatter(
+        [r['v_mp'] for r in results], [r['i_mp'] for r in results], size=15,
+        color=cmap, marker='triangle')
+    fig.add_layout(legend)
+    plot_script, plot_div = components(fig)
+    return render(
+        request, 'cec_module_detail.html', {
+            'path': request.path, 'cec_mod': cec_mod,
+            'plot_script': plot_script, 'plot_div': plot_div,
+            'cec_mod_dict': cec_mod_dict})
+
+
 @csrf_exempt
 def pvlib(request):
     forms = {}
@@ -76,4 +127,5 @@ def pvlib(request):
         forms['solposform'] = SolarPositionForm(request.POST)
         forms['tl_form'] = LinkeTurbidityForm(request.POST)
         forms['am_form'] = AirmassForm(request.POST)
-    return render(request, 'pvlib.html', {'path': request.path, 'forms': forms})
+    return render(
+        request, 'pvlib.html', {'path': request.path, 'forms': forms})
