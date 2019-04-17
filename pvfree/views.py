@@ -25,9 +25,14 @@ def pvmodules(request):
     pvmod_set = PVModule.objects.values()
     for pvmod in pvmod_set:
         pvmod['nameplate'] = PVModule.objects.get(pk=pvmod['id']).nameplate()
+        pvmod['celltype'] = PVModule.objects.get(pk=pvmod['id']).celltype()
     return render(
         request, 'pvmodules.html',
         {'path': request.path, 'pvmod_set': pvmod_set})
+
+
+def pvmodules_tech(request):
+    return JsonResponse(PVModule.TECH_DICT)
 
 
 def pvmodule_detail(request, pvmodule_id):
@@ -62,9 +67,9 @@ def pvmodule_detail(request, pvmodule_id):
 
 def cec_modules(request):
     return render(
-        request, 'cec_modules.html',
-        {'path': request.path, 'cec_mod_set': CEC_Module.objects.values(),
-         'cec_mod_tech': dict(CEC_Module.TECH)})
+        request, 'cec_modules.html', {
+            'path': request.path, 'cec_mod_set': CEC_Module.objects.values(),
+            'cec_mod_tech': dict(CEC_Module.TECH)})
 
 
 def cec_modules_tech(request):

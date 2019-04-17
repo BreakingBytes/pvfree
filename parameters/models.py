@@ -171,6 +171,7 @@ class PVModule(PVBaseModel):
         (10, 'c-Si'),
         (11, 'mc-Si')
     ]
+    TECH_DICT = dict(MATERIALS)
     CELL_TYPES = {name: idx for idx, name in MATERIALS}
     FIELD_MAP = {
         'a': 'A', 'b': 'B', 'dT': 'DTC',
@@ -223,6 +224,9 @@ class PVModule(PVBaseModel):
     Notes = models.TextField(max_length=100)
     is_vintage_estimated = models.BooleanField(default=False)
 
+    def celltype(self):
+        return self.TECH_DICT[self.Material]
+
     def nameplate(self):
         return self.Impo * self.Vmpo
 
@@ -273,7 +277,7 @@ class CEC_Module(PVBaseModel):
     """
     VERSION = [
         (0, ''), (1, 'MM105'), (2, 'MM106'), (3, 'MM107'), (4, 'NRELv1'),
-        (5,'SAM 2018.9.27'), (6, 'SAM 2018.10.29')
+        (5, 'SAM 2018.9.27'), (6, 'SAM 2018.10.29')
     ]
     TECH = [
         (0, ''),
