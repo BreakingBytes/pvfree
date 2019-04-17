@@ -25,24 +25,27 @@
         <th>V<sub>oc,ref</sub><br/><br/></th>
         <th>I<sub>mp,ref</sub><br/><br/></th>
         <th>V<sub>mp,ref</sub><br/><br/></th>
+        <th>Tech<br/><br/></th>
+        <th>STC [W]<br/><br/></th>
       </tr>
     </thead>
-    <tbody>
-      {% for cec_mod in cec_mod_set %}
+    <!--<tbody>rendered by datatables.net</tbody>-->
+    <tfoot>
       <tr>
-        <td><a href="{% url 'cec_module_detail' cec_mod.id %}">{{ cec_mod.Name }}</a></td>
-        <td>{{ cec_mod.BIPV }}</td>
-        <td>{{ cec_mod.Date }}</td>
-        <td>{{ cec_mod.T_NOCT }}</td>
-        <td>{{ cec_mod.A_c }}</td>
-        <td>{{ cec_mod.N_s }}</td>
-        <td>{{ cec_mod.I_sc_ref }}</td>
-        <td>{{ cec_mod.V_oc_ref }}</td>
-        <td>{{ cec_mod.I_mp_ref }}</td>
-        <td>{{ cec_mod.V_mp_ref }}</td>
+        <th>Name<br/><br/></th>
+        <th>BIPV<br/><br/></th>
+        <th>Date<br/><br/></th>
+        <th>NOCT<br/><br/></th>
+        <th>A<sub>c</sub><br/><br/></th>
+        <th>Cells in Series<br/><br/></th>
+        <th>I<sub>sc,ref</sub><br/><br/></th>
+        <th>V<sub>oc,ref</sub><br/><br/></th>
+        <th>I<sub>mp,ref</sub><br/><br/></th>
+        <th>V<sub>mp,ref</sub><br/><br/></th>
+        <th>Tech<br/><br/></th>
+        <th>STC [W]<br/><br/></th>
       </tr>
-      {% endfor %}
-    </tbody>
+    </tfoot>
   </table>
   {% else %}
      <p>No CEC Modules are available. Yet. Comming Soon!</p>
@@ -56,7 +59,39 @@
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
 <script>
 $(document).ready(function(){
-    $('#myTable').DataTable();
+  var tech = {{ cec_mod_tech|safe }};
+  console.log(tech);
+  $('#myTable').DataTable({
+    ajax: {
+      url: '/api/v1/cecmodule/?limit=0',
+      dataSrc: 'objects'
+    },
+    columns: [
+      {
+        data: null,
+        render: function(data, type, row){
+          return '<a href="'+ {% url 'cec_modules' %} + row.id + '/">' + row.Name + '</a>'
+        }
+      },
+      {data: 'BIPV'},
+      {data: 'Date'},
+      {data: 'T_NOCT'},
+      {data: 'A_c'},
+      {data: 'N_s'},
+      {data: 'I_sc_ref'},
+      {data: 'V_oc_ref'},
+      {data: 'I_mp_ref'},
+      {data: 'V_mp_ref'},
+      {
+        data: null,
+        render: function(data, type, row){
+          return tech[row.Technology]
+        }
+      },
+      {data: 'STC'}
+    ],
+    "deferRender": true
+  });
 });
 </script>
 {% endblock footers %}

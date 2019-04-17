@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 from parameters.models import PVInverter, PVModule, CEC_Module
 from bokeh.plotting import figure
 from bokeh.models import Legend, LegendItem
@@ -62,7 +63,12 @@ def pvmodule_detail(request, pvmodule_id):
 def cec_modules(request):
     return render(
         request, 'cec_modules.html',
-        {'path': request.path, 'cec_mod_set': CEC_Module.objects.values()})
+        {'path': request.path, 'cec_mod_set': CEC_Module.objects.values(),
+         'cec_mod_tech': dict(CEC_Module.TECH)})
+
+
+def cec_modules_tech(request):
+    return JsonResponse(dict(CEC_Module.TECH))
 
 
 def cec_module_detail(request, cec_module_id):
@@ -113,7 +119,8 @@ def cec_module_detail(request, cec_module_id):
         request, 'cec_module_detail.html', {
             'path': request.path, 'cec_mod': cec_mod,
             'plot_script': plot_script, 'plot_div': plot_div,
-            'cec_mod_dict': cec_mod_dict})
+            'cec_mod_dict': cec_mod_dict,
+            'cec_mod_tech': dict(CEC_Module.TECH)})
 
 
 @csrf_exempt

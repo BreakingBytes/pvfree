@@ -55,5 +55,6 @@ class CECModuleResource(ModelResource):
             "V_oc_ref": ('exact', 'lt', 'lte', 'gt', 'gte'),
             "I_sc_ref": ('exact', 'lt', 'lte', 'gt', 'gte'),
         }
+        max_limit = None
         authorization = IsAuthenticatedOrReadOnly()
         authentication = ApiKeyAuthOrReadOnly()

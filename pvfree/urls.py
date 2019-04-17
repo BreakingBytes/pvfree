@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^pvmodules/(?P<pvmodule_id>\d+)/$', pvfree_views.pvmodule_detail,
         name='pvmodule_detail'),
     url(r'^cec_modules/$', pvfree_views.cec_modules, name='cec_modules'),
+    url(r'^cec_modules_tech/$', pvfree_views.cec_modules_tech, name='cec_modules_tech'),
     url(r'^cec_modules/(?P<cec_module_id>\d+)/$',
         pvfree_views.cec_module_detail, name='cec_module_detail'),
     url(r'^pvlib/$', pvfree_views.pvlib, name='pvlib'),
