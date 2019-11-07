@@ -59,8 +59,6 @@
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
 <script>
 $(document).ready(function(){
-  var tech = {{ cec_mod_tech|safe }};
-  console.log(tech);
   $('#myTable').DataTable({
     ajax: {
       url: '/api/v1/cecmodule/?limit=0',
@@ -82,12 +80,7 @@ $(document).ready(function(){
       {data: 'V_oc_ref'},
       {data: 'I_mp_ref'},
       {data: 'V_mp_ref'},
-      {
-        data: null,
-        render: function(data, type, row){
-          return tech[row.Technology]
-        }
-      },
+      {data: 'Technology'},
       {data: 'STC'}
     ],
     "deferRender": true
