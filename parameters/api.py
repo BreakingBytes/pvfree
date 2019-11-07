@@ -59,3 +59,13 @@ class CECModuleResource(ModelResource):
         max_limit = None
         authorization = IsAuthenticatedOrReadOnly()
         authentication = ApiKeyAuthOrReadOnly()
+
+    def dehydrate_Technology(self, bundle):
+        cec_mod_tech = bundle.data['Technology']
+        # TODO: use dictionary instead of list
+        return CEC_Module.TECH[cec_mod_tech][1]
+
+    def dehydrate_Version(self, bundle):
+        cec_mod_ver = bundle.data['Version']
+        # TODO: use dictionary instead of list
+        return CEC_Module.VERSION[cec_mod_ver][1]
