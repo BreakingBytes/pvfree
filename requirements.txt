@@ -1,5 +1,5 @@
 gunicorn
-django==1.11.27
+django==1.11.28
 python_dateutil
 openpyxl
 django_tastypie==0.14.2
