@@ -17,7 +17,7 @@ pytest==5.4.1
 pytest-django==3.9.0
 pytz==2019.3
 python_dateutil==2.8.1
-pyyaml==5.3.1
+pyyaml==5.4
 scipy==1.2.1
 six==1.14.0
 tables==3.6.1
