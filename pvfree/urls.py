@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^pvlib/$', pvfree_views.pvlib, name='pvlib'),
     url(r'^upload/$', param_views.file_upload, name='file_upload'),
     url(r'^api/', include(v1_api.urls)),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^api/v1/pvlib/solarposition/$', solarposition_resource,
         name='solarposition'),
     url(r'^api/v1/pvlib/linke-turbidity/$', linke_turbidity_resource,
