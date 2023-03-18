@@ -4,10 +4,16 @@
 {% block headers %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
 <!-- <link rel="stylesheet" href="{% static 'highlight/styles/default.css' %}"> -->
-<script src="https://cdn.jsdelivr.net/npm/vega@5.0.0-rc2/build/vega.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-lite@3.0.0-rc13/build/vega-lite.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-embed@3.29.1/build/vega-embed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega@5.22.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5.6.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.21.2"></script>
 
+<style media="screen">
+  /* Add space between Vega-Embed links  */
+  .vega-actions a {
+    margin-right: 5px;
+  }
+</style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
 integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
 crossorigin=""/>
@@ -68,7 +74,10 @@ crossorigin=""></script>
       <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
     </a>
   </h1>
-  <p>The first step in evaluating PV system performance is to get the weather.</p>
+  <p>
+    The first step in evaluating PV system performance is to get the weather at
+    the site.
+  </p>
 </div>
 <div class="container">
   <h1 id="solar-position" class="page-header" style="padding-top: 60px; margin-top: -30px;">
@@ -80,7 +89,7 @@ crossorigin=""></script>
   <p>
     The next step in modeling a PV system is to get the solar positions for a
     specific time range at the site. Solar position is a vector from the site
-    to the sun given by its zenith and azimuth. The zenith is the suns angle
+    to the sun given by its zenith and azimuth. The zenith is the sun's angle
     from directly overhead, and the azimuth is the angle from true north. Use
     the PVLIB API by sending a <code>GET</code> request to
     <code>/api/v1/pvlib/solarposition/</code>, the response is
@@ -183,7 +192,7 @@ crossorigin=""></script>
     solpos_map.on('click', onMapClick);
   </script>
 
-  <div id="vis"></div>
+  <div id="vis" style="width: 100%;"></div>
   <div id="solpos"></div>
 </div>
 <!--Linke Turbidity-->
@@ -358,16 +367,18 @@ crossorigin=""></script>
         }).appendTo( "#solpos" );
 
       // Assign the specification to a local variable vlSpec.
-      var vis_width = $("#solpos").width()-200;
-      var vis_height = vis_width/2;
+      /* make width responsive by setting <div> element style to width: 100%
+        and top level spec width to "container":
+        https://vega.github.io/vega-lite/docs/size.html#specifying-responsive-width-and-height
+      */
       var vlSpec = {
-        $schema: 'https://vega.github.io/schema/vega-lite/v3.json',
+        $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
         title: ("solar position at (" + Math.round($('#id_lat').val(), 5)
                 + "," + Math.round($('#id_lon').val(), 5) + ") from "
                 + $('#id_start').val() + " to " + $('#id_end').val()),
-        width: vis_width, height: vis_height,
+        width: 'container', height: 400,
         data: {values: vega_data},
-        mark: {type: 'point', clip: true},
+        mark: {type: 'point', clip: true, tooltip: true},
         encoding: {
           y: {field: 'apparent_zenith', type: 'quantitative'},
           x: {field: 'azimuth', type: 'quantitative'},
