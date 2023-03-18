@@ -3,6 +3,7 @@ import pandas as pd
 from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+
 class SolarPositionForm(forms.Form):
     lat = forms.FloatField(
         label='Latitude',
@@ -67,3 +68,15 @@ class AirmassForm(forms.Form):
         except:
             raise forms.ValidationError("Invalid data in zenith data")
         return zdata
+
+
+class WeatherForm(forms.Form):
+    lat = forms.FloatField(
+        label='Latitude',
+        validators=[MaxValueValidator(90), MinValueValidator(-90)])
+    lon = forms.FloatField(
+        label='Longitude',
+        validators=[MaxValueValidator(180), MinValueValidator(-180)])
+    start_year = forms.DateField(label='Start Date', required=False)
+    end_year = forms.DateField(label="End Date", required=False)
+    tmy = forms.BooleanField(label='TMY', required=False)

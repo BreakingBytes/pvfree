@@ -6,7 +6,8 @@ from django.shortcuts import Http404
 from django.views.decorators.csrf import csrf_exempt
 import datetime
 import pandas as pd
-from pvfree.forms import SolarPositionForm, LinkeTurbidityForm, AirmassForm
+from pvfree.forms import (
+    SolarPositionForm, LinkeTurbidityForm, AirmassForm, WeatherForm)
 import json
 
 
@@ -137,3 +138,11 @@ def airmass_resource(request):
     am.index = times.strftime('%Y-%m-%dT%H:%M:%S%z')
     data = am.to_dict()
     return JsonResponse(data)
+
+
+@csrf_exempt
+def weather_resource(request):
+    if request.method == 'GET':
+        params = WeatherForm(request.GET)
+    else:
+        params = WeatherForm(request.POST)
