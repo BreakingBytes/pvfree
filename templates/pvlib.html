@@ -14,6 +14,7 @@
     margin-right: 5px;
   }
 </style>
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
 integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
 crossorigin=""/>
@@ -22,9 +23,10 @@ crossorigin=""/>
 integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
 crossorigin=""></script>
 <!-- Load Esri Leaflet from CDN -->
-<script src="https://unpkg.com/esri-leaflet@2.2.3/dist/esri-leaflet.js"
-integrity="sha512-YZ6b5bXRVwipfqul5krehD9qlbJzc6KOGXYsDjU9HHXW2gK57xmWl2gU6nAegiErAqFXhygKIsWPKbjLPXVb2g=="
+<script src="https://unpkg.com/esri-leaflet@2.2.4/dist/esri-leaflet.js"
+integrity="sha512-tyPum7h2h36X52O2gz+Pe8z/3l+Y9S1yEUscbVs5r5aEY5dFmP1WWRY/WLLElnFHa+k1JBQZSCDGwEAnm2IxAQ=="
 crossorigin=""></script>
+
 <style>
   #map { height: 500px; }
 </style>
@@ -83,37 +85,37 @@ crossorigin=""></script>
     <div class="row">
       <div class="col-md-2">
         <div class="form-group">
-        {{ forms.weatherform.lat.errors }}
-        {{ forms.weatherform.lat.label_tag }}
-        {{ forms.weatherform.lat }}
+        {{ forms.weatherform.tmy_lat.errors }}
+        {{ forms.weatherform.tmy_lat.label_tag }}
+        {{ forms.weatherform.tmy_lat }}
         </div>
       </div>
       <div class="col-md-2">
         <div class="form-group">
-        {{ forms.weatherform.lon.errors }}
-        {{ forms.weatherform.lon.label_tag }}
-        {{ forms.weatherform.lon }}
+        {{ forms.weatherform.tmy_lon.errors }}
+        {{ forms.weatherform.tmy_lon.label_tag }}
+        {{ forms.weatherform.tmy_lon }}
         </div>
       </div>
       <div class="col-md-2">
         <div class="form-group">
-        {{ forms.weatherform.start_year.errors }}
-        {{ forms.weatherform.start_year.label_tag }}
-        {{ forms.weatherform.start_year }}
+        {{ forms.weatherform.tmy_start_year.errors }}
+        {{ forms.weatherform.tmy_start_year.label_tag }}
+        {{ forms.weatherform.tmy_start_year }}
         </div>
       </div>
       <div class="col-md-2">
         <div class="form-group">
-        {{ forms.weatherform.end_year.errors }}
-        {{ forms.weatherform.end_year.label_tag }}
-        {{ forms.weatherform.end_year }}
+        {{ forms.weatherform.tmy_end_year.errors }}
+        {{ forms.weatherform.tmy_end_year.label_tag }}
+        {{ forms.weatherform.tmy_end_year }}
         </div>
       </div>
       <div class="col-md-2">
         <div class="form-group">
-        {{ forms.weatherform.source.errors }}
-        {{ forms.weatherform.source.label_tag }}
-        {{ forms.weatherform.source }}
+        {{ forms.weatherform.tmy_source.errors }}
+        {{ forms.weatherform.tmy_source.label_tag }}
+        {{ forms.weatherform.tmy_source }}
         </div>
       </div>
     </div>
@@ -129,20 +131,43 @@ crossorigin=""></script>
       </div>
       <div class="col-md-3">
         <div class="form-group">
-          {{ forms.weatherform.tmyfile.errors }}
-          {{ forms.weatherform.tmyfile.label_tag }}
-          {{ forms.weatherform.tmyfile }}
+          {{ forms.weatherform.tmy_file.errors }}
+          {{ forms.weatherform.tmy_file.label_tag }}
+          {{ forms.weatherform.tmy_file }}
           <p class="help-block">Browse for TMY2 or TMY3 file.</p>
         </div>
       </div>
     </div>
     <div class="row">
       <div class="col-md-2">
-        <button id="solposbutton" class="btn btn-primary" type="submit">Submit</button>
+        <button id="weatherbutton" class="btn btn-primary" type="submit">Submit</button>
       </div>
     </div>
   </form>
   <br/>
+  <p>
+    Click on the map and enter the dates for years desired, the source form
+    which to pull weather, and check if you want TMY data only:</p>
+  <span id="weather_code"></span>
+
+  <div id="map"></div>
+  <script>
+    var tmy_map = L.map("map").setView([37.75, -122.23], 10);
+    L.esri.basemapLayer("Topographic").addTo(tmy_map);
+    var marker_layer = L.layerGroup().addTo(tmy_map);
+
+    function onMapClick(e) {
+      marker_layer.clearLayers();
+      var marker = L.marker(e.latlng).addTo(marker_layer);
+      marker.bindPopup(e.latlng.toString()).openPopup();
+      $("#id_tmy_lat").val(e.latlng.lat);
+      $("#id_tmy_lon").val(e.latlng.lng);
+      $("#id_tz").val(Math.round(e.latlng.lng/15));
+    }
+
+    tmy_map.on('click', onMapClick);
+  </script>
+
 </div>
 <div class="container">
   <h1 id="solar-position" class="page-header" style="padding-top: 60px; margin-top: -30px;">
@@ -234,28 +259,10 @@ crossorigin=""></script>
     </div>
   </form>
   <br/>
-  <p>Click on the map and enter the dates and frequency fields above, then
-    click submit to see what your request looks like, a plot of azimuth vs.
-    zenith, and a <a href="#solpos">table of solar positions</a> below:</p>
+  <p>Ernter the dates and frequency fields above or click to copy from weather,
+    then click submit to see what your request looks like, a plot of azimuth
+    vs. zenith, and a <a href="#solpos">table of solar positions</a> below:</p>
   <span id="solpos_code"></span>
-
-  <div id="map"></div>
-  <script>
-    var solpos_map = L.map("map").setView([37.75, -122.23], 10);
-    L.esri.basemapLayer("Topographic").addTo(solpos_map);
-    var marker_layer = L.layerGroup().addTo(solpos_map);
-
-    function onMapClick(e) {
-      marker_layer.clearLayers();
-      var marker = L.marker(e.latlng).addTo(marker_layer);
-      marker.bindPopup(e.latlng.toString()).openPopup();
-      $("#id_lat").val(e.latlng.lat);
-      $("#id_lon").val(e.latlng.lng);
-      $("#id_tz").val(Math.round(e.latlng.lng/15));
-    }
-
-    solpos_map.on('click', onMapClick);
-  </script>
 
   <div id="vis" style="width: 100%;"></div>
   <div id="solpos"></div>
@@ -392,7 +399,10 @@ crossorigin=""></script>
     // remove form-control from checkbox input
     $("input#{{ forms.weatherform.tmy.id_for_label }}").removeClass("form-control");
     // remove form-control from file input
-    $("input#{{ forms.weatherform.tmyfile.id_for_label }}").removeClass("form-control");
+    $("input#{{ forms.weatherform.tmy_file.id_for_label }}").removeClass("form-control");
+
+    // weather
+    $("#weatherbuttom").click( function( event ){});
 
     // solar position
     $("#solposbutton").click( function( event ) {

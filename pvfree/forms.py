@@ -74,16 +74,16 @@ class WeatherForm(forms.Form):
     SRCS = [
         ('pvgis', 'PVGIS'), ('psm3', 'PSM3'), ('tmy2', 'TMY2'),
         ('tmy3', 'TMY3')]
-    lat = forms.FloatField(
+    tmy_lat = forms.FloatField(
         label='Latitude',
         validators=[MaxValueValidator(90), MinValueValidator(-90)])
-    lon = forms.FloatField(
+    tmy_lon = forms.FloatField(
         label='Longitude',
         validators=[MaxValueValidator(180), MinValueValidator(-180)])
-    start_year = forms.DateField(label='Start Date', required=False)
-    end_year = forms.DateField(label="End Date", required=False)
+    tmy_start_year = forms.DateField(label='Start Date', required=False)
+    tmy_end_year = forms.DateField(label="End Date", required=False)
     tmy = forms.BooleanField(label='TMY', required=False)
-    source = forms.ChoiceField(
+    tmy_source = forms.ChoiceField(
         label='Source', required=False, initial='PVGIS',
         choices=SRCS)
-    tmyfile = forms.FileField(required=False)
+    tmy_file = forms.FileField(required=False, label="TMY file")
