@@ -49,7 +49,7 @@ crossorigin=""></script>
   </div>
 </div>
 <div class="container">
-  <img src="https://raw.githubusercontent.com/pvlib/pvlib-python/master/docs/sphinx/source/_images/pvlib_logo_horiz.png" height="100"> 
+  <img src="https://raw.githubusercontent.com/pvlib/pvlib-python/master/docs/sphinx/source/_images/pvlib_logo_horiz.png" height="100">
   <p>This is a tutorial and API to the <a href="https://pvlib-python.readthedocs.io/en/latest/">pvlib python</a> library.</p>
   <h1 class="page-header" id="toc" style="padding-top: 60px; margin-top: -30px;">PV Modeling Steps</h1>
     <ul class="list-group">
@@ -111,16 +111,28 @@ crossorigin=""></script>
       </div>
       <div class="col-md-2">
         <div class="form-group">
-        {{ forms.weatherform.tmy.errors }}
-        {{ forms.weatherform.tmy.label_tag }}
-        {{ forms.weatherform.tmy }}
-        </div>
-      </div>
-      <div class="col-md-2">
-        <div class="form-group">
         {{ forms.weatherform.source.errors }}
         {{ forms.weatherform.source.label_tag }}
         {{ forms.weatherform.source }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-1">
+        <div class="checkbox">
+        {{ forms.weatherform.tmy.errors }}
+        <!--{{ forms.weatherform.tmy.label_tag }}-->
+          <label for="{{ forms.weatherform.tmy.id_for_label }}">
+          {{ forms.weatherform.tmy }} <b>TMY</b>
+          </label>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          {{ forms.weatherform.tmyfile.errors }}
+          {{ forms.weatherform.tmyfile.label_tag }}
+          {{ forms.weatherform.tmyfile }}
+          <p class="help-block">Browse for TMY2 or TMY3 file.</p>
         </div>
       </div>
     </div>
@@ -373,8 +385,14 @@ crossorigin=""></script>
 
     // add form-control to inputs and textarea fields
     $("input").addClass("form-control");
+    // TODO: try to use function to exclude type=checkbox & type=file
     $("textarea").addClass("form-control");
     $("select").addClass("form-control");
+
+    // remove form-control from checkbox input
+    $("input#{{ forms.weatherform.tmy.id_for_label }}").removeClass("form-control");
+    // remove form-control from file input
+    $("input#{{ forms.weatherform.tmyfile.id_for_label }}").removeClass("form-control");
 
     // solar position
     $("#solposbutton").click( function( event ) {

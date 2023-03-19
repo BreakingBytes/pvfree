@@ -86,4 +86,4 @@ class WeatherForm(forms.Form):
     source = forms.ChoiceField(
         label='Source', required=False, initial='PVGIS',
         choices=SRCS)
-    file = forms.FileField(required=False)
+    tmyfile = forms.FileField(required=False)
