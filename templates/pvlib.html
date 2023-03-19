@@ -78,6 +78,59 @@ crossorigin=""></script>
     The first step in evaluating PV system performance is to get the weather at
     the site.
   </p>
+  <br/>
+  <form id="weatherform">
+    <div class="row">
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.lat.errors }}
+        {{ forms.weatherform.lat.label_tag }}
+        {{ forms.weatherform.lat }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.lon.errors }}
+        {{ forms.weatherform.lon.label_tag }}
+        {{ forms.weatherform.lon }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.start_year.errors }}
+        {{ forms.weatherform.start_year.label_tag }}
+        {{ forms.weatherform.start_year }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.end_year.errors }}
+        {{ forms.weatherform.end_year.label_tag }}
+        {{ forms.weatherform.end_year }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.tmy.errors }}
+        {{ forms.weatherform.tmy.label_tag }}
+        {{ forms.weatherform.tmy }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.source.errors }}
+        {{ forms.weatherform.source.label_tag }}
+        {{ forms.weatherform.source }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        <button id="solposbutton" class="btn btn-primary" type="submit">Submit</button>
+      </div>
+    </div>
+  </form>
+  <br/>
 </div>
 <div class="container">
   <h1 id="solar-position" class="page-header" style="padding-top: 60px; margin-top: -30px;">
