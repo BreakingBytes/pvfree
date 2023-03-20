@@ -113,6 +113,13 @@ crossorigin=""></script>
       </div>
       <div class="col-md-2">
         <div class="form-group">
+        {{ forms.weatherform.tmy_freq.errors }}
+        {{ forms.weatherform.tmy_freq.label_tag }}
+        {{ forms.weatherform.tmy_freq }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
         {{ forms.weatherform.tmy_source.errors }}
         {{ forms.weatherform.tmy_source.label_tag }}
         {{ forms.weatherform.tmy_source }}
@@ -146,8 +153,9 @@ crossorigin=""></script>
   </form>
   <br/>
   <p>
-    Click on the map and enter the dates for years desired, the source form
-    which to pull weather, and check if you want TMY data only:</p>
+    Click on the map and enter the dates for years, desired frequency, source
+    to pull weather from, and check if you want TMY data only. If you select
+    TMY2 or TMY3, upload the file instead. Summary data is shown below:</p>
   <span id="weather_code"></span>
 
   <div id="map"></div>
@@ -255,6 +263,7 @@ crossorigin=""></script>
     <div class="row">
       <div class="col-md-2">
         <button id="solposbutton" class="btn btn-primary" type="submit">Submit</button>
+        <button id="sp_cp_btn" type="button" class="btn btn-default">Copy Inputs</button>
       </div>
     </div>
   </form>

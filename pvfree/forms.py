@@ -74,6 +74,7 @@ class WeatherForm(forms.Form):
     SRCS = [
         ('pvgis', 'PVGIS'), ('psm3', 'PSM3'), ('tmy2', 'TMY2'),
         ('tmy3', 'TMY3')]
+    FREQ = [(5, '5'), (15, '15'), (30, '30'), (60, '60')]
     tmy_lat = forms.FloatField(
         label='Latitude',
         validators=[MaxValueValidator(90), MinValueValidator(-90)])
@@ -82,8 +83,15 @@ class WeatherForm(forms.Form):
         validators=[MaxValueValidator(180), MinValueValidator(-180)])
     tmy_start_year = forms.DateField(label='Start Date', required=False)
     tmy_end_year = forms.DateField(label="End Date", required=False)
-    tmy = forms.BooleanField(label='TMY', required=False)
+    tmy_freq = forms.ChoiceField(
+        label='Frequency', required=False, initial='60', choices=FREQ)
     tmy_source = forms.ChoiceField(
         label='Source', required=False, initial='PVGIS',
         choices=SRCS)
+    tmy = forms.BooleanField(label='TMY', required=False)
+    tmy_nrel_key = forms.CharField(
+        max_length=100, label='NREL API Key', initial="DEMO_KEY",
+        required=False)
+    tmy_email = forms.EmailField(
+        max_length=100, label='Email Address', required=False)
     tmy_file = forms.FileField(required=False, label="TMY file")

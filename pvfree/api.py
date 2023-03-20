@@ -1,6 +1,6 @@
 """pvlib api"""
 
-from pvlib import solarposition, clearsky, atmosphere
+from pvlib import solarposition, clearsky, atmosphere, iotools
 from django.http import JsonResponse
 from django.shortcuts import Http404
 from django.views.decorators.csrf import csrf_exempt
@@ -128,10 +128,11 @@ def airmass_resource(request):
             zenith_data = pd.read_excel(zenith_file)
         else:
             return JsonResponse(params.errors, status=400)
-    if not model:
+    if model is None:
         model = 'kastenyoung1989'
-    apparent_or_true = APPARENT_OR_TRUE.get(model)
-    if not apparent_or_true:
+    try:
+        apparent_or_true = APPARENT_OR_TRUE[model]
+    except KeyError:
         return JsonResponse(params.errors, status=400)
     am = atmosphere.get_relative_airmass(zenith_data[apparent_or_true], model)
     am.fillna(-9999.9, inplace=True)
@@ -146,3 +147,19 @@ def weather_resource(request):
         params = WeatherForm(request.GET)
     else:
         params = WeatherForm(request.POST)
+    if params.is_valid():
+        tmy_lat = params.cleaned_data['tmy_lat']
+        tmy_lon = params.cleaned_data['tmy_lon']
+        tmy_start_year = params.cleaned_data['tmy_start_year']
+        tmy_end_year = params.cleaned_data['tmy_end_year']
+        tmy_freq = params.cleaned_data['tmy_freq']
+        tmy_source = params.cleaned_data['tmy_source']
+        tmy = params.cleaned_data['tmy']
+        tmy_file = params.cleaned_data['tmy_file']
+    else:
+        return JsonResponse(params.errors, status=400)
+    if tmy_source.lower() == "psm3":
+        data, metadata = iotools.get_psm3(
+            latitude=tmy_lat, longitude=tmy_lon, api_key="DEMO_KEY",
+            email='email@example.net')
+    return JsonResponse(data.to_dict())
