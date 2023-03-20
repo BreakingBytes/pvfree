@@ -35,12 +35,12 @@ def solarposition_resource(request):
     end = end.replace(tzinfo=None)
     tz = 'Etc/GMT{:+d}'.format(-tz)
     try:
-        times = pd.DatetimeIndex(start=start, end=end, freq=freq, tz=tz)
+        times = pd.date_range(start=start, end=end, freq=freq, tz=tz)
     except ValueError as exc:
         return JsonResponse({'freq': [str(exc)]}, status=400)
+    # FIXME: *** Shift time to middle of intervals! ***
     solpos = solarposition.get_solarposition(times, lat, lon)
     solpos.index = times.strftime('%Y-%m-%dT%H:%M:%S%z')
-    # [t.isoformat() for t in times.to_pydatetime()]
     data = solpos.to_dict('index')
     return JsonResponse(data)
 
@@ -69,12 +69,11 @@ def linke_turbidity_resource(request):
     end = end.replace(tzinfo=None)
     tz = 'Etc/GMT{:+d}'.format(-tz)
     try:
-        times = pd.DatetimeIndex(start=start, end=end, freq=freq, tz=tz)
+        times = pd.date_range(start=start, end=end, freq=freq, tz=tz)
     except ValueError as exc:
         return JsonResponse({'freq': [str(exc)]}, status=400)
     tl = clearsky.lookup_linke_turbidity(times, lat, lon)
     tl.index = times.strftime('%Y-%m-%dT%H:%M:%S%z')
-    # [t.isoformat() for t in times.to_pydatetime()]
     data = tl.to_dict()
     return JsonResponse(data)
 
@@ -155,11 +154,27 @@ def weather_resource(request):
         tmy_freq = params.cleaned_data['tmy_freq']
         tmy_source = params.cleaned_data['tmy_source']
         tmy = params.cleaned_data['tmy']
+        tmy_nrel_key = params.cleaned_data['tmy_nrel_key']
+        tmy_email = params.cleaned_data['tmy_email']
         tmy_file = params.cleaned_data['tmy_file']
     else:
         return JsonResponse(params.errors, status=400)
+    if tmy_nrel_key is None:
+        tmy_nrel_key = "DEMO_KEY"
+    # TODO: add input to coerce year
+    times = pd.date_range(
+        start='1990-01-01 00:30', end='1990-12-31 23:59:59', freq='H')
     if tmy_source.lower() == "psm3":
-        data, metadata = iotools.get_psm3(
-            latitude=tmy_lat, longitude=tmy_lon, api_key="DEMO_KEY",
-            email='email@example.net')
-    return JsonResponse(data.to_dict())
+        if tmy_email is None:
+            return JsonResponse(params.errors, status=400)
+        tmy_data, metadata = iotools.get_psm3(
+            latitude=tmy_lat, longitude=tmy_lon, api_key=tmy_nrel_key,
+            email=tmy_email)
+        tmy_data.index = times.strftime('%Y-%m-%dT%H:%M:%S%z')
+        # DROP_COLS = ['Year', 'Month', 'Day', 'Hour', '']
+        # tmy_data = tmy_data.drop(columns=DROP_COLS)
+        # TODO: do better with columns
+        DATA_COLS = ['GHI', 'DHI', 'DNI', 'Temperature', "Wind Speed"]
+        data = tmy_data[DATA_COLS].to_dict('index')
+        # TODO: also return metadata like city, state, timezone, etc
+    return JsonResponse(data)

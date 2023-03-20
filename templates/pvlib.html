@@ -55,7 +55,7 @@ crossorigin=""></script>
   <p>This is a tutorial and API to the <a href="https://pvlib-python.readthedocs.io/en/latest/">pvlib python</a> library.</p>
   <h1 class="page-header" id="toc" style="padding-top: 60px; margin-top: -30px;">PV Modeling Steps</h1>
     <ul class="list-group">
-      <a class="list-group-item" href="#weather"><h4 class="list-group-item-heading">Weather</h4><span class="badge">1</span>
+      <a class="list-group-item" href="#tmy-weather"><h4 class="list-group-item-heading">Weather</h4><span class="badge">1</span>
         <p class="list-group-item-text">What's the weather like?</p>
       </a>
       <a class="list-group-item" href="#solar-position"><h4 class="list-group-item-heading">Solar Position</h4><span class="badge">2</span>
@@ -70,7 +70,7 @@ crossorigin=""></script>
     </ul>
 </div>
 <div class="container">
-  <h1 id="weather" class="page-header" style="padding-top: 60px; margin-top: -30px;">
+  <h1 id="tmy-weather" class="page-header" style="padding-top: 60px; margin-top: -30px;">
     Weather
     <a type="button" class="btn btn-default btn-sm" href="#toc" title="back to top">
       <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
@@ -144,12 +144,22 @@ crossorigin=""></script>
           <p class="help-block">Browse for TMY2 or TMY3 file.</p>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-2">
-        <button id="weatherbutton" class="btn btn-primary" type="submit">Submit</button>
+      <div class="col-md-4">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_nrel_key.errors }}
+        {{ forms.weatherform.tmy_nrel_key.label_tag }}
+        {{ forms.weatherform.tmy_nrel_key }}
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_email.errors }}
+        {{ forms.weatherform.tmy_email.label_tag }}
+        {{ forms.weatherform.tmy_email }}
+        </div>
       </div>
     </div>
+    <button id="weatherbutton" class="btn btn-primary" type="submit">Submit</button>
   </form>
   <br/>
   <p>
@@ -170,11 +180,14 @@ crossorigin=""></script>
       marker.bindPopup(e.latlng.toString()).openPopup();
       $("#id_tmy_lat").val(e.latlng.lat);
       $("#id_tmy_lon").val(e.latlng.lng);
-      $("#id_tz").val(Math.round(e.latlng.lng/15));
     }
 
     tmy_map.on('click', onMapClick);
   </script>
+  <br/> <!--XXX: Might not be necessary?-->
+
+  <div id="tmy_vis" style="width: 100%;"></div>
+  <div id="weather"></div>
 
 </div>
 <div class="container">
@@ -260,12 +273,8 @@ crossorigin=""></script>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-2">
-        <button id="solposbutton" class="btn btn-primary" type="submit">Submit</button>
-        <button id="sp_cp_btn" type="button" class="btn btn-default">Copy Inputs</button>
-      </div>
-    </div>
+    <button id="solposbutton" class="btn btn-primary" type="submit">Submit</button>
+    <button id="sp_cp_btn" type="button" class="btn btn-default">Copy Inputs</button>
   </form>
   <br/>
   <p>Ernter the dates and frequency fields above or click to copy from weather,
@@ -411,7 +420,48 @@ crossorigin=""></script>
     $("input#{{ forms.weatherform.tmy_file.id_for_label }}").removeClass("form-control");
 
     // weather
-    $("#weatherbuttom").click( function( event ){});
+    $("#weatherbutton").click( function( event ){
+      event.preventDefault();
+      console.log(event);
+      console.log(this);
+
+      var items = [];
+      var headers = ["Timestamp", "GHI", "DHI", "DNI", "Temperature", "Wind Speed"];
+      var params = $("#weatherform").serialize();
+      var tmy_url = "/api/v1/pvlib/weather/";
+      $("#weather").empty();
+      if ($("#weather").attr("style") != null) {
+        $("#weather").removeAttr("style");
+      };
+      $("#weather_code").empty();
+      $("<pre>", {html: tmy_url + "?" + params}).appendTo("#weather_code");
+      // TODO: add progress bar for loading weather
+      $.getJSON( tmy_url, params, function( data ) {
+        $.each( data, function( date, record ) {
+          row = "<tr><td><b>" + date + "</b></td>";
+          $.each( record, function( col, val ) {
+            // vega_record[col] = val;
+            row += "<td>" + val + "</td>" ;
+            /* if (is_first_row) {
+              headers.push( col );
+            }; */
+          });
+          row += "</tr>"
+          // is_first_row = false;
+          items.push( row );
+        });
+        items = "<tbody>" + items.join( "" ) + "</tbody>";
+        headers = "<th>" + headers.join("</th><th>") + "</th>";
+        $("#weather").css({"height": "500px", "overflow": "auto"});
+        $( "<table>", {
+          "id": "weatherTable",
+          "class": "table table-striped table-bordered table-condensed",
+          html: "<thead>" + headers + "</thead>" + items
+        }).appendTo( "#weather" );
+      }).fail(function(err){
+        $("#weather_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
+      });
+    });
 
     // solar position
     $("#solposbutton").click( function( event ) {
@@ -482,6 +532,20 @@ crossorigin=""></script>
       }).fail(function(err){
         $("#solpos_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
       });
+    });
+
+    // Copy weather inputs to solpos
+    $("#sp_cp_btn").click( function( event ) {
+      event.preventDefault();
+      console.log(event);
+      console.log(this);
+
+      // copy inputs to solpos from weather
+      $("#id_lat").val($('#id_tmy_lat').val());
+      $("#id_lon").val($('#id_tmy_lon').val());
+      $("#id_start").val($('#id_tmy_start_year').val());
+      $("#id_end").val($('#id_tmy_end_year').val());
+      $("#id_freq").val($('#id_tmy_freq').val());
     });
 
     // Linke Turbidity
