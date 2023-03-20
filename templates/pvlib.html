@@ -356,7 +356,7 @@ crossorigin=""></script>
   <h2>Example</h2>
   <p>
     You'll need to send a <code>POST</code> request with solar position data.
-    Try this <a target="_blank" href="https://pvfree.herokuapp.com/api/v1/pvlib/airmass/?zenith_data=%7B%222019-01-01T09%3A00%3A00-0800%22%3A%7B%22apparent_zenith%22%3A%2275.64949399351546%22%7D%2C%222019-01-01T12%3A00%3A00-0800%22%3A%7B%22apparent_zenith%22%3A%2260.93578142843924%22%7D%7D&model=kastenyoung1989">
+    Try this <a target="_blank" href="https://pvfree.azurewebsites.net/api/v1/pvlib/airmass/?zenith_data=%7B%222019-01-01T09%3A00%3A00-0800%22%3A%7B%22apparent_zenith%22%3A%2275.64949399351546%22%7D%2C%222019-01-01T12%3A00%3A00-0800%22%3A%7B%22apparent_zenith%22%3A%2260.93578142843924%22%7D%7D&model=kastenyoung1989">
       <code>curl -H "Content-Type: application/json" -X POST /api/v1/pvlib/airmass/ -d '{"model":"kastenyoung1989","zenith_data":{"2019-01-01T09:00:00-0800":{"apparent_zenith":"75.64949399351546"},"2019-01-01T12:00:00-0800":{"apparent_zenith":"60.93578142843924"}}}'</code></a>.
   </p>
   <br/>
