@@ -9,6 +9,8 @@ import pandas as pd
 from pvfree.forms import (
     SolarPositionForm, LinkeTurbidityForm, AirmassForm, WeatherForm)
 import json
+import calendar
+from requests.exceptions import HTTPError
 
 
 def solarposition_resource(request):
@@ -107,8 +109,8 @@ def airmass_resource(request):
     if zenith_data:
         zenith_data = json.loads(zenith_data)
         if len(zenith_data) == 0:
-            return JsonResponse({"zenith_data": ["Invalid data in zenith data"]},
-            status=400)
+            return JsonResponse(
+                {"zenith_data": ["Invalid data in zenith data."]}, status=400)
         times = pd.DatetimeIndex(zenith_data.keys())  # keys not necessary
         columns = {}
         for row in zenith_data.values():
@@ -149,8 +151,8 @@ def weather_resource(request):
     if params.is_valid():
         tmy_lat = params.cleaned_data['tmy_lat']
         tmy_lon = params.cleaned_data['tmy_lon']
-        tmy_start_year = params.cleaned_data['tmy_start_year']
-        tmy_end_year = params.cleaned_data['tmy_end_year']
+        tmy_year_name = params.cleaned_data['tmy_year_name']
+        tmy_coerced_year = params.cleaned_data['tmy_coerced_year']
         tmy_freq = params.cleaned_data['tmy_freq']
         tmy_source = params.cleaned_data['tmy_source']
         tmy = params.cleaned_data['tmy']
@@ -161,15 +163,39 @@ def weather_resource(request):
         return JsonResponse(params.errors, status=400)
     if tmy_nrel_key is None:
         tmy_nrel_key = "DEMO_KEY"
-    # TODO: add input to coerce year
-    times = pd.date_range(
-        start='1990-01-01 00:30', end='1990-12-31 23:59:59', freq='H')
+    if tmy:
+        start_year = tmy_coerced_year or 1990
+    else:
+        start_year = tmy_year_name
+    # PSM3
     if tmy_source.lower() == "psm3":
-        if tmy_email is None:
-            return JsonResponse(params.errors, status=400)
-        tmy_data, metadata = iotools.get_psm3(
-            latitude=tmy_lat, longitude=tmy_lon, api_key=tmy_nrel_key,
-            email=tmy_email)
+        if tmy:
+            tmy_name = 'tmy'
+            tmy_freq = 60
+            times = pd.date_range(
+                start=f'{start_year}-01-01 00:30',
+                end=f'{start_year}-12-31 23:59:59',
+                freq='H')
+        else:
+            tmy_freq = int(tmy_freq)
+            tmy_name = str(tmy_year_name)
+            start_time = f'00:{tmy_freq//2:02d}:{int((tmy_freq%2)/2*60):02d}'
+            times = pd.date_range(
+                start=f'{start_year}-01-01 {start_time}',
+                end=f'{start_year}-12-31 23:59:59',
+                freq=f'{tmy_freq}T')
+        try:
+            tmy_data, metadata = iotools.get_psm3(
+                latitude=tmy_lat, longitude=tmy_lon, api_key=tmy_nrel_key,
+                email=tmy_email, names=tmy_name, interval=tmy_freq)
+        except Exception as exc:
+            # could be either HTTPError or ReadTimeout 
+            return JsonResponse({'psm3': exc.args[0]}, status=400)
+        if calendar.isleap(int(start_year)):
+            feb29 = (times.month==2) & (times.day==29)
+            times = times[~feb29]
+        tmy_tz = metadata['Time Zone']
+        times = times.tz_localize(f'Etc/GMT{-tmy_tz:+d}')
         tmy_data.index = times.strftime('%Y-%m-%dT%H:%M:%S%z')
         # DROP_COLS = ['Year', 'Month', 'Day', 'Hour', '']
         # tmy_data = tmy_data.drop(columns=DROP_COLS)

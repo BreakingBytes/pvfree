@@ -99,16 +99,16 @@ crossorigin=""></script>
       </div>
       <div class="col-md-2">
         <div class="form-group">
-        {{ forms.weatherform.tmy_start_year.errors }}
-        {{ forms.weatherform.tmy_start_year.label_tag }}
-        {{ forms.weatherform.tmy_start_year }}
+        {{ forms.weatherform.tmy_year_name.errors }}
+        {{ forms.weatherform.tmy_year_name.label_tag }}
+        {{ forms.weatherform.tmy_year_name }}
         </div>
       </div>
       <div class="col-md-2">
         <div class="form-group">
-        {{ forms.weatherform.tmy_end_year.errors }}
-        {{ forms.weatherform.tmy_end_year.label_tag }}
-        {{ forms.weatherform.tmy_end_year }}
+        {{ forms.weatherform.tmy_coerced_year.errors }}
+        {{ forms.weatherform.tmy_coerced_year.label_tag }}
+        {{ forms.weatherform.tmy_coerced_year }}
         </div>
       </div>
       <div class="col-md-2">
@@ -543,8 +543,8 @@ crossorigin=""></script>
       // copy inputs to solpos from weather
       $("#id_lat").val($('#id_tmy_lat').val());
       $("#id_lon").val($('#id_tmy_lon').val());
-      $("#id_start").val($('#id_tmy_start_year').val());
-      $("#id_end").val($('#id_tmy_end_year').val());
+      $("#id_start").val($('#id_tmy_year_name').val());
+      $("#id_end").val($('#id_tmy_coerced_year').val());
       $("#id_freq").val($('#id_tmy_freq').val());
     });
 
