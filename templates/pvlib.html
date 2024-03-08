@@ -4,9 +4,16 @@
 {% block headers %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
 <!-- <link rel="stylesheet" href="{% static 'highlight/styles/default.css' %}"> -->
-<script src="https://cdn.jsdelivr.net/npm/vega@5.0.0-rc2/build/vega.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-lite@3.0.0-rc13/build/vega-lite.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vega-embed@3.29.1/build/vega-embed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega@5.22.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5.6.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.21.2"></script>
+
+<style media="screen">
+  /* Add space between Vega-Embed links  */
+  .vega-actions a {
+    margin-right: 5px;
+  }
+</style>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
 integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
@@ -16,9 +23,10 @@ crossorigin=""/>
 integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
 crossorigin=""></script>
 <!-- Load Esri Leaflet from CDN -->
-<script src="https://unpkg.com/esri-leaflet@2.2.3/dist/esri-leaflet.js"
-integrity="sha512-YZ6b5bXRVwipfqul5krehD9qlbJzc6KOGXYsDjU9HHXW2gK57xmWl2gU6nAegiErAqFXhygKIsWPKbjLPXVb2g=="
+<script src="https://unpkg.com/esri-leaflet@2.2.4/dist/esri-leaflet.js"
+integrity="sha512-tyPum7h2h36X52O2gz+Pe8z/3l+Y9S1yEUscbVs5r5aEY5dFmP1WWRY/WLLElnFHa+k1JBQZSCDGwEAnm2IxAQ=="
 crossorigin=""></script>
+
 <style>
   #map { height: 500px; }
 </style>
@@ -43,20 +51,144 @@ crossorigin=""></script>
   </div>
 </div>
 <div class="container">
-  <img src="https://raw.githubusercontent.com/pvlib/pvlib-python/master/docs/sphinx/source/_images/pvlib_logo_horiz.png" height="100"> 
+  <img src="https://raw.githubusercontent.com/pvlib/pvlib-python/master/docs/sphinx/source/_images/pvlib_logo_horiz.png" height="100">
   <p>This is a tutorial and API to the <a href="https://pvlib-python.readthedocs.io/en/latest/">pvlib python</a> library.</p>
   <h1 class="page-header" id="toc" style="padding-top: 60px; margin-top: -30px;">PV Modeling Steps</h1>
     <ul class="list-group">
-      <a class="list-group-item" href="#solar-position"><h4 class="list-group-item-heading">Solar Position</h4><span class="badge">1</span>
+      <a class="list-group-item" href="#tmy-weather"><h4 class="list-group-item-heading">Weather</h4><span class="badge">1</span>
+        <p class="list-group-item-text">What's the weather like?</p>
+      </a>
+      <a class="list-group-item" href="#solar-position"><h4 class="list-group-item-heading">Solar Position</h4><span class="badge">2</span>
         <p class="list-group-item-text">It's important to know where the sun is.</p>
       </a>
-      <a class="list-group-item" href="#linke-turbidity"><h4 class="list-group-item-heading">Linke Turbidity</h4><span class="badge">2</span>
+      <a class="list-group-item" href="#linke-turbidity"><h4 class="list-group-item-heading">Linke Turbidity</h4><span class="badge">3</span>
         <p class="list-group-item-text">Aerosols and dust in the atmosphere can affect PV power more than you think.</p>
       </a>
-      <a class="list-group-item" href="#air-mass"><h4 class="list-group-item-heading">Air Mass</h4><span class="badge">3</span>
+      <a class="list-group-item" href="#air-mass"><h4 class="list-group-item-heading">Air Mass</h4><span class="badge">4</span>
         <p class="list-group-item-text">The further light travels through the air, the more its color changes.</p>
       </a>
     </ul>
+</div>
+<div class="container">
+  <h1 id="tmy-weather" class="page-header" style="padding-top: 60px; margin-top: -30px;">
+    Weather
+    <a type="button" class="btn btn-default btn-sm" href="#toc" title="back to top">
+      <span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+    </a>
+  </h1>
+  <p>
+    The first step in evaluating PV system performance is to get the weather at
+    the site.
+  </p>
+  <br/>
+  <form id="weatherform">
+    <div class="row">
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_lat.errors }}
+        {{ forms.weatherform.tmy_lat.label_tag }}
+        {{ forms.weatherform.tmy_lat }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_lon.errors }}
+        {{ forms.weatherform.tmy_lon.label_tag }}
+        {{ forms.weatherform.tmy_lon }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_year_name.errors }}
+        {{ forms.weatherform.tmy_year_name.label_tag }}
+        {{ forms.weatherform.tmy_year_name }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_coerced_year.errors }}
+        {{ forms.weatherform.tmy_coerced_year.label_tag }}
+        {{ forms.weatherform.tmy_coerced_year }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_freq.errors }}
+        {{ forms.weatherform.tmy_freq.label_tag }}
+        {{ forms.weatherform.tmy_freq }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_source.errors }}
+        {{ forms.weatherform.tmy_source.label_tag }}
+        {{ forms.weatherform.tmy_source }}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-1">
+        <div class="checkbox">
+        {{ forms.weatherform.tmy.errors }}
+        <!--{{ forms.weatherform.tmy.label_tag }}-->
+          <label for="{{ forms.weatherform.tmy.id_for_label }}">
+          {{ forms.weatherform.tmy }} <b>TMY</b>
+          </label>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="form-group">
+          {{ forms.weatherform.tmy_file.errors }}
+          {{ forms.weatherform.tmy_file.label_tag }}
+          {{ forms.weatherform.tmy_file }}
+          <p class="help-block">Browse for TMY2 or TMY3 file.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_nrel_key.errors }}
+        {{ forms.weatherform.tmy_nrel_key.label_tag }}
+        {{ forms.weatherform.tmy_nrel_key }}
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group">
+        {{ forms.weatherform.tmy_email.errors }}
+        {{ forms.weatherform.tmy_email.label_tag }}
+        {{ forms.weatherform.tmy_email }}
+        </div>
+      </div>
+    </div>
+    <button id="weatherbutton" class="btn btn-primary" type="submit">Submit</button>
+  </form>
+  <br/>
+  <p>
+    Click on the map and enter the dates for years, desired frequency, source
+    to pull weather from, and check if you want TMY data only. If you select
+    TMY2 or TMY3, upload the file instead. Summary data is shown below:</p>
+  <span id="weather_code"></span>
+
+  <div id="map"></div>
+  <script>
+    var tmy_map = L.map("map").setView([37.75, -122.23], 10);
+    L.esri.basemapLayer("Topographic").addTo(tmy_map);
+    var marker_layer = L.layerGroup().addTo(tmy_map);
+
+    function onMapClick(e) {
+      marker_layer.clearLayers();
+      var marker = L.marker(e.latlng).addTo(marker_layer);
+      marker.bindPopup(e.latlng.toString()).openPopup();
+      $("#id_tmy_lat").val(e.latlng.lat);
+      $("#id_tmy_lon").val(e.latlng.lng);
+    }
+
+    tmy_map.on('click', onMapClick);
+  </script>
+  <br/> <!--XXX: Might not be necessary?-->
+
+  <div id="tmy_vis" style="width: 100%;"></div>
+  <div id="weather"></div>
+
 </div>
 <div class="container">
   <h1 id="solar-position" class="page-header" style="padding-top: 60px; margin-top: -30px;">
@@ -66,9 +198,15 @@ crossorigin=""></script>
     </a>
   </h1>
   <p>
-    The first step to modeling a PV system is to get the solar position for the
-    site. Use the PVLIB API by sending a <code>GET</code> request to
-    <code>/api/v1/pvlib/solarposition/</code>, the response is <code>JSON</code>.
+    The next step in modeling a PV system is to get the solar positions for a
+    specific time range at the site. Solar position is a vector from the site
+    to the sun given by its zenith and azimuth. The zenith is the sun's angle
+    from directly overhead, and the azimuth is the angle from true north. Use
+    the PVLIB API by sending a <code>GET</code> request to
+    <code>/api/v1/pvlib/solarposition/</code>, the response is
+    <code>JSON</code> with the solar zenith and azimuth at each time specified.
+    The API calls 
+    <code><a href="https://pvlib-python.readthedocs.io/en/stable/reference/generated/pvlib.solarposition.get_solarposition.html">pvlib.solarposition.get_solarposition</a></code>
     The calculation requires the following parameters:
   </p>
   <ul>
@@ -135,37 +273,16 @@ crossorigin=""></script>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-2">
-        <button id="solposbutton" class="btn btn-primary" type="submit">Submit</button>
-      </div>
-    </div>
+    <button id="solposbutton" class="btn btn-primary" type="submit">Submit</button>
+    <button id="sp_cp_btn" type="button" class="btn btn-default">Copy Inputs</button>
   </form>
   <br/>
-  <p>Click on the map and enter the dates and frequency fields above, then
-    click submit to see what your request looks like, a plot of azimuth vs.
-    zenith, and a <a href="#solpos">table of solar positions</a> below:</p>
+  <p>Ernter the dates and frequency fields above or click to copy from weather,
+    then click submit to see what your request looks like, a plot of azimuth
+    vs. zenith, and a <a href="#solpos">table of solar positions</a> below:</p>
   <span id="solpos_code"></span>
 
-  <div id="map"></div>
-  <script>
-    var solpos_map = L.map("map").setView([37.75, -122.23], 10);
-    L.esri.basemapLayer("Topographic").addTo(solpos_map);
-    var marker_layer = L.layerGroup().addTo(solpos_map);
-
-    function onMapClick(e) {
-      marker_layer.clearLayers();
-      var marker = L.marker(e.latlng).addTo(marker_layer);
-      marker.bindPopup(e.latlng.toString()).openPopup();
-      $("#id_lat").val(e.latlng.lat);
-      $("#id_lon").val(e.latlng.lng);
-      $("#id_tz").val(Math.round(e.latlng.lng/15));
-    }
-
-    solpos_map.on('click', onMapClick);
-  </script>
-
-  <div id="vis"></div>
+  <div id="vis" style="width: 100%;"></div>
   <div id="solpos"></div>
 </div>
 <!--Linke Turbidity-->
@@ -293,8 +410,58 @@ crossorigin=""></script>
 
     // add form-control to inputs and textarea fields
     $("input").addClass("form-control");
+    // TODO: try to use function to exclude type=checkbox & type=file
     $("textarea").addClass("form-control");
     $("select").addClass("form-control");
+
+    // remove form-control from checkbox input
+    $("input#{{ forms.weatherform.tmy.id_for_label }}").removeClass("form-control");
+    // remove form-control from file input
+    $("input#{{ forms.weatherform.tmy_file.id_for_label }}").removeClass("form-control");
+
+    // weather
+    $("#weatherbutton").click( function( event ){
+      event.preventDefault();
+      console.log(event);
+      console.log(this);
+
+      var items = [];
+      var headers = ["Timestamp", "GHI", "DHI", "DNI", "Temperature", "Wind Speed"];
+      var params = $("#weatherform").serialize();
+      var tmy_url = "/api/v1/pvlib/weather/";
+      $("#weather").empty();
+      if ($("#weather").attr("style") != null) {
+        $("#weather").removeAttr("style");
+      };
+      $("#weather_code").empty();
+      $("<pre>", {html: tmy_url + "?" + params}).appendTo("#weather_code");
+      // TODO: add progress bar for loading weather
+      $.getJSON( tmy_url, params, function( data ) {
+        $.each( data, function( date, record ) {
+          row = "<tr><td><b>" + date + "</b></td>";
+          $.each( record, function( col, val ) {
+            // vega_record[col] = val;
+            row += "<td>" + val + "</td>" ;
+            /* if (is_first_row) {
+              headers.push( col );
+            }; */
+          });
+          row += "</tr>"
+          // is_first_row = false;
+          items.push( row );
+        });
+        items = "<tbody>" + items.join( "" ) + "</tbody>";
+        headers = "<th>" + headers.join("</th><th>") + "</th>";
+        $("#weather").css({"height": "500px", "overflow": "auto"});
+        $( "<table>", {
+          "id": "weatherTable",
+          "class": "table table-striped table-bordered table-condensed",
+          html: "<thead>" + headers + "</thead>" + items
+        }).appendTo( "#weather" );
+      }).fail(function(err){
+        $("#weather_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
+      });
+    });
 
     // solar position
     $("#solposbutton").click( function( event ) {
@@ -340,16 +507,18 @@ crossorigin=""></script>
         }).appendTo( "#solpos" );
 
       // Assign the specification to a local variable vlSpec.
-      var vis_width = $("#solpos").width()-200;
-      var vis_height = vis_width/2;
+      /* make width responsive by setting <div> element style to width: 100%
+        and top level spec width to "container":
+        https://vega.github.io/vega-lite/docs/size.html#specifying-responsive-width-and-height
+      */
       var vlSpec = {
-        $schema: 'https://vega.github.io/schema/vega-lite/v3.json',
+        $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
         title: ("solar position at (" + Math.round($('#id_lat').val(), 5)
                 + "," + Math.round($('#id_lon').val(), 5) + ") from "
                 + $('#id_start').val() + " to " + $('#id_end').val()),
-        width: vis_width, height: vis_height,
+        width: 'container', height: 400,
         data: {values: vega_data},
-        mark: {type: 'point', clip: true},
+        mark: {type: 'point', clip: true, tooltip: true},
         encoding: {
           y: {field: 'apparent_zenith', type: 'quantitative'},
           x: {field: 'azimuth', type: 'quantitative'},
@@ -363,6 +532,20 @@ crossorigin=""></script>
       }).fail(function(err){
         $("#solpos_code").html('<pre class="alert alert-danger" role="alert">' + err.responseText + "</pre>");
       });
+    });
+
+    // Copy weather inputs to solpos
+    $("#sp_cp_btn").click( function( event ) {
+      event.preventDefault();
+      console.log(event);
+      console.log(this);
+
+      // copy inputs to solpos from weather
+      $("#id_lat").val($('#id_tmy_lat').val());
+      $("#id_lon").val($('#id_tmy_lon').val());
+      $("#id_start").val($('#id_tmy_year_name').val());
+      $("#id_end").val($('#id_tmy_coerced_year').val());
+      $("#id_freq").val($('#id_tmy_freq').val());
     });
 
     // Linke Turbidity
@@ -448,7 +631,7 @@ crossorigin=""></script>
       console.log(this);
 
       var items = [];
-      var headers = ["Timestamp", "Absolute Airmass"];
+      var headers = ["Timestamp", "Relative Airmass"];
       var params = {};
       $.each($("#am_form").serializeArray(), function(){
         params[this.name] = this.value;
