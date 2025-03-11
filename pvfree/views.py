@@ -6,7 +6,8 @@ from bokeh.plotting import figure
 from bokeh.models import Legend, LegendItem
 from bokeh.embed import components
 from bokeh.palettes import Colorblind5 as cmap
-from pvfree.forms import SolarPositionForm, LinkeTurbidityForm, AirmassForm
+from pvfree.forms import (
+    SolarPositionForm, LinkeTurbidityForm, AirmassForm, WeatherForm)
 from pvlib.pvsystem import sapm, calcparams_cec, singlediode
 import numpy as np
 
@@ -130,14 +131,12 @@ def cec_module_detail(request, cec_module_id):
 
 @csrf_exempt
 def pvlib(request):
-    forms = {}
+    FORMS = {
+        'weatherform': WeatherForm, 'solposform': SolarPositionForm,
+        'tl_form': LinkeTurbidityForm, 'am_form': AirmassForm}
     if request.method == 'GET':
-        forms['solposform'] = SolarPositionForm()
-        forms['tl_form'] = LinkeTurbidityForm()
-        forms['am_form'] = AirmassForm()
+        forms = {k: v() for k, v in FORMS.items()}
     elif request.method == 'POST':
-        forms['solposform'] = SolarPositionForm(request.POST)
-        forms['tl_form'] = LinkeTurbidityForm(request.POST)
-        forms['am_form'] = AirmassForm(request.POST)
+        forms = {k: v(request.POST) for k, v in FORMS.items()}
     return render(
         request, 'pvlib.html', {'path': request.path, 'forms': forms})
