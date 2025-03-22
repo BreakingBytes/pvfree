@@ -1,6 +1,6 @@
 # link to github action help goes here
 
-name: test on PR
+name: test pvfree
 
 on:
   push:

@@ -1,4 +1,4 @@
-[![travis](https://travis-ci.org/BreakingBytes/pvfree.svg?branch=master)](https://travis-ci.org/BreakingBytes/pvfree)
+[![test_pvfree](https://github.com/BreakingBytes/pvfree/actions/workflows/test_pvfree.yml/badge.svg?branch=main&event=push)](https://github.com/BreakingBytes/pvfree/actions/workflows/test_pvfree.yml)
 
 PV Free
 =======
