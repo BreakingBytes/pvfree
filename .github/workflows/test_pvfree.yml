@@ -20,8 +20,6 @@ jobs:
         ports:
           - 5432:5432
 
-    env:
-      secret_key: ${{ secrets.SECRET_KEY }}
     steps:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
@@ -41,4 +39,6 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run tests
-        run: SECRET_KEY=${{ env.secret_key }} DJANGO_SETTINGS_MODULE=pvfree.settings.travis pytest
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: DJANGO_SETTINGS_MODULE=pvfree.settings.travis pytest
