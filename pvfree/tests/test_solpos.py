@@ -18,7 +18,7 @@ class SolPosTestCase(TestCase):
         self.assertEqual(r.status_code, 200)
         s = pd.DataFrame(r.json()).T
         t = pd.DatetimeIndex(s.index)
-        times = pd.DatetimeIndex(
+        times = pd.date_range(
             start=data['start'], end=data['end'],
             freq=data['freq'], tz='Etc/GMT{:+d}'.format(-data['tz']))
         solpos = solarposition.get_solarposition(

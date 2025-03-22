@@ -18,7 +18,7 @@ class TLTestCase(TestCase):
         self.assertEqual(r.status_code, 200)
         s = pd.Series(r.json())
         t = pd.DatetimeIndex(s.index)
-        times = pd.DatetimeIndex(
+        times = pd.date_range(
             start=data['tl_start'], end=data['tl_end'],
             freq=data['tl_freq'], tz='Etc/GMT{:+d}'.format(-data['tl_tz']))
         tl = clearsky.lookup_linke_turbidity(
