@@ -3,7 +3,7 @@
 name: test on PR
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
