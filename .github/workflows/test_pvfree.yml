@@ -1,0 +1,42 @@
+# link to github action help goes here
+
+name: test on PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: travis_ci_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 
+        ports:
+          - 5432:5432
+
+    steps:
+      # Downloads a copy of the code in your repository before running CI tests
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python version
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Create and start virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: DJANGO_SETTINGS_MODULE=pvfree.settings.travis pytest
