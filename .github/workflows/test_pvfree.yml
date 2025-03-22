@@ -25,7 +25,7 @@ jobs:
             --health-retries 5
         ports:
           - 5432:5432
-
+    environment: pvfree  # THIS WAS MISSING
     steps:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
