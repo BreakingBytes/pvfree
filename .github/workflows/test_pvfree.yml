@@ -3,7 +3,7 @@
 name: test on PR
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -16,7 +16,6 @@ jobs:
         env:
           POSTGRES_DB: travis_ci_test
           POSTGRES_USER: postgres
-          #POSTGRES_PASSWORD:
           POSTGRES_HOST_AUTH_METHOD: trust
         # Set health checks to wait until postgres has started
         options: >-
@@ -52,4 +51,4 @@ jobs:
           POSTGRES_HOST: localhost
           # The default PostgreSQL port
           POSTGRES_PORT: 5432
-        run: DJANGO_SETTINGS_MODULE=pvfree.settings.travis pytest
+        run: DJANGO_SETTINGS_MODULE=pvfree.settings.travis pytest -vv
