@@ -6,9 +6,20 @@ A public API for PV modeling parameters and pvlib API for learning about solar.
 
 Announcements
 -------------
-pvfree is moving to Microsoft Azure Cloud b/c Heroku free dyno service will end
-Nov 28th. Please use https://pvfree.azurewebsites.net/ from now on to get module
-and inverter parameters for pvlib and to learn about solar energy modeling.
+_2025-03-22_: Now that ElephantSQL has reached its end-of-life, and the Aiven migration is working as expected, the dev website deployed
+at AlwaysData has been terminated. Please use https://pvfree.azurewebsites.net/ only.
+
+Hosting
+-------
+pvfree is hosted at [Microsoft Azure Cloud App service](https://azure.microsoft.com/en-us/products/app-service/).
+Please use https://pvfree.azurewebsites.net/ to get module and inverter parameters for pvlib and to learn about solar energy modeling.
+
+The pvfree database is hosted at [Aiven](https://aiven.io/) using PostgreSQL.
+
+Contributing
+------------
+The `pytest.ini` file is set to run using `DJANGO.SETTINGS_MODULE=pvfree.settings.dev` and find all tests automatically,
+to allow you to use just the `pytest` command instead of `python manage.py test testdir --settings pvfree.settings.dev`.
 
 Usage
 -----
