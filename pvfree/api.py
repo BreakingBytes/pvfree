@@ -95,6 +95,12 @@ def airmass_resource(request):
         params = AirmassForm(request.GET)
     else:
         params = AirmassForm(request.POST)
+    # NOTE: Django forms CharField treats empty value as empty string
+    # https://docs.djangoproject.com/en/2.2/ref/forms/api/
+    # https://docs.djangoproject.com/en/2.2/ref/forms/fields/#charfield
+    # use empty_value defaults to empty string
+    # XXX: ChoiceField has no empty_value, defaults to empty string, ''
+    # https://docs.djangoproject.com/en/2.2/ref/forms/fields/#choicefield
     if params.is_valid():
         zenith_data = params.cleaned_data['zenith_data']
         zenith_file = params.cleaned_data['zenith_file']
@@ -102,17 +108,25 @@ def airmass_resource(request):
         model = params.cleaned_data['model']
     else:
         return JsonResponse(params.errors, status=400)
-    if filetype is None:
+    if not filetype:  # ChoiceField defaults to empty string, ''
         filetype = 'json'
     if zenith_data is None and zenith_file is None:
         return JsonResponse(params.errors, status=400)
     if zenith_data:
-        zenith_data = json.loads(zenith_data)
-        if len(zenith_data) == 0:
+        try:
+            zenith_data = json.loads(zenith_data)
+        except json.JSONDecodeError:
             return JsonResponse(
-                {"zenith_data": ["Invalid data in zenith data."]}, status=400)
+                {"zenith_data": ["JSON cannot decode zenith data."]},
+                status=400)
+        if len(zenith_data) == 0:
+            errmsg = "JSON decoded zenith data, but it has zero items."
+            return JsonResponse(
+                {"zenith_data": [errmsg]}, status=400)
+        # FIXME: handle exception gracefully if not datetime indices
         times = pd.DatetimeIndex(zenith_data.keys())  # keys not necessary
         columns = {}
+        # FIXME: handle exception gracefully if zenith not float
         for row in zenith_data.values():
             if not columns:
                 columns = {k: [float(v)] for k, v in row.items()}
@@ -129,7 +143,7 @@ def airmass_resource(request):
             zenith_data = pd.read_excel(zenith_file)
         else:
             return JsonResponse(params.errors, status=400)
-    if model is None:
+    if not model:  # ChoiceField defaults to empty string, ''
         model = 'kastenyoung1989'
     try:
         apparent_or_true = APPARENT_OR_TRUE[model]
