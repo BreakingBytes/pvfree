@@ -42,14 +42,21 @@ class AirmassForm(forms.Form):
         ('kastenyoung1989', 'Kasten & Young, 1989'),
         ('gueymard1993', 'Gueymard, 1993'), ('young1994', 'Young, 1994'),
         ('pickering2002', 'Pickering, 2002')]
+    # NOTE: Django forms CharField treats empty value as empty string
+    # https://docs.djangoproject.com/en/2.2/ref/forms/api/
+    # https://docs.djangoproject.com/en/2.2/ref/forms/fields/#charfield
+    # use empty_value defaults to empty string
+    # XXX: ChoiceField has no empty_value, defaults to empty string, ''
+    # https://docs.djangoproject.com/en/2.2/ref/forms/fields/#choicefield
     zenith_data = forms.CharField(
-        label='Solar Position Data', required=False, widget=forms.Textarea)
+        label='Solar Position Data', required=False, widget=forms.Textarea,
+        empty_value=None)
     zenith_file = forms.FileField(label='Solar Position File', required=False)
     filetype = forms.ChoiceField(
         label='File Type', required=False, choices=FILETYPES, initial='json')
     model = forms.ChoiceField(
         label='Model', required=False, initial='kastenyoung1989',
-        choices=MODELS)
+        choices=MODELS)  # defaults to empty string, '' and no empty_value
 
 
     def clean_zenith_data(self):

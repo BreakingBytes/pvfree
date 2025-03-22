@@ -3,7 +3,7 @@
 name: test on PR
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -46,7 +46,8 @@ jobs:
 
       - name: Run tests
         env:
-          SECRET_KEY: my-secret-key
+          # secrets do not work in PRs from forks
+          SECRET_KEY: ${{ secrets.SECRET_KEY}}
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
           # The default PostgreSQL port
