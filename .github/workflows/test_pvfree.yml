@@ -40,5 +40,5 @@ jobs:
 
       - name: Run tests
         env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SECRET_KEY: my-secret-key
         run: DJANGO_SETTINGS_MODULE=pvfree.settings.travis pytest
