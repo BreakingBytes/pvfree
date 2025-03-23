@@ -1,4 +1,5 @@
 .secretkey
+.password
 pvfree.sublime-project
 pvfree.sublime-workspace
 *.pyc
