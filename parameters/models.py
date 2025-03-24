@@ -56,16 +56,15 @@ def _upload_csv(cls, csv_file, user, field_map=None):
 def _upload_helper(cls, kwargs, user, handler=None):
     kwargs['created_by'] = user
     kwargs['modified_by'] = user
+    if handler is not None:
+        kwargs = handler(cls, kwargs)
+        _upload_helper(cls, kwargs, user)
     try:
         # create new PVInverter record
         obj, created = cls.objects.get_or_create(**kwargs)
     except IntegrityError as exc:
-        if handler is not None:
-            kwargs = handler(cls, kwargs)
-            _upload_helper(cls, kwargs, user)
-        else:
-            LOGGER.exception(exc)
-            LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
+        LOGGER.exception(exc)
+        LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
     except ValueError as exc:
         LOGGER.exception(exc)
         LOGGER.error('%s Upload Failed:\n%r', cls.__name__, kwargs)
@@ -98,6 +97,8 @@ class PVInverter(PVBaseModel):
     Idcmax = models.FloatField('Max DC current [A]')
     Mppt_low = models.FloatField('Lower bound of MPPT [W]')
     Mppt_high = models.FloatField('Higher bound of MPPT [W]')
+    CEC_Date = models.DateField('CEC Date [%b %e %Y]', default=datetime(1990, 1, 1))
+    CEC_Type = models.CharField(max_length=25, blank=True)
     revision = models.IntegerField(default=0, editable=False)
 
     def Manufacturer(self):
@@ -105,6 +106,8 @@ class PVInverter(PVBaseModel):
         return mfg
 
     def Vintage(self):
+        if self.CEC_Date.toordinal() != date(1990, 1, 1).toordinal():
+            return self.CEC_Date
         match = re.search('\[(\w*) (\d{4})\]', self.Name)
         if match:
             src, yr = match.groups()
@@ -117,6 +120,8 @@ class PVInverter(PVBaseModel):
         return date(yr, 1, 1)
 
     def Source(self):
+        if self.CEC_Date.toordinal() != date(1990, 1, 1).toordinal():
+            return 'CEC'
         match = re.search('\[(\w*) (\d{4})\]', self.Name)
         src = "UNK"
         if match:
@@ -138,18 +143,33 @@ class PVInverter(PVBaseModel):
             # skip blank lines
             if not kwargs:
                 continue
-
-            def handler(cls, kwargs):
-                name = kwargs['Name']
-                qs = cls.objects.filter(Name=name).order_by('revision').last()
-                if qs:
-                    rev = qs.revision + 1
-                    kwargs['revision'] = rev
-                    LOGGER.warning('%s Incremented to Revision %d:\n%r',
-                                   cls.__name__, rev, qs)
-                    return kwargs
-
-            _upload_helper(cls, kwargs, user, handler)
+            name = kwargs['Name']
+            qs = cls.objects.filter(Name=name).order_by('revision').last()
+            if qs:
+                rev = qs.revision + 1
+                kwargs['revision'] = rev
+                LOGGER.warning('%s Incremented to Revision %d:\n%r',
+                               cls.__name__, rev, qs)
+            cec_date = kwargs.get('CEC_Date')
+            if cec_date is not None:
+                try:
+                    cec_date = datetime.strptime(cec_date, '%b %d %Y')
+                except ValueError as exc:
+                    LOGGER.exception(exc)
+                    LOGGER.error('CEC_Date: %s has unexpected format', cec_date)
+                    match = re.search('\[(\w*) (\d{4})\]', cec_date)
+                    if match:
+                        _, yr = match.groups()
+                        try:
+                            yr = int(yr)
+                        except ValueError:
+                            yr = MISSING_VINTAGE
+                    else:
+                        yr = MISSING_VINTAGE
+                    cec_date = date(yr, 1, 1)
+                    LOGGER.warning('CEC_Date set to Jan 1, %d', yr)
+                kwargs['CEC_Date'] = cec_date
+            _upload_helper(cls, kwargs, user)
 
 
 class PVModule(PVBaseModel):

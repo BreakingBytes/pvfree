@@ -97,15 +97,15 @@ class PVInverterAdmin(admin.ModelAdmin):
     list_display = (
         'Name', 'Source', 'Manufacturer', 'Vintage', 'revision',
         'Vac', 'Paco', 'Vdco', 'Pdco', 'Pso', 'C0', 'C1', 'C2', 'C3',
-        'Vdcmax', 'Idcmax', 'Mppt_low', 'Mppt_high', 'Pnt', 'created_on',
-        'modified_on'
+        'Vdcmax', 'Idcmax', 'Mppt_low', 'Mppt_high', 'Pnt', 'CEC_Date',
+        'CEC_Type', 'created_on', 'modified_on'
     )
     search_fields = ('Name',)
     list_filter = ('revision', VacRangeFilter, PacoRangeFilter)
     fields = (
         'Name', ('Vac', 'Paco'), ('Vdco', 'Pdco'), ('C0', 'C1'), ('C2', 'C3'),
         ('Pso', 'Pnt'), ('Vdcmax', 'Idcmax'), ('Mppt_low', 'Mppt_high'),
-        ('created_by', 'modified_by'))
+        ('CEC_Date', 'CEC_Type'), ('created_by', 'modified_by'))
 
 
 class PVModuleAdmin(admin.ModelAdmin):
