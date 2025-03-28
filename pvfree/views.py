@@ -8,7 +8,7 @@ from bokeh.embed import components
 from bokeh.palettes import Colorblind5 as cmap
 from pvfree.forms import (
     SolarPositionForm, LinkeTurbidityForm, AirmassForm, WeatherForm)
-from pvlib.pvsystem import sapm, calcparams_cec, singlediode
+from pvlib.pvsystem import sapm, calcparams_cec, singlediode, inverter
 import numpy as np
 
 
@@ -21,6 +21,32 @@ def pvinverters(request):
         request, 'pvinverters.html',
         {'path': request.path, 'pvinv_set': PVInverter.objects.values()})
 
+def pvinverter_detail(request, pvinverter_id):
+    pvinv = get_object_or_404(PVInverter, pk=pvinverter_id)
+    fieldnames = PVInverter._meta.get_fields()
+    pvinv_dict = {k.name: getattr(pvinv, k.name) for k in fieldnames}
+    pvinv_vdc_nom = (pvinv.Mppt_low + pvinv.Mppt_high)/2
+    dc_voltages = [pvinv.Mppt_low, pvinv_vdc_nom, pvinv.Mppt_high]
+    dc_power = pvinv.Pdco * np.array([0.1, 0.2, 0.3, 0.5, 0.75, 1])
+    dc_power, dc_voltage = np.meshgrid(dc_power, dc_voltages)
+    pac = inverter.sandia(dc_voltage, dc_power, pvinv_dict)
+    eff = pac / dc_power
+    fig = figure(
+        x_axis_label='DC power, Pdc [W]',
+        y_axis_label='efficiency [%]',
+        title=pvinv.Name,
+        plot_width=800, plot_height=600, sizing_mode='scale_width')
+    r = fig.multi_line(
+        dc_power.tolist(), eff.tolist(), color=cmap, line_width=4)
+    legend = Legend(items=[
+        LegendItem(label='{:d} [V]'.format(int(vdc)), renderers=[r], index=n)
+        for n, vdc in enumerate(dc_voltages)])
+    fig.add_layout(legend)
+    plot_script, plot_div = components(fig)
+    return render(
+        request, 'pvinverter_detail.html', {
+            'path': request.path, 'pvinv': pvinv, 'plot_script': plot_script,
+            'plot_div': plot_div, 'pvinv_dict': pvinv_dict})
 
 def pvmodules(request):
     pvmod_set = PVModule.objects.values()
@@ -43,12 +69,14 @@ def pvmodule_detail(request, pvmodule_id):
     for k in ['IXO', 'IXXO', 'C4', 'C5', 'C6', 'C7']:
         if pvmod_dict[k] is None:
             pvmod_dict[k] = 0.
-    celltemps = np.linspace(0, 100, 5)
-    effirrad, celltemp = np.meshgrid(np.linspace(0.1, 1, 10), celltemps)
+    celltemps = np.linspace(0, 100, 5)  # [C]
+    effirrad = np.linspace(100, 1000, 10)  # [W/m2]
+    effirrad, celltemp = np.meshgrid(effirrad, celltemps)
+    # Ee in [W/m2] pvlib>=0.7, in suns for pvlib<0.7
     results = sapm(effirrad, celltemp, pvmod_dict)
-    eff = results['p_mp'] / effirrad / pvmod.Area * 100 / 1000
+    eff = results['p_mp'] / effirrad / pvmod.Area * 100
     fig = figure(
-        x_axis_label='effective irradiance, Ee [suns]',
+        x_axis_label='effective irradiance, Ee [W/m' + u"\u00B2" + ']',
         y_axis_label='efficiency [%]',
         title=pvmod.Name,
         plot_width=800, plot_height=600, sizing_mode='scale_width'

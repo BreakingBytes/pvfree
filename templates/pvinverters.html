@@ -37,7 +37,7 @@
     <tbody>
       {% for pvinv in pvinv_set %}
       <tr>
-        <td>{{ pvinv.Name }}</td>
+        <td><a href="{% url 'pvinverter_detail' pvinv.id %}">{{ pvinv.Name }}</a></td>
         <td>{{ pvinv.Vac }}</td>
         <td>{{ pvinv.Paco }}</td>
         <td>{{ pvinv.Vdco|floatformat }}</td>
