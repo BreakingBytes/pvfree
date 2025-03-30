@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^$', pvfree_views.home, name='home'),
     url(r'^pvinverters/$', pvfree_views.pvinverters, name='pvinverters'),
     url(r'^pvinverters/(?P<pvinverter_id>\d+)/$', pvfree_views.pvinverter_detail,
-    name='pvinverter_detail'),
+        name='pvinverter_detail'),
     url(r'^pvmodules/$', pvfree_views.pvmodules, name='pvmodules'),
     url(r'^pvmodules_tech/$', pvfree_views.pvmodules_tech,
         name='pvmodules_tech'),
