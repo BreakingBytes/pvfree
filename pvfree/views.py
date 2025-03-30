@@ -25,19 +25,26 @@ def pvinverter_detail(request, pvinverter_id):
     pvinv = get_object_or_404(PVInverter, pk=pvinverter_id)
     fieldnames = PVInverter._meta.get_fields()
     pvinv_dict = {k.name: getattr(pvinv, k.name) for k in fieldnames}
-    pvinv_vdc_nom = (pvinv.Mppt_low + pvinv.Mppt_high)/2
-    dc_voltages = [pvinv.Mppt_low, pvinv_vdc_nom, pvinv.Mppt_high]
-    dc_power = pvinv.Pdco * np.array([0.1, 0.2, 0.3, 0.5, 0.75, 1])
+    dc_voltages = [pvinv.Mppt_low, pvinv.Vdco, pvinv.Mppt_high]
+    pwr_lvl = np.array([0.1, 0.2, 0.3, 0.5, 0.75, 1])
+    dc_power = pvinv.Pdco * pwr_lvl
     dc_power, dc_voltage = np.meshgrid(dc_power, dc_voltages)
     pac = inverter.sandia(dc_voltage, dc_power, pvinv_dict)
     eff = pac / dc_power
+    eff_disp = 100*eff
+    if pvinv.Paco > 1000:
+        dc_power_disp = dc_power/1000
+        disp_units = 'kW'
+    else:
+        dc_power_disp = dc_power
+        disp_units = 'W'
     fig = figure(
-        x_axis_label='DC power, Pdc [W]',
+        x_axis_label=f'DC power, Pdc [{disp_units}]',
         y_axis_label='efficiency [%]',
         title=pvinv.Name,
         plot_width=800, plot_height=600, sizing_mode='scale_width')
     r = fig.multi_line(
-        dc_power.tolist(), eff.tolist(), color=cmap, line_width=4)
+        dc_power_disp.tolist(), eff_disp.tolist(), color=cmap, line_width=4)
     legend = Legend(items=[
         LegendItem(label='{:d} [V]'.format(int(vdc)), renderers=[r], index=n)
         for n, vdc in enumerate(dc_voltages)])
