@@ -185,7 +185,7 @@
       $.getJSON('/sam_versions/', function(data){
         console.log('Data:', data);
         $.each(data, function(key, value){
-          $('#samVersionSelect').append('<option>' + value + '</option>');
+          $('#samVersionSelect').append('<option value='+ key + '>' + value + '</option>');
         });
       }).fail(function(err){
         console.error(err)

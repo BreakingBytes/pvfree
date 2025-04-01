@@ -149,7 +149,7 @@ class PVInverter(PVBaseModel):
         unique_together = ('Name', 'revision')
 
     @classmethod
-    def upload(cls, csv_file, user):
+    def upload(cls, csv_file, user, sam_version):
         columns, spamreader = _upload_csv(cls, csv_file, user)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
@@ -175,6 +175,7 @@ class PVInverter(PVBaseModel):
                     cec_date = date(MISSING_VINTAGE, 1, 1)
                     LOGGER.warning('CEC_Date set to default: %s', cec_date)
                 kwargs['CEC_Date'] = cec_date
+            kwargs['SAM_Version'] = sam_version
             _upload_helper(cls, kwargs, user)
 
 

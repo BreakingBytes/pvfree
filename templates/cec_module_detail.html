@@ -47,9 +47,11 @@
     <div class="row"><div class="col-sm-3"></div><div class="col-sm-6">
     <table class="table table-hover">
       <tbody>
-          {% for key, value in cec_mod_dict.items %}
-          <tr><td><b>{{ key }}</b></td><td>{{ value }}</td></tr>
-          {% endfor %}
+        {% for key, value in cec_mod_dict.items %}
+        <tr><td><b>{{ key }}</b></td><td>{{ value }}</td></tr>
+        {% endfor %}
+        <tr><td><b>Version</b></td><td>{{ cec_mod.get_Version_display }}</td></tr>
+        <tr><td><b>Technology</b></td><td>{{ cec_mod.get_Technology_display }}</td></tr>
       </tbody>
     </table>
     </div></div><div class="col-sm-3"></div></div>
