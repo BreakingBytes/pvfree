@@ -21,6 +21,7 @@ def pvinverters(request):
         request, 'pvinverters.html',
         {'path': request.path, 'pvinv_set': PVInverter.objects.values()})
 
+
 def pvinverter_detail(request, pvinverter_id):
     pvinv = get_object_or_404(PVInverter, pk=pvinverter_id)
     fieldnames = PVInverter._meta.get_fields()
@@ -54,6 +55,11 @@ def pvinverter_detail(request, pvinverter_id):
         request, 'pvinverter_detail.html', {
             'path': request.path, 'pvinv': pvinv, 'plot_script': plot_script,
             'plot_div': plot_div, 'pvinv_dict': pvinv_dict})
+
+
+def sam_versions(request):
+    return JsonResponse(dict(PVInverter.SAM_VERSION))
+
 
 def pvmodules(request):
     pvmod_set = PVModule.objects.values()

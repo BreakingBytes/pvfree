@@ -150,6 +150,12 @@
             </select>
           </div><!-- /.form-group -->
           <div class="form-group">
+            <label for="samVersionSelect">select SAM version</label>
+            <select class="form-control" id="samVersionSelect" name="samVersionSelect">
+              <!--<option>SAM Versions from script</option>-->
+            </select>
+          </div><!-- /.form-group -->
+          <div class="form-group">
             <label for="uploadFile">Upload File</label>
             <input type="file" id="uploadFile" name="uploadFile">
             <p class="help-block">Select the CSV file to upload.</p>
@@ -172,6 +178,21 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
      integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
      crossorigin="anonymous"></script>
+
+    <script>
+    // called only once when document is ready
+    $(function(){
+      $.getJSON('/sam_versions/', function(data){
+        console.log('Data:', data);
+        $.each(data, function(key, value){
+          $('#samVersionSelect').append('<option>' + value + '</option>');
+        });
+      }).fail(function(err){
+        console.error(err)
+        alert("failure: SAM versions not retrieved");
+      });
+    });
+    </script>
 
     {% block footers %}
     {% endblock footers %}

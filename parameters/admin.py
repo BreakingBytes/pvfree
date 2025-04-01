@@ -105,12 +105,13 @@ class PVInverterAdmin(admin.ModelAdmin):
     fields = (
         'Name', ('Vac', 'Paco'), ('Vdco', 'Pdco'), ('C0', 'C1'), ('C2', 'C3'),
         ('Pso', 'Pnt'), ('Vdcmax', 'Idcmax'), ('Mppt_low', 'Mppt_high'),
-        ('CEC_Date', 'CEC_Type'), ('created_by', 'modified_by'))
+        ('CEC_Date', 'CEC_Type'), 'SAM_Version', ('created_by', 'modified_by'))
 
 
 class PVModuleAdmin(admin.ModelAdmin):
     list_display = ('Name', 'nameplate', 'Vintage', 'Material',
-                    'Isco', 'Voco', 'Impo', 'Vmpo', 'created_on', 'modified_on')
+                    'Isco', 'Voco', 'Impo', 'Vmpo', 'created_on',
+                    'modified_on')
     fields = (
         'Name', ('Vintage', 'is_vintage_estimated'),
         ('Area', 'Material'), ('Cells_in_Series', 'Parallel_Strings'),
