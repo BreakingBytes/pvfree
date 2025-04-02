@@ -19,3 +19,4 @@ venv3/
 .DS_Store
 .vscode/
 .pytest_cache
+.coverage
