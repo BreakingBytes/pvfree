@@ -3,6 +3,7 @@ defusedxml==0.6.0
 dj_database_url==0.5.0
 django==2.2.28
 django_tastypie==0.14.4
+future==0.18.2
 gunicorn==23.0.0
 jinja2==2.11.3
 lxml==4.9.1
@@ -18,5 +19,6 @@ pytz==2019.3
 python_dateutil==2.8.1
 pyyaml==5.4
 scipy==1.7.3
+six==1.14.0
 whitenoise==5.0.1
 markupsafe==2.0.1
