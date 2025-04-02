@@ -11,12 +11,13 @@ def file_upload(request):
     if request.method == 'POST':
         upload_file = request.FILES.get('uploadFile')
         upload_select = request.POST.get('uploadSelect')
+        sam_version_select = request.POST.get('samVersionSelect')
         if upload_file is not None:
             try:
                 if upload_select == 'Sandia Modules':
                     PVModule.upload(upload_file, user)
                 elif upload_select == 'CEC Inverters':
-                    PVInverter.upload(upload_file, user)
+                    PVInverter.upload(upload_file, user, sam_version_select)
                 elif upload_select == 'CEC Modules':
                     CEC_Module.upload(upload_file, user)
                 else:

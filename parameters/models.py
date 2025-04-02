@@ -82,6 +82,16 @@ class PVInverter(PVBaseModel):
     """
     Sandia model PV inverter parameters.
     """
+    SAM_VERSION = [
+        (0, ''), (1, '2018.11.11.r2'), (2, '2018.11.11.r3-r4'),
+        (3, '2020.2.29_Release-r1.ssc.238'),
+        (4, '2020.2.29.r2.ssc.240-r3.ssc.242'),
+        (5, '2020.11.29.r0.ssc.250-2021.12.02.r0.ssc.267'),
+        (6, '2021.12.02.r1.ssc.268'), (7, '2021.12.02.r2.ssc.274'),
+        (8, '2022.11.21.r0.ssc.278-r3.ssc.280'),
+        (9, '2023.12.17.r0.ssc.288-r2.ssc.292'), (10, '2024.12.12.r0.ssc.298')
+    ]
+
     Name = models.CharField(max_length=100)
     Vac = models.FloatField('AC Voltage [V]')
     Paco = models.FloatField('Rated AC power [W]')
@@ -97,9 +107,12 @@ class PVInverter(PVBaseModel):
     Idcmax = models.FloatField('Max DC current [A]')
     Mppt_low = models.FloatField('Lower bound of MPPT [W]')
     Mppt_high = models.FloatField('Higher bound of MPPT [W]')
-    CEC_Date = models.DateField('CEC Date [%b %e %Y]', default=datetime(1990, 1, 1))
+    CEC_Date = models.DateField(default=datetime(1990, 1, 1))
     CEC_Type = models.CharField(max_length=25, blank=True)
     revision = models.IntegerField(default=0, editable=False)
+    SAM_Version = models.IntegerField(
+        choices=SAM_VERSION, default=1, blank=True)
+
 
     def Manufacturer(self):
         mfg, _ = self.Name.split(':', 1)
@@ -110,7 +123,7 @@ class PVInverter(PVBaseModel):
             return self.CEC_Date
         match = re.search('\[(\w*) (\d{4})\]', self.Name)
         if match:
-            src, yr = match.groups()
+            _, yr = match.groups()
             try:
                 yr = int(yr)
             except ValueError:
@@ -125,7 +138,7 @@ class PVInverter(PVBaseModel):
         match = re.search('\[(\w*) (\d{4})\]', self.Name)
         src = "UNK"
         if match:
-            src, yr = match.groups()
+            src, _ = match.groups()
         return src
 
     def __str__(self):
@@ -136,7 +149,7 @@ class PVInverter(PVBaseModel):
         unique_together = ('Name', 'revision')
 
     @classmethod
-    def upload(cls, csv_file, user):
+    def upload(cls, csv_file, user, sam_version):
         columns, spamreader = _upload_csv(cls, csv_file, user)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
@@ -153,22 +166,16 @@ class PVInverter(PVBaseModel):
             cec_date = kwargs.get('CEC_Date')
             if cec_date is not None:
                 try:
-                    cec_date = datetime.strptime(cec_date, '%b %d %Y')
+                    cec_date = datetime.strptime(cec_date, '%m/%d/%Y')
                 except ValueError as exc:
-                    LOGGER.exception(exc)
-                    LOGGER.error('CEC_Date: %s has unexpected format', cec_date)
-                    match = re.search('\[(\w*) (\d{4})\]', cec_date)
-                    if match:
-                        _, yr = match.groups()
-                        try:
-                            yr = int(yr)
-                        except ValueError:
-                            yr = MISSING_VINTAGE
-                    else:
-                        yr = MISSING_VINTAGE
-                    cec_date = date(yr, 1, 1)
-                    LOGGER.warning('CEC_Date set to Jan 1, %d', yr)
+                    if cec_date != 'n/a':
+                        LOGGER.exception(exc)
+                        LOGGER.error(
+                            'CEC_Date: %s has unexpected format', cec_date)
+                    cec_date = date(MISSING_VINTAGE, 1, 1)
+                    LOGGER.warning('CEC_Date set to default: %s', cec_date)
                 kwargs['CEC_Date'] = cec_date
+            kwargs['SAM_Version'] = sam_version
             _upload_helper(cls, kwargs, user)
 
 
@@ -176,7 +183,6 @@ class PVModule(PVBaseModel):
     """
     Sandia model PV module parameters.
     """
-
     MATERIALS = [
         (0, ''),
         (1, '2-a-Si'),
@@ -297,7 +303,10 @@ class CEC_Module(PVBaseModel):
     """
     VERSION = [
         (0, ''), (1, 'MM105'), (2, 'MM106'), (3, 'MM107'), (4, 'NRELv1'),
-        (5, 'SAM 2018.9.27'), (6, 'SAM 2018.10.29')
+        (5, 'SAM 2018.9.27'), (6, 'SAM 2018.10.29'), (7, 'SAM 2018.11.11'),
+        (8, 'SAM 2018.11.11 r2'), (9, 'SAM 2019.12.19'),
+        (10, 'SAM 2020.2.29 r3'), (11, 'SAM 2021.12.02'),
+        (12, 'SAM 2023.10.31'), (13, 'SAM 2023.12.17')
     ]
     TECH = [
         (0, ''),

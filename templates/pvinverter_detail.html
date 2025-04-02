@@ -47,9 +47,10 @@
     <div class="row"><div class="col-sm-3"></div><div class="col-sm-6">
     <table class="table table-hover">
       <tbody>
-          {% for key, value in pvinv_dict.items %}
-          <tr><td><b>{{ key }}</b></td><td>{{ value }}</td></tr>
-          {% endfor %}
+        {% for key, value in pvinv_dict.items %}
+        <tr><td><b>{{ key }}</b></td><td>{{ value }}</td></tr>
+        {% endfor %}
+        <tr><td><b>SAM Version</b></td><td>{{ pvinv.get_SAM_Version_display }}</td></tr>
       </tbody>
     </table>
     </div></div><div class="col-sm-3"></div></div>
