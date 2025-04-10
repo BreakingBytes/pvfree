@@ -15,5 +15,5 @@ def get_secret(key, filename=None, is_b64=True):
         with open(os.path.join(DIRNAME, filename), 'rb') as fobj:
             secret = fobj.read()
         if is_b64:
-            secret = base64.b64decode(secret)
+            secret = base64.b64decode(secret).decode()
     return secret

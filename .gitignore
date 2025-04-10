@@ -4,6 +4,7 @@ pvfree.sublime-project
 pvfree.sublime-workspace
 *.pyc
 .postgre
+.travis_password
 db.sqlite3
 public/static/
 .project
