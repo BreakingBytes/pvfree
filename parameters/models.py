@@ -109,9 +109,8 @@ class PVInverter(PVBaseModel):
     Mppt_high = models.FloatField('Higher bound of MPPT [W]')
     CEC_Date = models.DateField(default=datetime(1990, 1, 1))
     CEC_Type = models.CharField(max_length=25, blank=True)
-    revision = models.IntegerField(default=0, editable=False)
     SAM_Version = models.IntegerField(
-        choices=SAM_VERSION, default=1, blank=True)
+        choices=SAM_VERSION, default=0, blank=True)
 
 
     def Manufacturer(self):
@@ -146,7 +145,7 @@ class PVInverter(PVBaseModel):
 
     class Meta:
         verbose_name = "Inverter"
-        unique_together = ('Name', 'revision')
+        unique_together = ('Name', 'SAM_Version')
 
     @classmethod
     def upload(cls, csv_file, user, sam_version):
