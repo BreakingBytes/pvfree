@@ -95,13 +95,13 @@ class PacoRangeFilter(admin.SimpleListFilter):
 
 class PVInverterAdmin(admin.ModelAdmin):
     list_display = (
-        'Name', 'Source', 'Manufacturer', 'Vintage', 'revision',
+        'Name', 'Source', 'Manufacturer', 'Vintage', 'SAM_Version',
         'Vac', 'Paco', 'Vdco', 'Pdco', 'Pso', 'C0', 'C1', 'C2', 'C3',
         'Vdcmax', 'Idcmax', 'Mppt_low', 'Mppt_high', 'Pnt', 'CEC_Date',
         'CEC_Type', 'created_on', 'modified_on'
     )
     search_fields = ('Name',)
-    list_filter = ('revision', VacRangeFilter, PacoRangeFilter)
+    list_filter = ('SAM_Version', VacRangeFilter, PacoRangeFilter)
     fields = (
         'Name', ('Vac', 'Paco'), ('Vdco', 'Pdco'), ('C0', 'C1'), ('C2', 'C3'),
         ('Pso', 'Pnt'), ('Vdcmax', 'Idcmax'), ('Mppt_low', 'Mppt_high'),

@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.conf.urls import include, re_path
 from tastypie.api import Api
 from parameters.api import (
     PVInverterResource, PVModuleResource, CECModuleResource)
@@ -18,32 +18,32 @@ v1_api.register(CECModuleResource())
 # patterns(prefix, ...) deprecated since django-1.8
 
 urlpatterns = [
-    url(r'^$', pvfree_views.home, name='home'),
-    url(r'^pvinverters/$', pvfree_views.pvinverters, name='pvinverters'),
-    url(r'^pvinverters/(?P<pvinverter_id>\d+)/$',
+    re_path(r'^$', pvfree_views.home, name='home'),
+    re_path(r'^pvinverters/$', pvfree_views.pvinverters, name='pvinverters'),
+    re_path(r'^pvinverters/(?P<pvinverter_id>\d+)/$',
         pvfree_views.pvinverter_detail, name='pvinverter_detail'),
-    url(r'^sam_versions/$', pvfree_views.sam_versions,
+    re_path(r'^sam_versions/$', pvfree_views.sam_versions,
         name='sam_versions'),
-    url(r'^pvmodules/$', pvfree_views.pvmodules, name='pvmodules'),
-    url(r'^pvmodules_tech/$', pvfree_views.pvmodules_tech,
+    re_path(r'^pvmodules/$', pvfree_views.pvmodules, name='pvmodules'),
+    re_path(r'^pvmodules_tech/$', pvfree_views.pvmodules_tech,
         name='pvmodules_tech'),
-    url(r'^pvmodules/(?P<pvmodule_id>\d+)/$', pvfree_views.pvmodule_detail,
+    re_path(r'^pvmodules/(?P<pvmodule_id>\d+)/$', pvfree_views.pvmodule_detail,
         name='pvmodule_detail'),
-    url(r'^cec_modules/$', pvfree_views.cec_modules, name='cec_modules'),
-    url(r'^cec_modules_tech/$', pvfree_views.cec_modules_tech,
+    re_path(r'^cec_modules/$', pvfree_views.cec_modules, name='cec_modules'),
+    re_path(r'^cec_modules_tech/$', pvfree_views.cec_modules_tech,
         name='cec_modules_tech'),
-    url(r'^cec_modules/(?P<cec_module_id>\d+)/$',
+    re_path(r'^cec_modules/(?P<cec_module_id>\d+)/$',
         pvfree_views.cec_module_detail, name='cec_module_detail'),
-    url(r'^pvlib/$', pvfree_views.pvlib, name='pvlib'),
-    url(r'^upload/$', param_views.file_upload, name='file_upload'),
-    url(r'^api/', include(v1_api.urls)),
-    url(r'^admin/', admin.site.urls),
-    url(r'^api/v1/pvlib/weather/$', weather_resource, name='weather'),
-    url(r'^api/v1/pvlib/solarposition/$', solarposition_resource,
+    re_path(r'^pvlib/$', pvfree_views.pvlib, name='pvlib'),
+    re_path(r'^upload/$', param_views.file_upload, name='file_upload'),
+    re_path(r'^api/', include(v1_api.urls)),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^api/v1/pvlib/weather/$', weather_resource, name='weather'),
+    re_path(r'^api/v1/pvlib/solarposition/$', solarposition_resource,
         name='solarposition'),
-    url(r'^api/v1/pvlib/linke-turbidity/$', linke_turbidity_resource,
+    re_path(r'^api/v1/pvlib/linke-turbidity/$', linke_turbidity_resource,
         name='linke_turbidity'),
-    url(r'^api/v1/pvlib/airmass/$', airmass_resource, name='airmass'),
+    re_path(r'^api/v1/pvlib/airmass/$', airmass_resource, name='airmass'),
 ]
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns

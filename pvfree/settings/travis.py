@@ -7,13 +7,13 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', '0.0.0.0']
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-# PSQL_PSWD = get_secret('PSQL_PSWD', '.postgre')
+TRAVIS_PASSWORD = get_secret('TRAVIS_PASSWORD', '.travis_password')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'travis_ci_test',
-        'USER': 'postgres',
-        'PASSWORD': '',
+        'USER': 'travis',
+        'PASSWORD': TRAVIS_PASSWORD,
         'HOST': 'localhost',
         'PORT': '5432',
     }
