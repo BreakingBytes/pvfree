@@ -47,6 +47,7 @@ jobs:
       - name: Run tests
         env:
           # secrets do not work in PRs from forks
+          TRAVIS_PASSWORD: ${{ secrets.TRAVIS_PASSWORD }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
