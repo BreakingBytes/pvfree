@@ -37,13 +37,13 @@ urlpatterns = [
     re_path(r'^pvlib/$', pvfree_views.pvlib, name='pvlib'),
     re_path(r'^upload/$', param_views.file_upload, name='file_upload'),
     re_path(r'^api/', include(v1_api.urls)),
-    re_path(r'^admin/', admin.site.urls),
     re_path(r'^api/v1/pvlib/weather/$', weather_resource, name='weather'),
     re_path(r'^api/v1/pvlib/solarposition/$', solarposition_resource,
         name='solarposition'),
     re_path(r'^api/v1/pvlib/linke-turbidity/$', linke_turbidity_resource,
         name='linke_turbidity'),
     re_path(r'^api/v1/pvlib/airmass/$', airmass_resource, name='airmass'),
+    re_path(r'^admin/', admin.site.urls),
 ]
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
