@@ -7,7 +7,6 @@ from django.db.models import signals
 from tastypie.models import create_api_key
 import logging
 import re
-from past.builtins import basestring
 from io import StringIO
 
 LOGGER = logging.getLogger(__name__)
@@ -30,12 +29,7 @@ class PVBaseModel(models.Model):
         abstract = True
 
 
-def _upload_csv(cls, csv_file, user, field_map=None):
-    if isinstance(csv_file, basestring):  
-        with open(csv_file, 'rb') as f:
-            cls.upload(f, user)
-        # TODO: return collection of objects created or their status 
-        return None, ()
+def _upload_csv(csv_file, field_map=None):
     csv_file.seek(0)
     csv_file = StringIO(csv_file.read().decode('utf-8'), newline='')
     spamreader = csv.reader(csv_file)
@@ -149,19 +143,12 @@ class PVInverter(PVBaseModel):
 
     @classmethod
     def upload(cls, csv_file, user, sam_version):
-        columns, spamreader = _upload_csv(cls, csv_file, user)
+        columns, spamreader = _upload_csv(csv_file)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
             # skip blank lines
             if not kwargs:
                 continue
-            name = kwargs['Name']
-            qs = cls.objects.filter(Name=name).order_by('revision').last()
-            if qs:
-                rev = qs.revision + 1
-                kwargs['revision'] = rev
-                LOGGER.warning('%s Incremented to Revision %d:\n%r',
-                               cls.__name__, rev, qs)
             cec_date = kwargs.get('CEC_Date')
             if cec_date is not None:
                 try:
@@ -270,7 +257,7 @@ class PVModule(PVBaseModel):
 
     @classmethod
     def upload(cls, csv_file, user):
-        columns, spamreader = _upload_csv(cls, csv_file, user, cls.FIELD_MAP)
+        columns, spamreader = _upload_csv(csv_file, cls.FIELD_MAP)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
             # skip blank lines
@@ -364,7 +351,7 @@ class CEC_Module(PVBaseModel):
 
     @classmethod
     def upload(cls, csv_file, user):
-        columns, spamreader = _upload_csv(cls, csv_file, user)
+        columns, spamreader = _upload_csv(csv_file)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
             # skip blank lines
