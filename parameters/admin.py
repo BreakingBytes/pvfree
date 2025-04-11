@@ -1,6 +1,5 @@
 from django.contrib import admin
 from parameters.models import PVInverter, PVModule, CEC_Module
-from past.builtins import xrange
 from itertools import chain
 
 
@@ -25,7 +24,7 @@ class VacRangeFilter(admin.SimpleListFilter):
         """
         return [('-999', 'Missing')] + [
             (str(x), '%d - %d [V]' % ((x - self._incr + 1), x))
-            for x in xrange(self._incr, self._stop + self._incr, self._incr)
+            for x in range(self._incr, self._stop + self._incr, self._incr)
         ] + [('+1000', '> 1000 [V]')]
 
     def queryset(self, request, queryset):

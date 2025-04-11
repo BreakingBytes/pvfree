@@ -1,6 +1,6 @@
 import os
 from datetime import date
-from parameters.models import PVModule, PVInverter
+from parameters.models import PVModule, PVInverter, MISSING_VINTAGE
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 import pandas as pd
@@ -11,7 +11,7 @@ SANDIA_MODULES = os.path.join(TESTDIR, 'sandia_modules.csv')
 CEC_INVERTERS = os.path.join(TESTDIR, 'cec_inverters.csv')
 PVINV_SAM_VERSIONS = {k: v for v, k in PVInverter.SAM_VERSION}
 PVINV_SAM_VERSION = PVINV_SAM_VERSIONS['2018.11.11.r2']  # 1
-PVINV_CEC_DATE = date(int(1990), 1, 1)
+PVINV_CEC_DATE = date(int(MISSING_VINTAGE), 1, 1)
 PVINV_CEC_TYPE = ''
 
 
@@ -60,7 +60,7 @@ class UploadTestCase(TestCase):
         for row in expected.itertuples():
             vintage = row.Vintage
             if not vintage:
-                vintage = '1900'
+                vintage = MISSING_VINTAGE
             is_vintage_estimated = vintage.endswith('(E)')
             if is_vintage_estimated:
                 vintage = vintage[:-4]

@@ -14,7 +14,7 @@ LOGGER = logging.getLogger(__name__)
 # auto-create API keys
 signals.post_save.connect(create_api_key, sender=User)
 
-MISSING_VINTAGE = 1900
+MISSING_VINTAGE = 1990
 
 
 class PVBaseModel(models.Model):
@@ -101,7 +101,7 @@ class PVInverter(PVBaseModel):
     Idcmax = models.FloatField('Max DC current [A]')
     Mppt_low = models.FloatField('Lower bound of MPPT [W]')
     Mppt_high = models.FloatField('Higher bound of MPPT [W]')
-    CEC_Date = models.DateField(default=datetime(1990, 1, 1))
+    CEC_Date = models.DateField(default=datetime(MISSING_VINTAGE, 1, 1))
     CEC_Type = models.CharField(max_length=25, blank=True)
     SAM_Version = models.IntegerField(
         choices=SAM_VERSION, default=0, blank=True)
@@ -112,7 +112,8 @@ class PVInverter(PVBaseModel):
         return mfg
 
     def Vintage(self):
-        if self.CEC_Date.toordinal() != date(1990, 1, 1).toordinal():
+        if (self.CEC_Date.toordinal()
+            != date(MISSING_VINTAGE, 1, 1).toordinal()):
             return self.CEC_Date
         match = re.search('\[(\w*) (\d{4})\]', self.Name)
         if match:
@@ -126,7 +127,8 @@ class PVInverter(PVBaseModel):
         return date(yr, 1, 1)
 
     def Source(self):
-        if self.CEC_Date.toordinal() != date(1990, 1, 1).toordinal():
+        if (self.CEC_Date.toordinal()
+            != date(MISSING_VINTAGE, 1, 1).toordinal()):
             return 'CEC'
         match = re.search('\[(\w*) (\d{4})\]', self.Name)
         src = "UNK"
@@ -274,7 +276,7 @@ class PVModule(PVBaseModel):
             try:
                 yr = int(yr)
             except ValueError:
-                yr = 1900
+                yr = MISSING_VINTAGE
             kwargs['Vintage'] = date(yr, 1, 1)
             LOGGER.debug('year = %d', yr)
             celltype = cls.CELL_TYPES.get(kwargs['Material'], 0)
