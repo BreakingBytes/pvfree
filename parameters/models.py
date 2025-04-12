@@ -115,7 +115,7 @@ class PVInverter(PVBaseModel):
         if (self.CEC_Date.toordinal()
             != date(MISSING_VINTAGE, 1, 1).toordinal()):
             return self.CEC_Date
-        match = re.search('\[(\w*) (\d{4})\]', self.Name)
+        match = re.search(r'\[(\w*) (\d{4})\]', self.Name)
         if match:
             _, yr = match.groups()
             try:
@@ -130,7 +130,7 @@ class PVInverter(PVBaseModel):
         if (self.CEC_Date.toordinal()
             != date(MISSING_VINTAGE, 1, 1).toordinal()):
             return 'CEC'
-        match = re.search('\[(\w*) (\d{4})\]', self.Name)
+        match = re.search(r'\[(\w*) (\d{4})\]', self.Name)
         src = "UNK"
         if match:
             src, _ = match.groups()
