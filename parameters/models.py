@@ -7,7 +7,6 @@ from django.db.models import signals
 from tastypie.models import create_api_key
 import logging
 import re
-from past.builtins import basestring
 from io import StringIO
 
 LOGGER = logging.getLogger(__name__)
@@ -15,7 +14,7 @@ LOGGER = logging.getLogger(__name__)
 # auto-create API keys
 signals.post_save.connect(create_api_key, sender=User)
 
-MISSING_VINTAGE = 1900
+MISSING_VINTAGE = 1990
 
 
 class PVBaseModel(models.Model):
@@ -30,12 +29,7 @@ class PVBaseModel(models.Model):
         abstract = True
 
 
-def _upload_csv(cls, csv_file, user, field_map=None):
-    if isinstance(csv_file, basestring):  
-        with open(csv_file, 'rb') as f:
-            cls.upload(f, user)
-        # TODO: return collection of objects created or their status 
-        return None, ()
+def _upload_csv(csv_file, field_map=None):
     csv_file.seek(0)
     csv_file = StringIO(csv_file.read().decode('utf-8'), newline='')
     spamreader = csv.reader(csv_file)
@@ -107,11 +101,10 @@ class PVInverter(PVBaseModel):
     Idcmax = models.FloatField('Max DC current [A]')
     Mppt_low = models.FloatField('Lower bound of MPPT [W]')
     Mppt_high = models.FloatField('Higher bound of MPPT [W]')
-    CEC_Date = models.DateField(default=datetime(1990, 1, 1))
+    CEC_Date = models.DateField(default=datetime(MISSING_VINTAGE, 1, 1))
     CEC_Type = models.CharField(max_length=25, blank=True)
-    revision = models.IntegerField(default=0, editable=False)
     SAM_Version = models.IntegerField(
-        choices=SAM_VERSION, default=1, blank=True)
+        choices=SAM_VERSION, default=0, blank=True)
 
 
     def Manufacturer(self):
@@ -119,9 +112,10 @@ class PVInverter(PVBaseModel):
         return mfg
 
     def Vintage(self):
-        if self.CEC_Date.toordinal() != date(1990, 1, 1).toordinal():
+        if (self.CEC_Date.toordinal()
+            != date(MISSING_VINTAGE, 1, 1).toordinal()):
             return self.CEC_Date
-        match = re.search('\[(\w*) (\d{4})\]', self.Name)
+        match = re.search(r'\[(\w*) (\d{4})\]', self.Name)
         if match:
             _, yr = match.groups()
             try:
@@ -133,9 +127,10 @@ class PVInverter(PVBaseModel):
         return date(yr, 1, 1)
 
     def Source(self):
-        if self.CEC_Date.toordinal() != date(1990, 1, 1).toordinal():
+        if (self.CEC_Date.toordinal()
+            != date(MISSING_VINTAGE, 1, 1).toordinal()):
             return 'CEC'
-        match = re.search('\[(\w*) (\d{4})\]', self.Name)
+        match = re.search(r'\[(\w*) (\d{4})\]', self.Name)
         src = "UNK"
         if match:
             src, _ = match.groups()
@@ -146,23 +141,16 @@ class PVInverter(PVBaseModel):
 
     class Meta:
         verbose_name = "Inverter"
-        unique_together = ('Name', 'revision')
+        unique_together = ('Name', 'SAM_Version')
 
     @classmethod
     def upload(cls, csv_file, user, sam_version):
-        columns, spamreader = _upload_csv(cls, csv_file, user)
+        columns, spamreader = _upload_csv(csv_file)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
             # skip blank lines
             if not kwargs:
                 continue
-            name = kwargs['Name']
-            qs = cls.objects.filter(Name=name).order_by('revision').last()
-            if qs:
-                rev = qs.revision + 1
-                kwargs['revision'] = rev
-                LOGGER.warning('%s Incremented to Revision %d:\n%r',
-                               cls.__name__, rev, qs)
             cec_date = kwargs.get('CEC_Date')
             if cec_date is not None:
                 try:
@@ -271,7 +259,7 @@ class PVModule(PVBaseModel):
 
     @classmethod
     def upload(cls, csv_file, user):
-        columns, spamreader = _upload_csv(cls, csv_file, user, cls.FIELD_MAP)
+        columns, spamreader = _upload_csv(csv_file, cls.FIELD_MAP)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
             # skip blank lines
@@ -288,7 +276,7 @@ class PVModule(PVBaseModel):
             try:
                 yr = int(yr)
             except ValueError:
-                yr = 1900
+                yr = MISSING_VINTAGE
             kwargs['Vintage'] = date(yr, 1, 1)
             LOGGER.debug('year = %d', yr)
             celltype = cls.CELL_TYPES.get(kwargs['Material'], 0)
@@ -365,7 +353,7 @@ class CEC_Module(PVBaseModel):
 
     @classmethod
     def upload(cls, csv_file, user):
-        columns, spamreader = _upload_csv(cls, csv_file, user)
+        columns, spamreader = _upload_csv(csv_file)
         for spam in spamreader:
             kwargs = dict(zip(columns, spam))
             # skip blank lines

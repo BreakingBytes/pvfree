@@ -1,6 +1,5 @@
 from django.contrib import admin
 from parameters.models import PVInverter, PVModule, CEC_Module
-from past.builtins import xrange
 from itertools import chain
 
 
@@ -25,7 +24,7 @@ class VacRangeFilter(admin.SimpleListFilter):
         """
         return [('-999', 'Missing')] + [
             (str(x), '%d - %d [V]' % ((x - self._incr + 1), x))
-            for x in xrange(self._incr, self._stop + self._incr, self._incr)
+            for x in range(self._incr, self._stop + self._incr, self._incr)
         ] + [('+1000', '> 1000 [V]')]
 
     def queryset(self, request, queryset):
@@ -95,13 +94,13 @@ class PacoRangeFilter(admin.SimpleListFilter):
 
 class PVInverterAdmin(admin.ModelAdmin):
     list_display = (
-        'Name', 'Source', 'Manufacturer', 'Vintage', 'revision',
+        'Name', 'Source', 'Manufacturer', 'Vintage', 'SAM_Version',
         'Vac', 'Paco', 'Vdco', 'Pdco', 'Pso', 'C0', 'C1', 'C2', 'C3',
         'Vdcmax', 'Idcmax', 'Mppt_low', 'Mppt_high', 'Pnt', 'CEC_Date',
         'CEC_Type', 'created_on', 'modified_on'
     )
     search_fields = ('Name',)
-    list_filter = ('revision', VacRangeFilter, PacoRangeFilter)
+    list_filter = ('SAM_Version', VacRangeFilter, PacoRangeFilter)
     fields = (
         'Name', ('Vac', 'Paco'), ('Vdco', 'Pdco'), ('C0', 'C1'), ('C2', 'C3'),
         ('Pso', 'Pnt'), ('Vdcmax', 'Idcmax'), ('Mppt_low', 'Mppt_high'),

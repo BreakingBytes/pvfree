@@ -4,6 +4,7 @@ pvfree.sublime-project
 pvfree.sublime-workspace
 *.pyc
 .postgre
+.travis_password
 db.sqlite3
 public/static/
 .project
@@ -16,6 +17,7 @@ venv3/
 .idea/
 *.csv
 !parameters/data/sandia_modules.csv
+!parameters/data/cec_inverters.csv
 .DS_Store
 .vscode/
 .pytest_cache

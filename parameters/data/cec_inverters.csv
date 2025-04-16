@@ -1,0 +1,10 @@
+Name,Vac,Pso,Paco,Pdco,Vdco,C0,C1,C2,C3,Pnt,Vdcmax,Idcmax,Mppt_low,Mppt_high
+Units,V,W,W,W,V,1/W,1/V,1/V,1/V,W,V,A,V,V
+[0],inv_snl_ac_voltage,inv_snl_pso,inv_snl_paco,inv_snl_pdco,inv_snl_vdco,inv_snl_c0,inv_snl_c1,inv_snl_c2,inv_snl_c3,inv_snl_pnt,inv_snl_vdcmax,inv_snl_idcmax,inv_snl_mppt_low,inv_snl_mppt_hi
+Canadian Solar Incorporated : CSI-50KTL-GS [480V] 480V [CEC 2018],480,70.467972,50083,50885.01172,650,-1.46E-07,-6.68E-06,-0.00007,0.001392,1,720,78.284633,580,720
+Canadian Solar Incorporated: CSI-50KTL-GS [480V] [SI1] 480V [CEC 2018],480,70.468,50083,50885,650,-1.46E-07,-6.68E-06,-6.99E-05,0.00139164,1,720,78.2846,580,720
+Canadian Solar Incorporated: CSI-50KTL-GS-FL [480V] [SI1] 480V [CEC 2018],480,42.722,50084,50863.5,650,-8.06E-08,-2.35E-06,0.0044904,0.0118958,1,720,78.2516,580,720
+"LeadSolar Energy Co.,Ltd.: LS600 [240V] [SI1] 240V [CEC 2018]",240,1.95681,500,524.883,36,-3.05E-05,-0.000355039,0.0366343,-0.0253102,0.09,45,14.5801,27,45
+"Ningbo Ginlong Technologies Co., LTD: Solis-50K-US [480V] [SI1] 480V [CEC 2018]",480,42.722,50084,50863.5,650,-8.06E-08,-2.35E-06,0.0044904,0.0118958,1,720,78.2516,580,720
+"Ningbo Ginlong Technologies Co., LTD: Solis-50K-US-F [480V] [SI1] 480V [CEC 2018]",480,70.468,50083,50885,650,-1.46E-07,-6.68E-06,-6.99E-05,0.00139164,1,720,78.2846,580,720
+"Ningbo Ginlong Technologies Co., LTD: Solis-50K-US-F-SW [480V] [SI1] 480V [CEC 2018]",480,68.8525,50083,50900.2,650,-1.47E-07,-8.09E-06,0.000337826,0.00104125,1,720,78.308,580,720
