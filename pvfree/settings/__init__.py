@@ -27,6 +27,9 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['pvfree.azurewebsites.net']
 
+# New in Django-4.0
+CSRF_TRUSTED_ORIGINS = ['pvfree.azurewebsites.net']
+
 # Application definition
 
 INSTALLED_APPS = [
