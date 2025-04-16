@@ -1,7 +1,7 @@
 bokeh==2.0.1
 defusedxml==0.7.1
 dj-database-url==2.2.0
-Django==3.2.25
+Django==4.0.10
 django-tastypie==0.15.1
 gunicorn==23.0.0
 Jinja2==2.11.3
