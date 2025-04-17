@@ -43,9 +43,9 @@ def pvinverter_detail(request, pvinverter_id):
         x_axis_label=f'DC power, Pdc [{disp_units}]',
         y_axis_label='efficiency [%]',
         title=pvinv.Name,
-        plot_width=800, plot_height=600, sizing_mode='scale_width')
+        width=800, height=600, sizing_mode='scale_width')
     r = fig.multi_line(
-        dc_power_disp.tolist(), eff_disp.tolist(), color=cmap, line_width=4)
+        dc_power_disp.tolist(), eff_disp.tolist(), color=cmap[:3], line_width=4)
     legend = Legend(items=[
         LegendItem(label='{:d} [V]'.format(int(vdc)), renderers=[r], index=n)
         for n, vdc in enumerate(dc_voltages)])
@@ -92,7 +92,7 @@ def pvmodule_detail(request, pvmodule_id):
         x_axis_label='effective irradiance, Ee [W/m' + u"\u00B2" + ']',
         y_axis_label='efficiency [%]',
         title=pvmod.Name,
-        plot_width=800, plot_height=600, sizing_mode='scale_width'
+        width=800, height=600, sizing_mode='scale_width'
     )
     r = fig.multi_line(
         effirrad.tolist(), eff.tolist(), color=cmap, line_width=4)
@@ -146,7 +146,7 @@ def cec_module_detail(request, cec_module_id):
         x_axis_label='voltage, V [V]',
         y_axis_label='current, I [A]',
         title=cec_mod.Name,
-        plot_width=800, plot_height=600, sizing_mode='scale_width'
+        width=800, height=600, sizing_mode='scale_width'
     )
     plot = fig.multi_line(
         voltage.tolist(), current.tolist(), color=cmap, line_width=4)
