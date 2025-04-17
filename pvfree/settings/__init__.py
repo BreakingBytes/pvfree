@@ -58,7 +58,6 @@ ROOT_URLCONF = 'pvfree.urls'
 
 WSGI_APPLICATION = 'pvfree.wsgi.application'
 
-
 # Databases
 # use ElephantSQL database instead of heroku
 DATABASES = {
