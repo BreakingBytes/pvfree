@@ -1,4 +1,4 @@
-bokeh==2.2.2
+bokeh==2.3.3
 defusedxml==0.7.1
 dj-database-url==2.2.0
 Django==4.2.20
