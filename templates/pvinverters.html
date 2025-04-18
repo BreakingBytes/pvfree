@@ -4,8 +4,8 @@
 <!-- datatables.net with Bootstrap-3 theme -->
 <!-- https://datatables.net/examples/styling/bootstrap.html -->
 <!-- https://datatables.net/manual/styling/bootstrap -->
-<!-- link rel"stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+<!-- link rel"stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap.css">
 {% endblock headers %}
 
 {% block content %}
@@ -34,7 +34,7 @@
         <th>CEC Type</th>
       </tr>
     </thead>
-    <tbody>
+    <!-- <tbody>
       {% for pvinv in pvinv_set %}
       <tr>
         <td><a href="{% url 'pvinverter_detail' pvinv.id %}">{{ pvinv.Name }}</a></td>
@@ -56,7 +56,29 @@
         <td>{{ pvinv.CEC_Type }}</td>
       </tr>
       {% endfor %}
-    </tbody>
+    </tbody> -->
+    <!--<tbody>rendered by datatables.net</tbody>-->
+    <tfoot>
+      <tr>
+        <th>Name<br /><br /></th>
+        <th>Vac<br /><br /></th>
+        <th>Paco<br /><br /></th>
+        <th>Vdco<br /><br /></th>
+        <th>Pdco<br /><br /></th>
+        <th>C0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
+        <th>C1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
+        <th>C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
+        <th>C3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
+        <th>Pso<br /><br /></th>
+        <th>Pnt<br /><br /></th>
+        <th>Vdcmax<br /><br /></th>
+        <th>Idcmax<br /><br /></th>
+        <th>MPPT low</th>
+        <th>MPPT high</th>
+        <th>CEC Date</th>
+        <th>CEC Type</th>
+      </tr>
+    </tfoot>
   </table>
   {% else %}
      <p>No PV Inverters are available.</p>
@@ -66,11 +88,45 @@
 
 {% block footers %}
 <!-- datatables.net -->
-<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap.js"></script>
 <script>
+// <!-- $(document).ready(function(){
+//     $('#myTable').DataTable();
+// }); -->
+
 $(document).ready(function(){
-    $('#myTable').DataTable();
+  $('#myTable').DataTable({
+    ajax: {
+      url: '/api/v1/pvinverter/?limit=0',
+      dataSrc: 'objects'
+    },
+    deferRender: true,
+    columns: [
+      {
+        data: null,
+        render: function(data, type, row){
+          return '<a href="'+ {% url 'pvinverters' %} + row.id + '/">' + row.Name + '</a>'
+        }
+      },
+      {data: 'Vac'},
+      {data: 'Paco'},
+      {data: 'Vdco'},
+      {data: 'Pdco'},
+      {data: 'C0'},
+      {data: 'C1'},
+      {data: 'C2'},
+      {data: 'C3'},
+      {data: 'Pso'},
+      {data: 'Pnt'},
+      {data: 'Vdcmax'},
+      {data: 'Idcmax'},
+      {data: 'Mppt_low'},
+      {data: 'Mppt_high'},
+      {data: 'CEC_Date'},
+      {data: 'CEC_Type'}
+    ]
+  });
 });
 </script>
 {% endblock footers %}
