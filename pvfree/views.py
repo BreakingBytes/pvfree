@@ -123,6 +123,7 @@ def _get_ivcurve(v_oc, params, ivcurve_pnts=100):
     logspace_pts = np.logspace(np.log10(11.0), 0.0, ivcurve_pnts)
     return bishop88(v_oc * (11.0 - logspace_pts) / 10.0, *params)
 
+
 def cec_module_detail(request, cec_module_id):
     cec_mod = get_object_or_404(CEC_Module, pk=cec_module_id)
     fieldnames = CEC_Module._meta.get_fields()
