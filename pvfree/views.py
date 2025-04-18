@@ -9,6 +9,7 @@ from bokeh.palettes import Colorblind5 as cmap
 from pvfree.forms import (
     SolarPositionForm, LinkeTurbidityForm, AirmassForm, WeatherForm)
 from pvlib.pvsystem import sapm, calcparams_cec, singlediode, inverter
+from pvlib.singlediode import bishop88
 import numpy as np
 
 
@@ -118,6 +119,10 @@ def cec_modules_tech(request):
     return JsonResponse(dict(CEC_Module.TECH))
 
 
+def _get_ivcurve(v_oc, params, ivcurve_pnts=100):
+    logspace_pts = np.logspace(np.log10(11.0), 0.0, ivcurve_pnts)
+    return bishop88(v_oc * (11.0 - logspace_pts) / 10.0, *params)
+
 def cec_module_detail(request, cec_module_id):
     cec_mod = get_object_or_404(CEC_Module, pk=cec_module_id)
     fieldnames = CEC_Module._meta.get_fields()
@@ -138,7 +143,11 @@ def cec_module_detail(request, cec_module_id):
             R_sh_ref=cec_mod_dict['R_sh_ref'],
             R_s=cec_mod_dict['R_s'],
             Adjust=cec_mod_dict['Adjust'])
-        results.append(singlediode(*params, ivcurve_pnts=100, method='newton'))
+        result = singlediode(*params, method='newton')
+        # ivcurve_pnts deprecated in pvlib-0.10
+        ivp = _get_ivcurve(result['v_oc'], params)
+        result['i'], result['v'], result['p'] = ivp
+        results.append(result)
     current = np.concatenate([r['i'].reshape(1, 100) for r in results], axis=0)
     voltage = np.concatenate([r['v'].reshape(1, 100) for r in results], axis=0)
     # eff = results['p_mp'] / effirrad / cec_mod.Area * 100 / 1000
