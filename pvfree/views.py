@@ -18,9 +18,8 @@ def home(request):
 
 
 def pvinverters(request):
-    return render(
-        request, 'pvinverters.html',
-        {'path': request.path, 'pvinv_set': PVInverter.objects.values()})
+    # using datatables.net with ajax to return from API
+    return render(request, 'pvinverters.html', {'path': request.path})
 
 
 def pvinverter_detail(request, pvinverter_id):
@@ -109,10 +108,39 @@ def pvmodule_detail(request, pvmodule_id):
 
 
 def cec_modules(request):
-    return render(
-        request, 'cec_modules.html', {
-            'path': request.path, 'cec_mod_set': CEC_Module.objects.values(),
-            'cec_mod_tech': dict(CEC_Module.TECH)})
+    if request.method == 'GET':
+        # using datatables.net with ajax to return values from API
+        return render(request, 'cec_modules.html', {'path': request.path})
+    elif request.method == 'POST':
+        draw = int(request.POST.get('draw'))
+        start = int(request.POST.get('start'))
+        length = int(request.POST.get('length'))
+        search_value = request.POST.get('search[value]')
+        limit = start+length
+        total_records = CEC_Module.objects.count()
+        if search_value:
+            cecmod_set = CEC_Module.objects.filter(Name__icontains=search_value)
+        filtered_records = cecmod_set.count()
+        data = [{
+            'Name': cecmod.Name,
+            'BIPV': cecmod.BIPV,
+            'Date': cecmod.Date,
+            'T_NOCT': cecmod.T_NOCT,
+            'A_c': cecmod.A_c,
+            'N_s': cecmod.N_s,
+            'I_sc_ref': cecmod.I_sc_ref,
+            'V_oc_ref': cecmod.V_oc_ref,
+            'I_mp_ref': cecmod.I_mp_ref,
+            'V_mp_ref': cecmod.V_mp_ref,
+            'Technology': cecmod.get_Technology_display(),
+            'STC': cecmod.STC,}
+            for cecmod in cecmod_set[start:limit]]
+        response = {
+            'draw': draw,
+            'recordsTotal': total_records,
+            'recordsFiltered': filtered_records,
+            'data': data}
+        return JsonResponse(response)
 
 
 def cec_modules_tech(request):

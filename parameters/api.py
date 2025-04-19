@@ -44,6 +44,11 @@ class PVModuleResource(ModelResource):
         authorization = IsAuthenticatedOrReadOnly()
         authentication = ApiKeyAuthOrReadOnly()
 
+    def dehydrate_Material(self, bundle):
+        celltype = bundle.data['Material']
+        # TODO: use dictionary instead of list
+        return PVModule.MATERIALS[celltype][1]
+
 
 class CECModuleResource(ModelResource):
     class Meta:
