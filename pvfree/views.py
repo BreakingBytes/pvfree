@@ -136,6 +136,7 @@ def cec_modules(request):
             cecmod_set = CEC_Module.objects.all()
         filtered_records = cecmod_set.count()
         data = [{
+            'id': cecmod.id,
             'Name': cecmod.Name,
             'BIPV': cecmod.BIPV,
             'Date': cecmod.Date,
