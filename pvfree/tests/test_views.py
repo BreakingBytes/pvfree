@@ -10,6 +10,11 @@ def test__datatables_helper():
     assert order == ORDER_EXPECTED
 
 
+def test__filter_by_technology():
+    all_silicon_tech = views._filter_by_technology('si')
+    assert all_silicon_tech == [1, 2, 3, 7, 8, 9, 11, 12]
+
+
 # TODO: make these black
 TESTDATA = {
   'draw': ['1'],
