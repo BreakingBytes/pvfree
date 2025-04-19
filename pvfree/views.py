@@ -107,19 +107,33 @@ def pvmodule_detail(request, pvmodule_id):
             'plot_div': plot_div, 'pvmod_dict': pvmod_dict})
 
 
+@csrf_exempt
 def cec_modules(request):
     if request.method == 'GET':
         # using datatables.net with ajax to return values from API
         return render(request, 'cec_modules.html', {'path': request.path})
     elif request.method == 'POST':
+        # to enable server-side processing change cec_modules.html
+        # datatables.net script:
+        # ajax: {
+        #   url: '{% url 'cec_modules' %}',
+        #   type: 'POST'
+        # },
+        # serverSide: true,
+        # processing: true,
         draw = int(request.POST.get('draw'))
         start = int(request.POST.get('start'))
         length = int(request.POST.get('length'))
         search_value = request.POST.get('search[value]')
         limit = start+length
         total_records = CEC_Module.objects.count()
+        # TODO: sort columns
         if search_value:
-            cecmod_set = CEC_Module.objects.filter(Name__icontains=search_value)
+            # TODO: search Technology choices
+            cecmod_set = (
+                CEC_Module.objects.filter(Name__icontains=search_value))
+        else:
+            cecmod_set = CEC_Module.objects.all()
         filtered_records = cecmod_set.count()
         data = [{
             'Name': cecmod.Name,

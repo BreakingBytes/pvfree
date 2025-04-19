@@ -11,7 +11,6 @@
 {% block content %}
 <div class="container">
   <h1 class="page-header">PV Inverters</h1>
-  {% if pvinv_set %}
   <table id="myTable" class="table table-striped table-bordered">
     <thead>
       <tr>
@@ -34,29 +33,6 @@
         <th>CEC Type</th>
       </tr>
     </thead>
-    <!-- <tbody>
-      {% for pvinv in pvinv_set %}
-      <tr>
-        <td><a href="{% url 'pvinverter_detail' pvinv.id %}">{{ pvinv.Name }}</a></td>
-        <td>{{ pvinv.Vac }}</td>
-        <td>{{ pvinv.Paco }}</td>
-        <td>{{ pvinv.Vdco|floatformat }}</td>
-        <td>{{ pvinv.Pdco|floatformat }}</td>
-        <td>{{ pvinv.C0|stringformat:"5.2E" }}</td>
-        <td>{{ pvinv.C1|stringformat:"5.2E" }}</td>
-        <td>{{ pvinv.C2|stringformat:"5.2E" }}</td>
-        <td>{{ pvinv.C3|stringformat:"5.2E" }}</td>
-        <td>{{ pvinv.Pso|floatformat }}</td>
-        <td>{{ pvinv.Pnt }}</td>
-        <td>{{ pvinv.Vdcmax }}</td>
-        <td>{{ pvinv.Idcmax }}</td>
-        <td>{{ pvinv.Mppt_low }}</td>
-        <td>{{ pvinv.Mppt_high }}</td>
-        <td>{{ pvinv.CEC_Date }}</td>
-        <td>{{ pvinv.CEC_Type }}</td>
-      </tr>
-      {% endfor %}
-    </tbody> -->
     <!--<tbody>rendered by datatables.net</tbody>-->
     <tfoot>
       <tr>
@@ -80,9 +56,6 @@
       </tr>
     </tfoot>
   </table>
-  {% else %}
-     <p>No PV Inverters are available.</p>
-  {% endif %}
 </div>
 {% endblock %}
 
@@ -91,9 +64,6 @@
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap.js"></script>
 <script>
-// <!-- $(document).ready(function(){
-//     $('#myTable').DataTable();
-// }); -->
 
 $(document).ready(function(){
   $('#myTable').DataTable({
