@@ -13,9 +13,6 @@ from pvlib.pvsystem import sapm, calcparams_cec, singlediode, inverter
 from pvlib.singlediode import bishop88
 import numpy as np
 import re
-import logging
-
-LOGGER = logging.getLogger(__name__)
 
 
 def home(request):
@@ -38,11 +35,10 @@ def _datatables_helper(post_request):
             m = re.match('^order\[(\d+)](.+)$', k)
             order_idx, order_key = m.groups()
             order_idx = int(order_idx)
-            order_list = post_request.getlist(k)
             try:
-                order[order_idx][order_key] = order_list
+                order[order_idx][order_key] = v
             except IndexError:
-                order.append({order_key: order_list})
+                order.append({order_key: v})
     return columns, order
 
 
@@ -136,6 +132,15 @@ def pvmodule_detail(request, pvmodule_id):
             'plot_div': plot_div, 'pvmod_dict': pvmod_dict})
 
 
+def _filter_by_technology(search_term):
+    search_term = str(search_term).lower()
+    search_results = []
+    for tech, idx in CEC_Module.TECH_TYPES.items():
+        if search_term in tech.lower():
+            search_results.append(idx)
+    return search_results
+
+
 @csrf_exempt
 def cec_modules(request):
     if request.method == 'GET':
@@ -143,7 +148,6 @@ def cec_modules(request):
         return render(request, 'cec_modules.html', {'path': request.path})
     elif request.method == 'POST':
         columns, order = _datatables_helper(request.POST)
-        LOGGER.debug(order)
         draw = int(request.POST.get('draw'))
         start = int(request.POST.get('start'))
         length = int(request.POST.get('length'))
@@ -152,26 +156,35 @@ def cec_modules(request):
         total_records = CEC_Module.objects.count()
         # TODO: sort columns
         if search_value:
-            # TODO: search Technology choices
+            tech_search = _filter_by_technology(search_value)
             cecmod_set = (
-                CEC_Module.objects.filter(Name__icontains=search_value))
+                CEC_Module.objects.filter(Name__icontains=search_value)
+                | CEC_Module.objects.filter(BIPV__icontains=search_value)
+                | CEC_Module.objects.filter(Date__icontains=search_value)
+                | CEC_Module.objects.filter(T_NOCT__icontains=search_value)
+                | CEC_Module.objects.filter(A_c__icontains=search_value)
+                | CEC_Module.objects.filter(N_s__icontains=search_value)
+                | CEC_Module.objects.filter(I_sc_ref__icontains=search_value)
+                | CEC_Module.objects.filter(V_oc_ref__icontains=search_value)
+                | CEC_Module.objects.filter(I_mp_ref__icontains=search_value)
+                | CEC_Module.objects.filter(V_mp_ref__icontains=search_value)
+                | CEC_Module.objects.filter(Technology__in=tech_search)
+                | CEC_Module.objects.filter(STC__icontains=search_value))
         else:
             cecmod_set = CEC_Module.objects.all()
         col_data = [col["[data]"] for col in columns]
-        if len(order) == 1:
+        if len(order):
             order_by_list = [
-                ("-" if order_dir=='desc' else "")+col_data[int(col_idx)]
-                for col_idx, order_dir
-                in zip(order[0]['[column]'], order[0]['[dir]'])]
+                ("-" if o['[dir]']=='desc' else "")+col_data[int(o['[column]'])]
+                for o in order]
+            # XXX: -Name yields "a" first instead of "Z" !
+            # handle case-sensitivity descending order for string fields
             if '-Name' in order_by_list:
                 name_idx = order_by_list.index('-Name')
                 order_by_list[name_idx] = Lower('Name').desc()
-            if '-Technology' in order_by_list:
-                tech_idx = order_by_list.index('-Technology')
-                order_by_list[tech_idx] = Lower('Technology').desc()
+            # Technology is an integer field not string
         else:
             order_by_list = []
-        LOGGER.debug(order_by_list)
         cecmod_set = cecmod_set.order_by(*order_by_list)
         filtered_records = cecmod_set.count()
         data = [{

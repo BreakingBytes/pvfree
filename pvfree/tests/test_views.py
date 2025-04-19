@@ -6,13 +6,14 @@ def test__datatables_helper():
     for k, v in TESTDATA.items():
         testdata[k] = v[-1]  # django gets the last item in the queryset
     columns, order = views._datatables_helper(testdata)
-    assert columns == EXPECTED
+    assert columns == COL_EXPECTED
+    assert order == ORDER_EXPECTED
 
 
 # TODO: make these black
 TESTDATA = {
   'draw': ['1'],
-  'columns[0][data]': [''], 'columns[0][name]': [''], 'columns[0][searchable]': ['true'], 'columns[0][orderable]': ['true'], 'columns[0][search][value]': [''], 'columns[0][search][regex]': ['false'], 
+  'columns[0][data]': ['Name'], 'columns[0][name]': [''], 'columns[0][searchable]': ['true'], 'columns[0][orderable]': ['true'], 'columns[0][search][value]': [''], 'columns[0][search][regex]': ['false'], 
   'columns[1][data]': ['BIPV'], 'columns[1][name]': [''], 'columns[1][searchable]': ['true'], 'columns[1][orderable]': ['true'], 'columns[1][search][value]': [''], 'columns[1][search][regex]': ['false'], 
   'columns[2][data]': ['Date'], 'columns[2][name]': [''], 'columns[2][searchable]': ['true'], 'columns[2][orderable]': ['true'], 'columns[2][search][value]': [''], 'columns[2][search][regex]': ['false'], 
   'columns[3][data]': ['T_NOCT'], 'columns[3][name]': [''], 'columns[3][searchable]': ['true'], 'columns[3][orderable]': ['true'], 'columns[3][search][value]': [''], 'columns[3][search][regex]': ['false'], 
@@ -27,8 +28,8 @@ TESTDATA = {
   'order[0][column]': ['0'], 'order[0][dir]': ['asc'], 'order[0][name]': [''], 
   'start': ['0'], 'length': ['10'], 'search[value]': [''], 'search[regex]': ['false']
 }
-EXPECTED = [
-    {'[data]': '', '[name]': '', '[searchable]': 'true', '[orderable]': 'true', '[search][value]': '', '[search][regex]': 'false'},
+COL_EXPECTED = [
+    {'[data]': 'Name', '[name]': '', '[searchable]': 'true', '[orderable]': 'true', '[search][value]': '', '[search][regex]': 'false'},
     {'[data]': 'BIPV', '[name]': '', '[searchable]': 'true', '[orderable]': 'true', '[search][value]': '', '[search][regex]': 'false'},
     {'[data]': 'Date', '[name]': '', '[searchable]': 'true', '[orderable]': 'true', '[search][value]': '', '[search][regex]': 'false'},
     {'[data]': 'T_NOCT', '[name]': '', '[searchable]': 'true', '[orderable]': 'true', '[search][value]': '', '[search][regex]': 'false'},
@@ -40,3 +41,4 @@ EXPECTED = [
     {'[data]': 'V_mp_ref', '[name]': '', '[searchable]': 'true', '[orderable]': 'true', '[search][value]': '', '[search][regex]': 'false'},
     {'[data]': 'Technology', '[name]': '', '[searchable]': 'true', '[orderable]': 'true', '[search][value]': '', '[search][regex]': 'false'},
     {'[data]': 'STC', '[name]': '', '[searchable]': 'true', '[orderable]': 'true', '[search][value]': '', '[search][regex]': 'false'}]
+ORDER_EXPECTED = [{'[column]': '0', '[dir]': 'asc', '[name]': ''}]
