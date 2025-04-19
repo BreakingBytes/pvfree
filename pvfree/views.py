@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.db.models.functions import Lower
 from parameters.models import PVInverter, PVModule, CEC_Module
 from bokeh.plotting import figure
 from bokeh.models import Legend, LegendItem
@@ -11,10 +12,34 @@ from pvfree.forms import (
 from pvlib.pvsystem import sapm, calcparams_cec, singlediode, inverter
 from pvlib.singlediode import bishop88
 import numpy as np
+import re
 
 
 def home(request):
     return render(request, 'index.html', {'path': request.path})
+
+
+def _datatables_helper(post_request):
+    columns = []
+    order = []
+    for k, v in post_request.items():
+        if k.startswith('columns'):
+            m = re.match('^columns\[(\d+)](.+)$', k)
+            col_idx, col_key = m.groups()
+            col_idx = int(col_idx)
+            try:
+                columns[col_idx][col_key] = v
+            except IndexError:
+                columns.append({col_key: v})
+        elif k.startswith('order'):
+            m = re.match('^order\[(\d+)](.+)$', k)
+            order_idx, order_key = m.groups()
+            order_idx = int(order_idx)
+            try:
+                order[order_idx][order_key] = v
+            except IndexError:
+                order.append({order_key: v})
+    return columns, order
 
 
 def pvinverters(request):
@@ -107,20 +132,22 @@ def pvmodule_detail(request, pvmodule_id):
             'plot_div': plot_div, 'pvmod_dict': pvmod_dict})
 
 
+def _filter_by_technology(search_term):
+    search_term = str(search_term).lower()
+    search_results = []
+    for tech, idx in CEC_Module.TECH_TYPES.items():
+        if search_term in tech.lower():
+            search_results.append(idx)
+    return search_results
+
+
 @csrf_exempt
 def cec_modules(request):
     if request.method == 'GET':
         # using datatables.net with ajax to return values from API
         return render(request, 'cec_modules.html', {'path': request.path})
     elif request.method == 'POST':
-        # to enable server-side processing change cec_modules.html
-        # datatables.net script:
-        # ajax: {
-        #   url: '{% url 'cec_modules' %}',
-        #   type: 'POST'
-        # },
-        # serverSide: true,
-        # processing: true,
+        columns, order = _datatables_helper(request.POST)
         draw = int(request.POST.get('draw'))
         start = int(request.POST.get('start'))
         length = int(request.POST.get('length'))
@@ -129,11 +156,36 @@ def cec_modules(request):
         total_records = CEC_Module.objects.count()
         # TODO: sort columns
         if search_value:
-            # TODO: search Technology choices
+            tech_search = _filter_by_technology(search_value)
             cecmod_set = (
-                CEC_Module.objects.filter(Name__icontains=search_value))
+                CEC_Module.objects.filter(Name__icontains=search_value)
+                | CEC_Module.objects.filter(BIPV__icontains=search_value)
+                | CEC_Module.objects.filter(Date__icontains=search_value)
+                | CEC_Module.objects.filter(T_NOCT__icontains=search_value)
+                | CEC_Module.objects.filter(A_c__icontains=search_value)
+                | CEC_Module.objects.filter(N_s__icontains=search_value)
+                | CEC_Module.objects.filter(I_sc_ref__icontains=search_value)
+                | CEC_Module.objects.filter(V_oc_ref__icontains=search_value)
+                | CEC_Module.objects.filter(I_mp_ref__icontains=search_value)
+                | CEC_Module.objects.filter(V_mp_ref__icontains=search_value)
+                | CEC_Module.objects.filter(Technology__in=tech_search)
+                | CEC_Module.objects.filter(STC__icontains=search_value))
         else:
             cecmod_set = CEC_Module.objects.all()
+        col_data = [col["[data]"] for col in columns]
+        if len(order):
+            order_by_list = [
+                ("-" if o['[dir]']=='desc' else "")+col_data[int(o['[column]'])]
+                for o in order]
+            # XXX: -Name yields "a" first instead of "Z" !
+            # handle case-sensitivity descending order for string fields
+            if '-Name' in order_by_list:
+                name_idx = order_by_list.index('-Name')
+                order_by_list[name_idx] = Lower('Name').desc()
+            # Technology is an integer field not string
+        else:
+            order_by_list = []
+        cecmod_set = cecmod_set.order_by(*order_by_list)
         filtered_records = cecmod_set.count()
         data = [{
             'id': cecmod.id,

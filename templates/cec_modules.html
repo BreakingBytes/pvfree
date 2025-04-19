@@ -57,13 +57,14 @@
 $(document).ready(function(){
   $('#myTable').DataTable({
     ajax: {
-      url: '/api/v1/cecmodule/?limit=0',
-      dataSrc: 'objects'
+      url: '{% url 'cec_modules' %}',
+      type: 'POST'
     },
-    deferRender: true,
+    serverSide: true,
+    processing: true,
     columns: [
       {
-        data: null,
+        data: 'Name',
         render: function(data, type, row){
           return '<a href="'+ {% url 'cec_modules' %} + row.id + '/">' + row.Name + '</a>'
         }
