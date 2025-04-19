@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.db.models.functions import Lower
 from parameters.models import PVInverter, PVModule, CEC_Module
 from bokeh.plotting import figure
 from bokeh.models import Legend, LegendItem
@@ -12,6 +13,9 @@ from pvlib.pvsystem import sapm, calcparams_cec, singlediode, inverter
 from pvlib.singlediode import bishop88
 import numpy as np
 import re
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 
 def home(request):
@@ -20,16 +24,26 @@ def home(request):
 
 def _datatables_helper(post_request):
     columns = []
+    order = []
     for k, v in post_request.items():
         if k.startswith('columns'):
             m = re.match('^columns\[(\d+)](.+)$', k)
-            col_idx, item_key = m.groups()
+            col_idx, col_key = m.groups()
             col_idx = int(col_idx)
             try:
-                columns[col_idx][item_key] = v
+                columns[col_idx][col_key] = v
             except IndexError:
-                columns.append({item_key: v})
-    return columns
+                columns.append({col_key: v})
+        elif k.startswith('order'):
+            m = re.match('^order\[(\d+)](.+)$', k)
+            order_idx, order_key = m.groups()
+            order_idx = int(order_idx)
+            order_list = post_request.getlist(k)
+            try:
+                order[order_idx][order_key] = order_list
+            except IndexError:
+                order.append({order_key: order_list})
+    return columns, order
 
 
 def pvinverters(request):
@@ -128,7 +142,8 @@ def cec_modules(request):
         # using datatables.net with ajax to return values from API
         return render(request, 'cec_modules.html', {'path': request.path})
     elif request.method == 'POST':
-        columns = _datatables_helper(request.POST)
+        columns, order = _datatables_helper(request.POST)
+        LOGGER.debug(order)
         draw = int(request.POST.get('draw'))
         start = int(request.POST.get('start'))
         length = int(request.POST.get('length'))
@@ -142,6 +157,22 @@ def cec_modules(request):
                 CEC_Module.objects.filter(Name__icontains=search_value))
         else:
             cecmod_set = CEC_Module.objects.all()
+        col_data = [col["[data]"] for col in columns]
+        if len(order) == 1:
+            order_by_list = [
+                ("-" if order_dir=='desc' else "")+col_data[int(col_idx)]
+                for col_idx, order_dir
+                in zip(order[0]['[column]'], order[0]['[dir]'])]
+            if '-Name' in order_by_list:
+                name_idx = order_by_list.index('-Name')
+                order_by_list[name_idx] = Lower('Name').desc()
+            if '-Technology' in order_by_list:
+                tech_idx = order_by_list.index('-Technology')
+                order_by_list[tech_idx] = Lower('Technology').desc()
+        else:
+            order_by_list = []
+        LOGGER.debug(order_by_list)
+        cecmod_set = cecmod_set.order_by(*order_by_list)
         filtered_records = cecmod_set.count()
         data = [{
             'id': cecmod.id,

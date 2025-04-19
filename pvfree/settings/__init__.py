@@ -158,6 +158,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'pvfree.views': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 

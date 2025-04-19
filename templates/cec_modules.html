@@ -64,7 +64,7 @@ $(document).ready(function(){
     processing: true,
     columns: [
       {
-        data: null,
+        data: 'Name',
         render: function(data, type, row){
           return '<a href="'+ {% url 'cec_modules' %} + row.id + '/">' + row.Name + '</a>'
         }

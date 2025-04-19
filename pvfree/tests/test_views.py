@@ -4,11 +4,12 @@ from pvfree import views
 def test__datatables_helper():
     testdata = dict.fromkeys(TESTDATA)
     for k, v in TESTDATA.items():
-        testdata[k] = v[0]
-    columns = views._datatables_helper(testdata)
+        testdata[k] = v[-1]  # django gets the last item in the queryset
+    columns, order = views._datatables_helper(testdata)
     assert columns == EXPECTED
 
 
+# TODO: make these black
 TESTDATA = {
   'draw': ['1'],
   'columns[0][data]': [''], 'columns[0][name]': [''], 'columns[0][searchable]': ['true'], 'columns[0][orderable]': ['true'], 'columns[0][search][value]': [''], 'columns[0][search][regex]': ['false'], 
