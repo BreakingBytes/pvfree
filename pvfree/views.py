@@ -11,10 +11,25 @@ from pvfree.forms import (
 from pvlib.pvsystem import sapm, calcparams_cec, singlediode, inverter
 from pvlib.singlediode import bishop88
 import numpy as np
+import re
 
 
 def home(request):
     return render(request, 'index.html', {'path': request.path})
+
+
+def _datatables_helper(post_request):
+    columns = []
+    for k, v in post_request.items():
+        if k.startswith('columns'):
+            m = re.match('^columns\[(\d+)](.+)$', k)
+            col_idx, item_key = m.groups()
+            col_idx = int(col_idx)
+            try:
+                columns[col_idx][item_key] = v
+            except IndexError:
+                columns.append({item_key: v})
+    return columns
 
 
 def pvinverters(request):
@@ -113,14 +128,7 @@ def cec_modules(request):
         # using datatables.net with ajax to return values from API
         return render(request, 'cec_modules.html', {'path': request.path})
     elif request.method == 'POST':
-        # to enable server-side processing change cec_modules.html
-        # datatables.net script:
-        # ajax: {
-        #   url: '{% url 'cec_modules' %}',
-        #   type: 'POST'
-        # },
-        # serverSide: true,
-        # processing: true,
+        columns = _datatables_helper(request.POST)
         draw = int(request.POST.get('draw'))
         start = int(request.POST.get('start'))
         length = int(request.POST.get('length'))

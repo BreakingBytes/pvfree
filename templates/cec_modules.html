@@ -57,10 +57,11 @@
 $(document).ready(function(){
   $('#myTable').DataTable({
     ajax: {
-      url: '/api/v1/cecmodule/?limit=0',
-      dataSrc: 'objects'
+      url: '{% url 'cec_modules' %}',
+      type: 'POST'
     },
-    deferRender: true,
+    serverSide: true,
+    processing: true,
     columns: [
       {
         data: null,
