@@ -5,7 +5,7 @@ import queue
 import sys
 import logging
 import urllib
-import datetime
+from datetime import datetime
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
