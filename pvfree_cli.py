@@ -110,7 +110,7 @@ if __name__ == "__main__":
         LOGGER.exception(exc_info=exc_info)
         sys.exit(4)
     else:
-        user = users['objects']['resource_uri']
+        user = users['objects'][-1]['resource_uri']
     headers = {
         "Authorization": f"ApiKey {username}:{api_key}",
         "Content-Type": "application/json"
