@@ -21,3 +21,4 @@ scipy==1.13.1
 six==1.17.0
 whitenoise==6.3.0
 MarkupSafe==2.0.1
+tqdm==4.67.1
