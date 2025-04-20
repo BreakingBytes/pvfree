@@ -85,6 +85,7 @@ class PVInverter(PVBaseModel):
         (8, '2022.11.21.r0.ssc.278-r3.ssc.280'),
         (9, '2023.12.17.r0.ssc.288-r2.ssc.292'), (10, '2024.12.12.r0.ssc.298')
     ]
+    SAMVER_TYPES = {name: idx for idx, name in SAM_VERSION}
 
     Name = models.CharField(max_length=100)
     Vac = models.FloatField('AC Voltage [V]')
@@ -359,30 +360,34 @@ class CEC_Module(PVBaseModel):
             # skip blank lines
             if not kwargs:
                 continue
-            # handle technology
-            tech = cls.TECH_TYPES.get(kwargs['Technology'], 0)
-            kwargs['Technology'] = tech
-            LOGGER.debug('Technology = %d', tech)
-            # handle version
-            ver = cls.VER_TYPES.get(kwargs['Version'], 0)
-            kwargs['Version'] = ver
-            LOGGER.debug('Version = %d', ver)
-            # handle BIPV
-            bipv = kwargs['BIPV'] == 'Y'
-            kwargs['BIPV'] = bipv
-            LOGGER.debug('BIPV = %r', bipv)
-            # handle date
-            timestamp = kwargs['Date']
-            try:
-                timestamp = datetime.strptime(timestamp, '%m/%d/%Y')
-            except (ValueError, TypeError) as exc:
-                LOGGER.exception(exc)
-                timestamp = datetime.now()
-            kwargs['Date'] = timestamp
-            LOGGER.debug('Date = %s', timestamp.isoformat())
-            # handle Length and Width
-            if not kwargs['Length']:
-                kwargs['Length'] = None
-            if not kwargs['Width']:
-                kwargs['Width'] = None
-            _upload_helper(cls, kwargs, user)
+            _upload_helper(cls, kwargs, user, upload_handler)
+
+    @classmethod
+    def upload_handler(cls, kwargs):
+        # handle technology
+        tech = cls.TECH_TYPES.get(kwargs['Technology'], 0)
+        kwargs['Technology'] = tech
+        LOGGER.debug('Technology = %d', tech)
+        # handle version
+        ver = cls.VER_TYPES.get(kwargs['Version'], 0)
+        kwargs['Version'] = ver
+        LOGGER.debug('Version = %d', ver)
+        # handle BIPV
+        bipv = kwargs['BIPV'] == 'Y'
+        kwargs['BIPV'] = bipv
+        LOGGER.debug('BIPV = %r', bipv)
+        # handle date
+        timestamp = kwargs['Date']
+        try:
+            timestamp = datetime.strptime(timestamp, '%m/%d/%Y')
+        except (ValueError, TypeError) as exc:
+            LOGGER.exception(exc)
+            timestamp = datetime.now()
+        kwargs['Date'] = timestamp
+        LOGGER.debug('Date = %s', timestamp.isoformat())
+        # handle Length and Width
+        if not kwargs['Length']:
+            kwargs['Length'] = None
+        if not kwargs['Width']:
+            kwargs['Width'] = None
+        return kwargs

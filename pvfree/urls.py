@@ -1,7 +1,7 @@
 from django.urls import include, re_path
 from tastypie.api import Api
 from parameters.api import (
-    PVInverterResource, PVModuleResource, CECModuleResource)
+    PVInverterResource, PVModuleResource, CECModuleResource, UserResource)
 from pvfree import views as pvfree_views
 from parameters import views as param_views
 from django.contrib import admin
@@ -14,6 +14,7 @@ v1_api = Api(api_name='v1')
 v1_api.register(PVInverterResource())
 v1_api.register(PVModuleResource())
 v1_api.register(CECModuleResource())
+v1_api.register(UserResource())
 
 # patterns(prefix, ...) deprecated since django-1.8
 
@@ -32,6 +33,8 @@ urlpatterns = [
     re_path(r'^cec_modules/$', pvfree_views.cec_modules, name='cec_modules'),
     re_path(r'^cec_modules_tech/$', pvfree_views.cec_modules_tech,
         name='cec_modules_tech'),
+    re_path(r'^cec_modules_versions/$', pvfree_views.cec_modules_versions,
+        name='cec_modules_versions'),
     re_path(r'^cec_modules/(?P<cec_module_id>\d+)/$',
         pvfree_views.cec_module_detail, name='cec_module_detail'),
     re_path(r'^pvlib/$', pvfree_views.pvlib, name='pvlib'),
