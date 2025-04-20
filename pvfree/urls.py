@@ -1,7 +1,7 @@
 from django.urls import include, re_path
 from tastypie.api import Api
 from parameters.api import (
-    PVInverterResource, PVModuleResource, CECModuleResource)
+    PVInverterResource, PVModuleResource, CECModuleResource, UserResource)
 from pvfree import views as pvfree_views
 from parameters import views as param_views
 from django.contrib import admin
@@ -14,6 +14,7 @@ v1_api = Api(api_name='v1')
 v1_api.register(PVInverterResource())
 v1_api.register(PVModuleResource())
 v1_api.register(CECModuleResource())
+v1_api.register(UserResource())
 
 # patterns(prefix, ...) deprecated since django-1.8
 
