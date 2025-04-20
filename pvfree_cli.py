@@ -49,10 +49,8 @@ def push_records_to_api(csvfile, api_url, model, user, headers, status_queue,
         thread.start()
         time.sleep(sleep)
         ncount += 1
-    
     for thread in threads:
         thread.join()
-
     return failures, ncount
 
 
