@@ -214,6 +214,10 @@ def cec_modules_tech(request):
     return JsonResponse(dict(CEC_Module.TECH))
 
 
+def cec_modules_versions(request):
+    return JsonResponse(dict(CEC_Module.VERSION))
+
+
 def _get_ivcurve(v_oc, params, ivcurve_pnts=100):
     logspace_pts = np.logspace(np.log10(11.0), 0.0, ivcurve_pnts)
     return bishop88(v_oc * (11.0 - logspace_pts) / 10.0, *params)

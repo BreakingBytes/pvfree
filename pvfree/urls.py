@@ -33,6 +33,8 @@ urlpatterns = [
     re_path(r'^cec_modules/$', pvfree_views.cec_modules, name='cec_modules'),
     re_path(r'^cec_modules_tech/$', pvfree_views.cec_modules_tech,
         name='cec_modules_tech'),
+    re_path(r'^cec_modules_versions/$', pvfree_views.cec_modules_versions,
+        name='cec_modules_versions'),
     re_path(r'^cec_modules/(?P<cec_module_id>\d+)/$',
         pvfree_views.cec_module_detail, name='cec_module_detail'),
     re_path(r'^pvlib/$', pvfree_views.pvlib, name='pvlib'),
