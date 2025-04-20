@@ -6,6 +6,7 @@ import sys
 import logging
 import urllib
 from datetime import datetime
+import time
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
@@ -13,14 +14,15 @@ LOGGER.setLevel(logging.DEBUG)
 
 # Create a queue to store the status codes and reasons
 STATUS_QUEUE = queue.Queue()
+SESSION = requests.Session()
 
 
-def push_record_to_api(row, api_url, headers, status_queue):
-    response = requests.post(api_url, json=row, headers=headers)
+def push_record_to_api(row, api_url, headers, status_queue, session):
+    response = session.post(api_url, json=row, headers=headers)
     status_queue.put((response.status_code, response.reason))
 
 
-def push_records_to_api(csvfile, api_url, model, user, headers, status_queue):
+def push_records_to_api(csvfile, api_url, model, user, headers, status_queue, session):
     failures = []
     reader = csv.DictReader(csvfile)
     # skip units header and the sandia header
@@ -37,11 +39,12 @@ def push_records_to_api(csvfile, api_url, model, user, headers, status_queue):
         row['modified_by'] = user
         thread = threading.Thread(
             target=push_record_to_api,
-            args=(row, api_url, headers, status_queue))
+            args=(row, api_url, headers, status_queue, session))
         threads.append(thread)
         thread.start()
     
     for thread in threads:
+        time.sleep(0.01)
         thread.join()
 
     return failures
@@ -119,7 +122,7 @@ if __name__ == "__main__":
     try:
         with open(csv_file_path, mode='r', encoding='utf-8') as csvfile:
             failures = push_records_to_api(
-                csvfile, api_url, model, user, headers, STATUS_QUEUE)
+                csvfile, api_url, model, user, headers, STATUS_QUEUE, SESSION)
     except Exception as exc_info:
         LOGGER.error("maybe the file wasn't found or something else bad?")
         LOGGER.exception(exc_info=exc_info)
@@ -131,4 +134,5 @@ if __name__ == "__main__":
     while not STATUS_QUEUE.empty():
         status_code, reason = STATUS_QUEUE.get()
         LOGGER.info(f"Status code: {status_code}, Reason: {reason}")
+    SESSION.close()
     sys.exit(0)
