@@ -37,7 +37,7 @@ def push_records_to_api(csv_file_path, api_url, model, user, headers, session):
             except RequestException as exc_info:
                 failures.append({
                     'error': 'requests error',
-                    'exc_info': exc_info,
+                    'exc_info': str(exc_info),  # make exc_info serializable
                     'data': row})
                 continue
             name = row['Name']
@@ -64,7 +64,10 @@ def cecmodule_handler(kwargs):
     try:
         timestamp = datetime.strptime(timestamp, '%m/%d/%Y')
     except (ValueError, TypeError) as exc_info:
-        return {'error': 'date error', 'exc_info': exc_info, 'data': kwargs}
+        return {
+            'error': 'date error',
+            'exc_info': str(exc_info),  # make exc_info serializable
+            'data': kwargs}
     kwargs['Date'] = datetime.strftime(timestamp, '%Y-%m-%d')
     # handle Length and Width
     if not kwargs['Length']:
