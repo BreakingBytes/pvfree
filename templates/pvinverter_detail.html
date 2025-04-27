@@ -35,6 +35,7 @@
     <div class="row"><div class="col-sm-3"></div><div class="col-sm-6">
     <table class="table table-hover">
       <tbody>
+        <tr><td><b>API</b></td><td><a href="/api/v1/pvinverter/{{ pvinv.id }}/?format=json">/api/v1/pvinverter/{{ pvinv.id }}/</a></td></tr>
         {% for key, value in pvinv_dict.items %}
         <tr><td><b>{{ key }}</b></td><td>{{ value }}</td></tr>
         {% endfor %}
