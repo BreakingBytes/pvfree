@@ -190,8 +190,8 @@ def cec_modules(request):
         data = [{
             'id': cecmod.id,
             'Name': cecmod.Name,
-            'BIPV': cecmod.BIPV,
             'Date': cecmod.Date,
+            'Bifacial': cecmod.Bifacial,
             'T_NOCT': cecmod.T_NOCT,
             'A_c': cecmod.A_c,
             'N_s': cecmod.N_s,
