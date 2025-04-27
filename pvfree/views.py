@@ -87,13 +87,9 @@ def sam_versions(request):
 
 
 def pvmodules(request):
-    pvmod_set = PVModule.objects.values()
-    for pvmod in pvmod_set:
-        pvmod['nameplate'] = PVModule.objects.get(pk=pvmod['id']).nameplate()
-        pvmod['celltype'] = PVModule.objects.get(pk=pvmod['id']).celltype()
+    # using datatables.net with ajax to return from API
     return render(
-        request, 'pvmodules.html',
-        {'path': request.path, 'pvmod_set': pvmod_set})
+        request, 'pvmodules.html', {'path': request.path})
 
 
 def pvmodules_tech(request):
