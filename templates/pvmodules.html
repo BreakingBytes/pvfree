@@ -11,155 +11,45 @@
 {% block content %}
 <div class="container">
   <h1 class="page-header">PV Modules</h1>
-  {% if pvmod_set %}
   <table id="myTable" class="table table-striped table-bordered">
     <thead>
       <tr>
-        <th>Name<br/><br/></th>
-        <th>Nameplate<br/><br/></th>
-        <th>Vintage<br/><br/></th>
-        <th>Area<br/><br/></th>
-        <th>Material<br/><br/></th>
-        <th>Cells in Series<br/><br/></th>
-        <th>Parallel Strings<br/><br/></th>
-        <th>fd<br/><br/></th>
-        <th>Isco<br/><br/></th>
-        <th>Voco<br/><br/></th>
-        <th>Impo<br/><br/></th>
-        <th>Vmpo<br/><br/></th>
-        <th>IXO<br/><br/></th>
-        <th>IXXO<br/><br/></th>
-        <th>C0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>&alpha;Isc&nbsp;&nbsp;</th>
-        <th>&alpha;Imp&nbsp;&nbsp;</th>
-        <th>&beta;Voco</th>
-        <th>m&beta;Voc</th>
-        <th>&beta;Vmpo</th>
-        <th>m&beta;Vmp</th>
-        <th>n<br/><br/></th>
-        <th>A0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>A1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>A2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>A3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>A4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>a<br/><br/></th>
-        <th>b<br/><br/></th>
-        <th>Notes</th>
+        <th>Name</th>
+        <th>Vintage</th>
+        <th>Area [m<sup>2</sup>]</th>
+        <th>Material</th>
+        <th>Cells in Series</th>
+        <th>Parallel Strings</th>
+        <th>Isco [A]</th>
+        <th>Voco [V]</th>
+        <th>Impo [A]</th>
+        <th>Vmpo [V]</th>
+        <th>&alpha;<sub>Isc</sub> [A/&deg;C]</th>
+        <th>&alpha;<sub>Imp</sub> [A/&deg;C]</th>
+        <th>&beta;<sub>Voco</sub> [V/&deg;C]</th>
+        <th>&beta;<sub>Vmpo</sub> [V/&deg;C]</th>
       </tr>
     </thead>
-    <tbody>
-      {% for pvmod in pvmod_set %}
-      <tr>
-        <td><a href="{% url 'pvmodule_detail' pvmod.id %}">{{ pvmod.Name }}</a></td>
-        <td>{{ pvmod.nameplate|floatformat }}</td>
-        <td>{{ pvmod.Vintage|date:"Y" }}{% if pvmod.vintage_estimated %}E{% endif %}</td>
-        <td>{{ pvmod.Area }}</td>
-        <td>{{ pvmod.celltype }}</td>
-        <td>{{ pvmod.Cells_in_Series }}</td>
-        <td>{{ pvmod.Parallel_Strings }}</td>
-        <td>{{ pvmod.FD }}</td>
-        <td>{{ pvmod.Isco|floatformat }}</td>
-        <td>{{ pvmod.Voco|floatformat }}</td>
-        <td>{{ pvmod.Impo|floatformat }}</td>
-        <td>{{ pvmod.Vmpo|floatformat }}</td>
-        <td>{{ pvmod.IXO|floatformat }}</td>
-        <td>{{ pvmod.IXXO|floatformat }}</td>
-        <td>{{ pvmod.C0|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.C1|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.C2|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.C3|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.C4|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.C5|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.C6|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.C7|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.Aisc|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.Aimp|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.Bvoco|stringformat:"6.4F" }}</td>
-        <td>{{ pvmod.Mbvoc|floatformat }}</td>
-        <td>{{ pvmod.Bvmpo|stringformat:"6.4F" }}</td>
-        <td>{{ pvmod.Mbvmp|floatformat }}</td>
-        <td>{{ pvmod.N|floatformat }}</td>
-        <td>{{ pvmod.A0|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.A1|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.A2|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.A3|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.A4|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.B0|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.B1|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.B2|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.B3|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.B4|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.B5|stringformat:"5.2E" }}</td>
-        <td>{{ pvmod.A|floatformat }}</td>
-        <td>{{ pvmod.B|floatformat }}</td>
-        <td>{{ pvmod.Notes }}</td>
-      </tr>
-      {% endfor %}
+    <!--<tbody>rendered by datatables.net</tbody>-->
     <tfoot>
       <tr>
-        <th>Name<br/><br/></th>
-        <th>Nameplate<br/><br/></th>
-        <th>Vintage<br/><br/></th>
-        <th>Area<br/><br/></th>
-        <th>Material<br/><br/></th>
-        <th>Cells in Series<br/><br/></th>
-        <th>Parallel Strings<br/><br/></th>
-        <th>fd<br/><br/></th>
-        <th>Isco<br/><br/></th>
-        <th>Voco<br/><br/></th>
-        <th>Impo<br/><br/></th>
-        <th>Vmpo<br/><br/></th>
-        <th>IXO<br/><br/></th>
-        <th>IXXO<br/><br/></th>
-        <th>C0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>C7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>&alpha;Isc&nbsp;&nbsp;</th>
-        <th>&alpha;Imp&nbsp;&nbsp;</th>
-        <th>&beta;Voco</th>
-        <th>m&beta;Voc</th>
-        <th>&beta;Vmpo</th>
-        <th>m&beta;Vmp</th>
-        <th>n<br/><br/></th>
-        <th>A0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>A1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>A2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>A3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>A4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>B5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/><br/></th>
-        <th>a<br/><br/></th>
-        <th>b<br/><br/></th>
-        <th>Notes</th>
+        <th>Name</th>
+        <th>Vintage</th>
+        <th>Area [m<sup>2</sup>]</th>
+        <th>Material</th>
+        <th>Cells in Series</th>
+        <th>Parallel Strings</th>
+        <th>Isco [A]</th>
+        <th>Voco [V]</th>
+        <th>Impo [A]</th>
+        <th>Vmpo [V]</th>
+        <th>&alpha;<sub>Isc</sub> [A/&deg;C]</th>
+        <th>&alpha;<sub>Imp</sub> [A/&deg;C]</th>
+        <th>&beta;<sub>Voco</sub> [V/&deg;C]</th>
+        <th>&beta;<sub>Vmpo</sub> [V/&deg;C]</th>
       </tr>
     </tfoot>
-    </tbody>
   </table>
-  {% else %}
-     <p>No PV Modules are available.</p>
-  {% endif %}
 </div>
 {% endblock %}
 
@@ -167,9 +57,41 @@
 <!-- datatables.net -->
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap.js"></script>
-<script>
+<!--script>
 $(document).ready(function(){
     $('#myTable').DataTable();
 });
-</script>
+</script-->
+<script>
+  $(document).ready(function(){
+    $('#myTable').DataTable({
+      ajax: {
+        url: '/api/v1/pvmodule/?limit=0',
+        dataSrc: 'objects'
+      },
+      deferRender: true,
+      columns: [
+        {
+          data: 'Name',
+          render: function(data, type, row){
+            return '<a href="'+ {% url 'pvmodules' %} + row.id + '/">' + row.Name + '</a>'
+          }
+        },
+        {data: 'Vintage'},
+        {data: 'Area'},
+        {data: 'Material'},
+        {data: 'Cells_in_Series'},
+        {data: 'Parallel_Strings'},
+        {data: 'Isco'},
+        {data: 'Voco'},
+        {data: 'Impo'},
+        {data: 'Vmpo'},
+        {data: 'Aisc'},
+        {data: 'Aimp'},
+        {data: 'Bvoco'},
+        {data: 'Bvmpo'}
+      ]
+    });
+  });
+  </script>
 {% endblock footers %}

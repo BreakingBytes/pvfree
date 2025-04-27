@@ -87,13 +87,9 @@ def sam_versions(request):
 
 
 def pvmodules(request):
-    pvmod_set = PVModule.objects.values()
-    for pvmod in pvmod_set:
-        pvmod['nameplate'] = PVModule.objects.get(pk=pvmod['id']).nameplate()
-        pvmod['celltype'] = PVModule.objects.get(pk=pvmod['id']).celltype()
+    # using datatables.net with ajax to return from API
     return render(
-        request, 'pvmodules.html',
-        {'path': request.path, 'pvmod_set': pvmod_set})
+        request, 'pvmodules.html', {'path': request.path})
 
 
 def pvmodules_tech(request):
@@ -190,8 +186,8 @@ def cec_modules(request):
         data = [{
             'id': cecmod.id,
             'Name': cecmod.Name,
-            'BIPV': cecmod.BIPV,
             'Date': cecmod.Date,
+            'Bifacial': cecmod.Bifacial,
             'T_NOCT': cecmod.T_NOCT,
             'A_c': cecmod.A_c,
             'N_s': cecmod.N_s,

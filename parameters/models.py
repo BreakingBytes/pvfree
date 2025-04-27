@@ -1,13 +1,14 @@
-from django.db import models, IntegrityError, DataError
-from django.core.exceptions import ValidationError, MultipleObjectsReturned
 import csv
 from datetime import date, datetime
+from io import StringIO
+import logging
+import re
+from django.db import models, IntegrityError, DataError
+from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.contrib.auth.models import User
 from django.db.models import signals
 from tastypie.models import create_api_key
-import logging
-import re
-from io import StringIO
+import numpy as np
 
 LOGGER = logging.getLogger(__name__)
 
@@ -250,6 +251,10 @@ class PVModule(PVBaseModel):
 
     def module_eff(self):
         return self.nameplate() / self.Area / 1000.0
+
+    def noct(self):
+        pvmod_temp = 800.0 * np.exp(self.A + self.B*1.0) + 20.0
+        return pvmod_temp + 0.8*self.DTC
 
     def __str__(self):
         return self.Name

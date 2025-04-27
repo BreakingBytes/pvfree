@@ -14,35 +14,35 @@
   <table id="myTable" class="table table-striped table-bordered">
     <thead>
       <tr>
-        <th>Name<br/><br/></th>
-        <th>BIPV<br/><br/></th>
-        <th>Date<br/><br/></th>
-        <th>NOCT<br/><br/></th>
-        <th>A<sub>c</sub><br/><br/></th>
-        <th>Cells in Series<br/><br/></th>
-        <th>I<sub>sc,ref</sub><br/><br/></th>
-        <th>V<sub>oc,ref</sub><br/><br/></th>
-        <th>I<sub>mp,ref</sub><br/><br/></th>
-        <th>V<sub>mp,ref</sub><br/><br/></th>
-        <th>Tech<br/><br/></th>
-        <th>STC [W]<br/><br/></th>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Bifacial</th>
+        <th>NOCT [&deg;C]</th>
+        <th>A<sub>c</sub> [m<sup>2</sup>]</th>
+        <th>Cells in Series</th>
+        <th>I<sub>sc,ref</sub> [A]</th>
+        <th>V<sub>oc,ref</sub> [V]</th>
+        <th>I<sub>mp,ref</sub> [A]</th>
+        <th>V<sub>mp,ref</sub> [V]</th>
+        <th>Tech</th>
+        <th>STC [W]</th>
       </tr>
     </thead>
     <!--<tbody>rendered by datatables.net</tbody>-->
     <tfoot>
       <tr>
-        <th>Name<br/><br/></th>
-        <th>BIPV<br/><br/></th>
-        <th>Date<br/><br/></th>
-        <th>NOCT<br/><br/></th>
-        <th>A<sub>c</sub><br/><br/></th>
-        <th>Cells in Series<br/><br/></th>
-        <th>I<sub>sc,ref</sub><br/><br/></th>
-        <th>V<sub>oc,ref</sub><br/><br/></th>
-        <th>I<sub>mp,ref</sub><br/><br/></th>
-        <th>V<sub>mp,ref</sub><br/><br/></th>
-        <th>Tech<br/><br/></th>
-        <th>STC [W]<br/><br/></th>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Bifacial</th>
+        <th>NOCT [&deg;C]</th>
+        <th>A<sub>c</sub> [m<sup>2</sup>]</th>
+        <th>Cells in Series</th>
+        <th>I<sub>sc,ref</sub> [A]</th>
+        <th>V<sub>oc,ref</sub> [V]</th>
+        <th>I<sub>mp,ref</sub> [A]</th>
+        <th>V<sub>mp,ref</sub> [V]</th>
+        <th>Tech</th>
+        <th>STC [W]</th>
       </tr>
     </tfoot>
   </table>
@@ -69,8 +69,8 @@ $(document).ready(function(){
           return '<a href="'+ {% url 'cec_modules' %} + row.id + '/">' + row.Name + '</a>'
         }
       },
-      {data: 'BIPV'},
       {data: 'Date'},
+      {data: 'Bifacial'},
       {data: 'T_NOCT'},
       {data: 'A_c'},
       {data: 'N_s'},

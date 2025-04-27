@@ -14,21 +14,17 @@
   <table id="myTable" class="table table-striped table-bordered">
     <thead>
       <tr>
-        <th>Name<br /><br /></th>
-        <th>Vac<br /><br /></th>
-        <th>Paco<br /><br /></th>
-        <th>Vdco<br /><br /></th>
-        <th>Pdco<br /><br /></th>
-        <th>C0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
-        <th>C1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
-        <th>C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
-        <th>C3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
-        <th>Pso<br /><br /></th>
-        <th>Pnt<br /><br /></th>
-        <th>Vdcmax<br /><br /></th>
-        <th>Idcmax<br /><br /></th>
-        <th>MPPT low</th>
-        <th>MPPT high</th>
+        <th>Name</th>
+        <th>Vac [V]</th>
+        <th>Paco [W]</th>
+        <th>Vdco [V]</th>
+        <th>Pdco [W]</th>
+        <th>Pso [W]</th>
+        <th>Pnt [W]</th>
+        <th>Vdcmax [V]</th>
+        <th>Idcmax [A]</th>
+        <th>MPPT low [V]</th>
+        <th>MPPT high [V]</th>
         <th>CEC Date</th>
         <th>CEC Type</th>
       </tr>
@@ -36,21 +32,17 @@
     <!--<tbody>rendered by datatables.net</tbody>-->
     <tfoot>
       <tr>
-        <th>Name<br /><br /></th>
-        <th>Vac<br /><br /></th>
-        <th>Paco<br /><br /></th>
-        <th>Vdco<br /><br /></th>
-        <th>Pdco<br /><br /></th>
-        <th>C0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
-        <th>C1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
-        <th>C2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
-        <th>C3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br /><br /></th>
-        <th>Pso<br /><br /></th>
-        <th>Pnt<br /><br /></th>
-        <th>Vdcmax<br /><br /></th>
-        <th>Idcmax<br /><br /></th>
-        <th>MPPT low</th>
-        <th>MPPT high</th>
+        <th>Name</th>
+        <th>Vac [V]</th>
+        <th>Paco [W]</th>
+        <th>Vdco [V]</th>
+        <th>Pdco [W]</th>
+        <th>Pso [W]</th>
+        <th>Pnt [W]</th>
+        <th>Vdcmax [V]</th>
+        <th>Idcmax [A]</th>
+        <th>MPPT low [V]</th>
+        <th>MPPT high [V]</th>
         <th>CEC Date</th>
         <th>CEC Type</th>
       </tr>
@@ -64,7 +56,6 @@
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap.js"></script>
 <script>
-
 $(document).ready(function(){
   $('#myTable').DataTable({
     ajax: {
@@ -74,7 +65,7 @@ $(document).ready(function(){
     deferRender: true,
     columns: [
       {
-        data: null,
+        data: 'Name',
         render: function(data, type, row){
           return '<a href="'+ {% url 'pvinverters' %} + row.id + '/">' + row.Name + '</a>'
         }
@@ -83,10 +74,6 @@ $(document).ready(function(){
       {data: 'Paco'},
       {data: 'Vdco'},
       {data: 'Pdco'},
-      {data: 'C0'},
-      {data: 'C1'},
-      {data: 'C2'},
-      {data: 'C3'},
       {data: 'Pso'},
       {data: 'Pnt'},
       {data: 'Vdcmax'},
