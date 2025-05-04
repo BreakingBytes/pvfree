@@ -89,8 +89,8 @@ class WeatherForm(forms.Form):
         2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020]
     YEAR_NAMES = list(zip(YEAR_NAMES, YEAR_NAMES))
     SRCS = [
-        ('pvgis', 'PVGIS'), ('psm3', 'PSM3'), ('tmy2', 'TMY2'),
-        ('tmy3', 'TMY3')]
+        ('pvgis', 'PVGIS'), ('psm3', 'PSM3'), ('psm4', 'PSM4'),
+        ('tmy2', 'TMY2'), ('tmy3', 'TMY3')]
     FREQ = [5, 15, 30, 60]
     FREQ = list(zip(FREQ, FREQ))
     #[(5, '5'), (15, '15'), (30, '30'), (60, '60')]
@@ -108,7 +108,7 @@ class WeatherForm(forms.Form):
     tmy_freq = forms.ChoiceField(
         label='Frequency', required=False, initial=60, choices=FREQ)
     tmy_source = forms.ChoiceField(
-        label='Source', required=False, initial='psm3',
+        label='Source', required=False, initial='psm4',
         choices=SRCS)
     tmy = forms.BooleanField(label='TMY', required=False, initial=True)
     tmy_nrel_key = forms.CharField(

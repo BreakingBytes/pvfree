@@ -20,6 +20,10 @@ def home(request):
 
 
 def _datatables_helper(post_request):
+    """
+    Parse Datatables.net serverSide arguments
+    See: https://datatables.net/manual/server-side
+    """
     columns = []
     order = []
     for k, v in post_request.items():
@@ -43,8 +47,71 @@ def _datatables_helper(post_request):
 
 
 def pvinverters(request):
-    # using datatables.net with ajax to return from API
-    return render(request, 'pvinverters.html', {'path': request.path})
+    if request.method == 'GET':
+        # using datatables.net with ajax to return from POST
+        return render(request, 'pvinverters.html', {'path': request.path})
+    elif request.method == 'POST':
+        columns, order = _datatables_helper(request.POST)
+        draw = int(request.POST.get('draw'))
+        start = int(request.POST.get('start'))
+        length = int(request.POST.get('length'))
+        search_value = request.POST.get('search[value]')
+        limit = start+length
+        total_records = PVInverter.objects.count()
+        if search_value:
+            pvinv_set = (
+                PVInverter.objects.filter(Name__icontains=search_value)
+                | PVInverter.objects.filter(Vac__icontains=search_value)
+                | PVInverter.objects.filter(Paco__icontains=search_value)
+                | PVInverter.objects.filter(Vdco__icontains=search_value)
+                | PVInverter.objects.filter(Pdco__icontains=search_value)
+                | PVInverter.objects.filter(Pso__icontains=search_value)
+                | PVInverter.objects.filter(Pnt__icontains=search_value)
+                | PVInverter.objects.filter(Vdcmax__icontains=search_value)
+                | PVInverter.objects.filter(Idcmax__icontains=search_value)
+                | PVInverter.objects.filter(Mppt_low__icontains=search_value)
+                | PVInverter.objects.filter(Mppt_high__icontains=search_value)
+                | PVInverter.objects.filter(CEC_Date__icontains=search_value)
+                | PVInverter.objects.filter(CEC_Type__icontains=search_value))
+        else:
+            pvinv_set = PVInverter.objects.all()
+        # TODO: move boilerplate to function, redundant with cec_module
+        col_data = [col["[data]"] for col in columns]
+        if len(order):
+            order_by_list = [
+                ("-" if o['[dir]']=='desc' else "")+col_data[int(o['[column]'])]
+                for o in order]
+            # XXX: -Name yields "a" first instead of "Z" !
+            # handle case-sensitivity descending order for string fields
+            if '-Name' in order_by_list:
+                name_idx = order_by_list.index('-Name')
+                order_by_list[name_idx] = Lower('Name').desc()
+        else:
+            order_by_list = []
+        pvinv_set = pvinv_set.order_by(*order_by_list)
+        filtered_records = pvinv_set.count()
+        data = [{
+            'id': pvinv.id,
+            'Name': pvinv.Name,
+            'Vac': pvinv.Vac,
+            'Paco': pvinv.Paco,
+            'Vdco': pvinv.Vdco,
+            'Pdco': pvinv.Pdco,
+            'Pso': pvinv.Pso,
+            'Pnt': pvinv.Pnt,
+            'Vdcmax': pvinv.Vdcmax,
+            'Idcmax': pvinv.Idcmax,
+            'Mppt_low': pvinv.Mppt_low,
+            'Mppt_high': pvinv.Mppt_high,
+            'CEC_Date': pvinv.CEC_Date,
+            'CEC_Type': pvinv.CEC_Type}
+            for pvinv in pvinv_set[start:limit]]
+        response = {
+            'draw': draw,
+            'recordsTotal': total_records,
+            'recordsFiltered': filtered_records,
+            'data': data}
+        return JsonResponse(response)
 
 
 def pvinverter_detail(request, pvinverter_id):
@@ -137,10 +204,9 @@ def _filter_by_technology(search_term):
     return search_results
 
 
-@csrf_exempt
 def cec_modules(request):
     if request.method == 'GET':
-        # using datatables.net with ajax to return values from API
+        # using datatables.net with ajax to return values from POST
         return render(request, 'cec_modules.html', {'path': request.path})
     elif request.method == 'POST':
         columns, order = _datatables_helper(request.POST)
@@ -150,13 +216,12 @@ def cec_modules(request):
         search_value = request.POST.get('search[value]')
         limit = start+length
         total_records = CEC_Module.objects.count()
-        # TODO: sort columns
         if search_value:
             tech_search = _filter_by_technology(search_value)
             cecmod_set = (
                 CEC_Module.objects.filter(Name__icontains=search_value)
-                | CEC_Module.objects.filter(BIPV__icontains=search_value)
                 | CEC_Module.objects.filter(Date__icontains=search_value)
+                | CEC_Module.objects.filter(Bifacial__icontains=search_value)
                 | CEC_Module.objects.filter(T_NOCT__icontains=search_value)
                 | CEC_Module.objects.filter(A_c__icontains=search_value)
                 | CEC_Module.objects.filter(N_s__icontains=search_value)
@@ -275,7 +340,6 @@ def cec_module_detail(request, cec_module_id):
             'cec_mod_tech': dict(CEC_Module.TECH)})
 
 
-@csrf_exempt
 def pvlib(request):
     FORMS = {
         'weatherform': WeatherForm, 'solposform': SolarPositionForm,
