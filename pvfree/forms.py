@@ -89,8 +89,8 @@ class WeatherForm(forms.Form):
         2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020]
     YEAR_NAMES = list(zip(YEAR_NAMES, YEAR_NAMES))
     SRCS = [
-        ('pvgis', 'PVGIS'), ('psm4', 'PSM4'), ('tmy2', 'TMY2'),
-        ('tmy3', 'TMY3')]
+        ('pvgis', 'PVGIS'), ('psm3', 'PSM3'), ('psm4', 'PSM4'),
+        ('tmy2', 'TMY2'), ('tmy3', 'TMY3')]
     FREQ = [5, 15, 30, 60]
     FREQ = list(zip(FREQ, FREQ))
     #[(5, '5'), (15, '15'), (30, '30'), (60, '60')]

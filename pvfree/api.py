@@ -9,6 +9,7 @@ import json
 import calendar
 
 NREL = 'https://developer.nrel.gov'
+PSM3 = NREL + '/api/nsrdb/v2/solar/psm3-2-2-tmy-download.csv'
 PSM4 = NREL + '/api/nsrdb/v2/solar/nsrdb-GOES-tmy-v4-0-0-download.csv'
 
 def solarposition_resource(request):
@@ -177,8 +178,9 @@ def weather_resource(request):
         start_year = tmy_coerced_year or 1990
     else:
         start_year = tmy_year_name
-    # PSM4
-    if tmy_source.lower() == "psm4":
+    # PSM
+    tmy_source_lower = tmy_source.lower()
+    if tmy_source_lower.startswith("psm"):
         if tmy:
             tmy_name = 'tmy'
             tmy_freq = 60
@@ -195,13 +197,14 @@ def weather_resource(request):
                 end=f'{start_year}-12-31 23:59:59',
                 freq=f'{tmy_freq}T')
         try:
+            url = PSM3 if tmy_source_lower == 'psm3' else PSM4
             tmy_data, metadata = iotools.get_psm3(
                 latitude=tmy_lat, longitude=tmy_lon, api_key=tmy_nrel_key,
                 email=tmy_email, names=tmy_name, interval=tmy_freq,
-                url=PSM4)
+                leap_day=False, map_variables=False, url=url)
         except Exception as exc:
             # could be either HTTPError or ReadTimeout 
-            return JsonResponse({'psm3': exc.args[0]}, status=400)
+            return JsonResponse({'PSM': exc.args[0]}, status=400)
         if calendar.isleap(int(start_year)):
             feb29 = (times.month==2) & (times.day==29)
             times = times[~feb29]
