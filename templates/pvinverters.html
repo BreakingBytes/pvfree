@@ -59,15 +59,18 @@
 $(document).ready(function(){
   $('#myTable').DataTable({
     ajax: {
-      url: '/api/v1/pvinverter/?limit=0',
-      dataSrc: 'objects'
+      // mode: 'same-origin' // Do not send CSRF token to another domain.
+      url: "{% url 'pvinverters' %}",
+      type: 'POST',
+      headers: {'X-CSRFToken': csrftoken}
     },
-    deferRender: true,
+    serverSide: true,
+    processing: true,
     columns: [
       {
         data: 'Name',
         render: function(data, type, row){
-          return '<a href="'+ {% url 'pvinverters' %} + row.id + '/">' + row.Name + '</a>'
+          return '<a href="' + "{% url 'pvinverters' %}" + row.id + '/">' + row.Name + '</a>'
         }
       },
       {data: 'Vac'},

@@ -57,8 +57,10 @@
 $(document).ready(function(){
   $('#myTable').DataTable({
     ajax: {
-      url: '{% url 'cec_modules' %}',
-      type: 'POST'
+      // mode: 'same-origin' // Do not send CSRF token to another domain.
+      url: "{% url 'cec_modules' %}",
+      type: 'POST',
+      headers: {'X-CSRFToken': csrftoken}
     },
     serverSide: true,
     processing: true,
@@ -66,7 +68,7 @@ $(document).ready(function(){
       {
         data: 'Name',
         render: function(data, type, row){
-          return '<a href="'+ {% url 'cec_modules' %} + row.id + '/">' + row.Name + '</a>'
+          return '<a href="' + "{% url 'cec_modules' %}" + row.id + '/">' + row.Name + '</a>'
         }
       },
       {data: 'Date'},
