@@ -198,7 +198,7 @@ def weather_resource(request):
             tmy_data, metadata = iotools.get_psm3(
                 latitude=tmy_lat, longitude=tmy_lon, api_key=tmy_nrel_key,
                 email=tmy_email, names=tmy_name, interval=tmy_freq,
-                leap_day='false', url=PSM4)
+                url=PSM4)
         except Exception as exc:
             # could be either HTTPError or ReadTimeout 
             return JsonResponse({'psm3': exc.args[0]}, status=400)
