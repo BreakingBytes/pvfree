@@ -321,6 +321,7 @@ class CEC_Module(PVBaseModel):
     TECH_TYPES = {name: idx for idx, name in TECH}
 
     Name = models.CharField(max_length=100)
+    Manufacturer = models.CharField(max_length=100, blank=True)
     BIPV = models.BooleanField()
     Date = models.DateField()
     T_NOCT = models.FloatField()
