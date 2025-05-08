@@ -43,9 +43,16 @@ def push_records_to_api(csv_file_path, api_url, model, user, headers, session):
             name = row['Name']
             status_code, reason = response.status_code, response.reason
             location = None
-            if status_code == 201:
+            if status_code == 401:
+                response.raise_for_status()
+            elif status_code == 201:
                 location = response.headers.get('Location', location)
                 created += 1
+            else:
+                failures.append({
+                    'error': 'not created',
+                    'exc_info': response.text,  # might have exception info
+                    'data': row})
             results.append({
                 'name': name,
                 'status': status_code,

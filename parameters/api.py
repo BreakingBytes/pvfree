@@ -7,8 +7,12 @@ from tastypie.authentication import ApiKeyAuthentication
 
 
 class ApiKeyAuthOrReadOnly(ApiKeyAuthentication):
-    def _unauthorized(self):
-        return True
+    """https://stackoverflow.com/a/12273403"""
+
+    def is_authenticated(self, request, **kwargs):
+        if request.method == 'GET':
+            return True
+        return super().is_authenticated(request, **kwargs)
 
 
 class IsAuthenticatedOrReadOnly(DjangoAuthorization):
