@@ -131,13 +131,14 @@ class CEC_ModuleAdmin(admin.ModelAdmin):
         'Name', 'nameplate', 'Date', 'Technology', 'Version', 'I_sc_ref',
         'V_oc_ref', 'I_mp_ref', 'V_mp_ref', 'created_on', 'modified_on')
     fields = (
-        ('Name', 'BIPV'), ('Date', 'Version'), ('Technology', 'Bifacial'),
-        ('Length', 'Width'), ('A_c', 'N_s'), ('I_sc_ref', 'V_oc_ref'),
-        ('I_mp_ref', 'V_mp_ref'), ('I_L_ref', 'I_o_ref'),
-        ('alpha_sc', 'beta_oc'), ('R_s', 'R_sh_ref'), ('a_ref', 'gamma_r'),
-        ('Adjust', 'T_NOCT'), ('PTC', 'STC'), ('created_by', 'modified_by')
-    )
+        ('Name', 'Manufacturer'), ('Date', 'Version'),
+        ('Technology', 'Bifacial', 'BIPV'), ('Length', 'Width'),
+        ('A_c', 'N_s'), ('I_sc_ref', 'V_oc_ref'), ('I_mp_ref', 'V_mp_ref'),
+        ('I_L_ref', 'I_o_ref'), ('alpha_sc', 'beta_oc'), ('R_s', 'R_sh_ref'),
+        ('a_ref', 'gamma_r'), ('Adjust', 'T_NOCT'), ('PTC', 'STC'),
+        ('created_by', 'modified_by'))
     search_fields = ('Name',)
+    # TODO: make a ManufacturerRangeFilter
     list_filter = ('Technology', 'BIPV', 'Bifacial', 'Version')
 
 

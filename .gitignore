@@ -18,6 +18,7 @@ venv3/
 *.csv
 !parameters/data/sandia_modules.csv
 !parameters/data/cec_inverters.csv
+!parameters/data/cec_modules.csv
 .DS_Store
 .vscode/
 .pytest_cache
