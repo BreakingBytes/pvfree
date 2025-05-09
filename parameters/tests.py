@@ -1,6 +1,6 @@
 import os
-from datetime import date
-from parameters.models import PVModule, PVInverter, MISSING_VINTAGE
+from datetime import date, datetime
+from parameters.models import PVModule, PVInverter, CEC_Module, MISSING_VINTAGE
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 import pandas as pd
@@ -9,6 +9,7 @@ BASEDIR = os.path.dirname(__file__)
 TESTDIR = os.path.join(BASEDIR, 'data')
 SANDIA_MODULES = os.path.join(TESTDIR, 'sandia_modules.csv')
 CEC_INVERTERS = os.path.join(TESTDIR, 'cec_inverters.csv')
+CEC_MODULES = os.path.join(TESTDIR, 'cec_modules.csv')
 PVINV_SAM_VERSIONS = {k: v for v, k in PVInverter.SAM_VERSION}
 PVINV_SAM_VERSION = PVINV_SAM_VERSIONS['2018.11.11.r2']  # 1
 PVINV_CEC_DATE = date(int(MISSING_VINTAGE), 1, 1)
@@ -19,6 +20,36 @@ class UploadTestCase(TestCase):
     def setUp(self):
         self.testuser = User.objects.create_superuser(
             'testuser', 'user@test.com', '@Test123')
+
+    def test_cecmodule_upload(self):
+        self.client.force_login(self.testuser)
+        with open(CEC_MODULES) as fp:
+            payload = {'uploadSelect': 'CEC Modules', 'uploadFile': fp}
+            r = self.client.post('/upload/', payload)
+        self.assertEqual(r.status_code, 302)
+        cecmods = CEC_Module.objects.all()
+        expected = pd.read_csv(CEC_MODULES, skiprows=[1, 2])
+        for row in expected.itertuples():
+            timestamp = datetime.strptime(row.Date, '%m/%d/%Y')
+            sam_version = CEC_Module.VER_TYPES[row.Version]
+            cecmod = cecmods.filter(
+                Name=row.Name, Date=timestamp, Version=sam_version)
+            self.assertEqual(len(cecmod), 1)
+            cecmod = cecmod[0]
+            for col in expected.columns:
+                cecmod_val = getattr(cecmod, col)
+                val = getattr(row, col)
+                if col in ('Name', 'Version', 'Date'):
+                    continue
+                elif col == 'Technology':
+                    self.assertEqual(cecmod.get_Technology_display(), val)
+                elif col == 'BIPV':
+                    self.assertEqual(cecmod_val, val == 'Y')
+                elif col in ('N_s', 'Bifacial'):
+                    self.assertEqual(cecmod_val, val)
+                else:
+                    self.assertAlmostEqual(cecmod_val, val)
+            
 
     def test_pvinverter_upload(self):
         self.client.force_login(self.testuser)

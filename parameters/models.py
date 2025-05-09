@@ -29,8 +29,20 @@ class PVBaseModel(models.Model):
     class Meta:
         abstract = True
 
+    FIELD_MAP = None
 
-def _upload_csv(csv_file, field_map=None):
+    @classmethod
+    def upload(cls, csv_file, user, *args):
+        columns, spamreader = _upload_csv(csv_file, cls.FIELD_MAP)
+        for spam in spamreader:
+            kwargs = dict(zip(columns, spam))
+            # skip blank lines
+            if not kwargs:
+                continue
+            _upload_helper(cls, kwargs, user, *args)
+
+
+def _upload_csv(csv_file, field_map):
     csv_file.seek(0)
     csv_file = StringIO(csv_file.read().decode('utf-8'), newline='')
     spamreader = csv.reader(csv_file)
@@ -48,12 +60,10 @@ def _upload_csv(csv_file, field_map=None):
     return columns, spamreader
 
 
-def _upload_helper(cls, kwargs, user, handler=None):
+def _upload_helper(cls, kwargs, user, *args):
     kwargs['created_by'] = user
     kwargs['modified_by'] = user
-    if handler is not None:
-        kwargs = handler(cls, kwargs)
-        _upload_helper(cls, kwargs, user)
+    kwargs = cls.upload_handler(kwargs, *args)
     try:
         # create new PVInverter record
         obj, created = cls.objects.get_or_create(**kwargs)
@@ -108,7 +118,6 @@ class PVInverter(PVBaseModel):
     SAM_Version = models.IntegerField(
         choices=SAM_VERSION, default=0, blank=True)
 
-
     def Manufacturer(self):
         mfg, _ = self.Name.split(':', 1)
         return mfg
@@ -146,27 +155,21 @@ class PVInverter(PVBaseModel):
         unique_together = ('Name', 'SAM_Version')
 
     @classmethod
-    def upload(cls, csv_file, user, sam_version):
-        columns, spamreader = _upload_csv(csv_file)
-        for spam in spamreader:
-            kwargs = dict(zip(columns, spam))
-            # skip blank lines
-            if not kwargs:
-                continue
-            cec_date = kwargs.get('CEC_Date')
-            if cec_date is not None:
-                try:
-                    cec_date = datetime.strptime(cec_date, '%m/%d/%Y')
-                except ValueError as exc:
-                    if cec_date != 'n/a':
-                        LOGGER.exception(exc)
-                        LOGGER.error(
-                            'CEC_Date: %s has unexpected format', cec_date)
-                    cec_date = date(MISSING_VINTAGE, 1, 1)
-                    LOGGER.warning('CEC_Date set to default: %s', cec_date)
-                kwargs['CEC_Date'] = cec_date
-            kwargs['SAM_Version'] = sam_version
-            _upload_helper(cls, kwargs, user)
+    def upload_handler(cls, kwargs, sam_version):
+        cec_date = kwargs.get('CEC_Date')
+        if cec_date is not None:
+            try:
+                cec_date = datetime.strptime(cec_date, '%m/%d/%Y')
+            except ValueError as exc:
+                if cec_date != 'n/a':
+                    LOGGER.exception(exc)
+                    LOGGER.error(
+                        'CEC_Date: %s has unexpected format', cec_date)
+                cec_date = date(MISSING_VINTAGE, 1, 1)
+                LOGGER.warning('CEC_Date set to default: %s', cec_date)
+            kwargs['CEC_Date'] = cec_date
+        kwargs['SAM_Version'] = sam_version
+        return kwargs
 
 
 class PVModule(PVBaseModel):
@@ -264,31 +267,25 @@ class PVModule(PVBaseModel):
         unique_together = ('Name', 'Vintage', 'Notes')
 
     @classmethod
-    def upload(cls, csv_file, user):
-        columns, spamreader = _upload_csv(csv_file, cls.FIELD_MAP)
-        for spam in spamreader:
-            kwargs = dict(zip(columns, spam))
-            # skip blank lines
-            if not kwargs:
-                continue
-            for f in cls.NAN_FIELDS:
-                if not kwargs[f]:
-                    nan = kwargs.pop(f)
-                    LOGGER.debug('popped "%s" from %s', nan, f)
-            yr = kwargs['Vintage']
-            if yr.endswith('(E)'):
-                yr = yr[:4]
-                kwargs['is_vintage_estimated'] = True
-            try:
-                yr = int(yr)
-            except ValueError:
-                yr = MISSING_VINTAGE
-            kwargs['Vintage'] = date(yr, 1, 1)
-            LOGGER.debug('year = %d', yr)
-            celltype = cls.CELL_TYPES.get(kwargs['Material'], 0)
-            kwargs['Material'] = celltype
-            LOGGER.debug('cell type = %d', celltype)
-            _upload_helper(cls, kwargs, user)
+    def upload_handler(cls, kwargs):
+        for f in cls.NAN_FIELDS:
+            if not kwargs[f]:
+                nan = kwargs.pop(f)
+                LOGGER.debug('popped "%s" from %s', nan, f)
+        yr = kwargs['Vintage']
+        if yr.endswith('(E)'):
+            yr = yr[:4]
+            kwargs['is_vintage_estimated'] = True
+        try:
+            yr = int(yr)
+        except ValueError:
+            yr = MISSING_VINTAGE
+        kwargs['Vintage'] = date(yr, 1, 1)
+        LOGGER.debug('year = %d', yr)
+        celltype = cls.CELL_TYPES.get(kwargs['Material'], 0)
+        kwargs['Material'] = celltype
+        LOGGER.debug('cell type = %d', celltype)
+        return kwargs
 
 
 class CEC_Module(PVBaseModel):
@@ -357,16 +354,6 @@ class CEC_Module(PVBaseModel):
     class Meta:
         verbose_name = "CEC Module"
         unique_together = ('Name', 'Date', 'Version')
-
-    @classmethod
-    def upload(cls, csv_file, user):
-        columns, spamreader = _upload_csv(csv_file)
-        for spam in spamreader:
-            kwargs = dict(zip(columns, spam))
-            # skip blank lines
-            if not kwargs:
-                continue
-            _upload_helper(cls, kwargs, user, upload_handler)
 
     @classmethod
     def upload_handler(cls, kwargs):

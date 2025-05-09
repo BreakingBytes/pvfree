@@ -25,6 +25,8 @@ def push_records_to_api(csv_file_path, api_url, model, user, headers, session):
         for row in tqdm(reader):
             if model == 'cecmodule':
                 row = cecmodule_handler(row)
+            elif model == 'pvinverter':
+                row = pvinverter_handler(row)
             else:
                 break
             if 'error' in row:
