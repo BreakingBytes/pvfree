@@ -3,16 +3,19 @@ import requests
 from requests.exceptions import RequestException
 import sys
 import urllib
-from datetime import datetime
+from datetime import datetime, date
 import json
 from tqdm import tqdm
+
+MISSING_VINTAGE = 1990
 
 # see: https://stackoverflow.com/questions/16511337/correct-way-to-try-except-using-python-requests-module
 # see: https://requests.readthedocs.io/en/latest/user/quickstart/#errors-and-exceptions
 # requests will not return a response if either Timout, ConnectionError,
 # HTTPError, or TooManyRedirects is raised - RequestException
 
-def push_records_to_api(csv_file_path, api_url, model, user, headers, session):
+def push_records_to_api(csv_file_path, api_url, model, user, headers, session,
+                        sam_version):
     failures = []
     results = []
     ncount = 0
@@ -26,7 +29,10 @@ def push_records_to_api(csv_file_path, api_url, model, user, headers, session):
             if model == 'cecmodule':
                 row = cecmodule_handler(row)
             elif model == 'pvinverter':
-                row = pvinverter_handler(row)
+                if sam_version is None:
+                    raise ValueError(
+                        'SAM version cannot be None for PV Inverter.')
+                row = pvinverter_handler(row, sam_version)
             else:
                 break
             if 'error' in row:
@@ -86,12 +92,34 @@ def cecmodule_handler(kwargs):
     return kwargs
 
 
+def pvinverter_handler(kwargs, sam_version):
+    cec_date = kwargs.get('CEC_Date')
+    if cec_date is not None:
+        try:
+            cec_date = datetime.strptime(cec_date, '%m/%d/%Y')
+        except ValueError as exc_info:
+            if cec_date != 'n/a':
+                return {
+                    'error': 'date error',
+                    'exc_info': str(exc_info),  # make exc_info serializable
+                    'data': kwargs}
+            cec_date = date(MISSING_VINTAGE, 1, 1)
+        kwargs['CEC_Date'] = datetime.strftime(cec_date, '%Y-%m-%d')
+    kwargs['SAM_Version'] = sam_version
+    return kwargs
+
+
 if __name__ == "__main__":
+    # TODO: use optparse or click
     username = sys.argv[1]  # mikofski
     api_key = sys.argv[2]
     api_base = sys.argv[3]  # "http://127.0.0.1:8000"
     model = sys.argv[4]  # cecmodule --> /api/v1/cecmodule/
     csv_file_path = sys.argv[5]  # "deploy/libraries/CEC Modules.csv"
+    try:
+        sam_version = sys.argv[6]  # "2020.2.29.r2.ssc.240"
+    except IndexError:
+        sam_version = None
     schema = requests.get(urllib.parse.urljoin(api_base, '/api/v1'))
     schema = schema.json()
     model_schema = schema[model]
@@ -108,7 +136,8 @@ if __name__ == "__main__":
     }
     with requests.Session() as session:
         failures, results, ncount, created = push_records_to_api(
-            csv_file_path, api_url, model, user, headers, session)
+            csv_file_path, api_url, model, user, headers, session, sam_version)
+    # TODO: use logging
     with open('pvfree_cli.log', mode='w', encoding='utf-8') as f:
         f.write(f'Created count: {created}\n')
         f.write(f'count of failures {len(failures)}\n')
