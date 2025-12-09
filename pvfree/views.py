@@ -48,7 +48,7 @@ def _datatables_helper(post_request):
 
 def pvinverters(request):
     if request.method == 'GET':
-        # using datatables.net with ajax to return from POST
+        # using datatables.net with ajax to return values from POST
         return render(request, 'pvinverters.html', {'path': request.path})
     elif request.method == 'POST':
         columns, order = _datatables_helper(request.POST)
@@ -153,10 +153,85 @@ def sam_versions(request):
     return JsonResponse(dict(PVInverter.SAM_VERSION))
 
 
+def _filter_by_cell_material(search_term):
+    search_term = str(search_term).lower()
+    search_results = []
+    for cell_mat, idx in PVModule.CELL_TYPES.items():
+        if search_term in cell_mat.lower():
+            search_results.append(idx)
+    return search_results
+
+
 def pvmodules(request):
-    # using datatables.net with ajax to return from API
-    return render(
-        request, 'pvmodules.html', {'path': request.path})
+    if request.method == 'GET':
+        # using datatables.net with ajax to return values from API
+        return render(request, 'pvmodules.html', {'path': request.path})
+    elif request.method == 'POST':
+        columns, order = _datatables_helper(request.POST)
+        draw = int(request.POST.get('draw'))
+        start = int(request.POST.get('start'))
+        length = int(request.POST.get('length'))
+        search_value = request.POST.get('search[value]')
+        limit = start+length
+        total_records = PVModule.objects.count()
+        if search_value:
+            cell_mat_search = _filter_by_cell_material(search_value)
+            pvmod_set = (
+                PVModule.objects.filter(Name__icontains=search_value)
+                | PVModule.objects.filter(Vintage__icontains=search_value)
+                | PVModule.objects.filter(Area__icontains=search_value)
+                | PVModule.objects.filter(Material__in=cell_mat_search)
+                | PVModule.objects.filter(Cells_in_Series__icontains=search_value)
+                | PVModule.objects.filter(Parallel_Strings__icontains=search_value)
+                | PVModule.objects.filter(Isco__icontains=search_value)
+                | PVModule.objects.filter(Voco__icontains=search_value)
+                | PVModule.objects.filter(Impo__icontains=search_value)
+                | PVModule.objects.filter(Vmpo__icontains=search_value)
+                | PVModule.objects.filter(Aisc__icontains=search_value)
+                | PVModule.objects.filter(Aimp__icontains=search_value)
+                | PVModule.objects.filter(Bvoco__icontains=search_value)
+                | PVModule.objects.filter(Bvmpo__icontains=search_value))
+        else:
+            pvmod_set = PVModule.objects.all()
+        # TODO: move boilerplate to function, redundant with cec_module
+        col_data = [col["[data]"] for col in columns]
+        if len(order):
+            order_by_list = [
+                ("-" if o['[dir]']=='desc' else "")+col_data[int(o['[column]'])]
+                for o in order]
+            # XXX: -Name yields "a" first instead of "Z" !
+            # handle case-sensitivity descending order for string fields
+            if '-Name' in order_by_list:
+                name_idx = order_by_list.index('-Name')
+                order_by_list[name_idx] = Lower('Name').desc()
+            # Material is an integer field not string
+        else:
+            order_by_list = []
+        pvmod_set = pvmod_set.order_by(*order_by_list)
+        filtered_records = pvmod_set.count()
+        data = [{
+            'id': pvmod.id,
+            'Name': pvmod.Name,
+            'Vintage': pvmod.Vintage,
+            'Area': pvmod.Area,
+            'Material': pvmod.get_Material_display(),
+            'Cells_in_Series': pvmod.Cells_in_Series,
+            'Parallel_Strings': pvmod.Parallel_Strings,
+            'Isco': pvmod.Isco,
+            'Voco': pvmod.Voco,
+            'Impo': pvmod.Impo,
+            'Vmpo': pvmod.Vmpo,
+            'Aisc': pvmod.Aisc,
+            'Aimp': pvmod.Aimp,
+            'Bvoco': pvmod.Bvoco,
+            'Bvmpo': pvmod.Bvmpo}
+            for pvmod in pvmod_set[start:limit]]
+        response = {
+            'draw': draw,
+            'recordsTotal': total_records,
+            'recordsFiltered': filtered_records,
+            'data': data}
+        return JsonResponse(response)
 
 
 def pvmodules_tech(request):
