@@ -15,6 +15,11 @@ def test__filter_by_technology():
     assert all_silicon_tech == [1, 2, 3, 7, 8, 9, 11, 12]
 
 
+def test__filter_by_cell_material():
+    all_silicon_tech = views._filter_by_cell_material('si')
+    assert all_silicon_tech == [1, 2, 5, 7, 8, 9, 10, 11]
+
+
 # TODO: make these black
 TESTDATA = {
   'draw': ['1'],
