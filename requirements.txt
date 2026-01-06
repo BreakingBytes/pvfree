@@ -1,4 +1,4 @@
-bokeh==3.0.1
+bokeh==3.8.2
 defusedxml==0.7.1  # django-tastypie
 dj-database-url==2.2.0
 Django==4.2.27
