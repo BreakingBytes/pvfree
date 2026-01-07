@@ -6,6 +6,7 @@ from parameters.models import PVInverter, PVModule, CEC_Module
 from bokeh.plotting import figure
 from bokeh.models import Legend, LegendItem
 from bokeh.embed import components
+from bokeh.resources import CDN
 from bokeh.palettes import Colorblind5 as cmap
 from pvfree.forms import (
     SolarPositionForm, LinkeTurbidityForm, AirmassForm, WeatherForm)
@@ -13,6 +14,8 @@ from pvlib.pvsystem import sapm, calcparams_cec, singlediode, inverter
 from pvlib.singlediode import bishop88
 import numpy as np
 import re
+
+resources = CDN()  # instance
 
 
 def home(request):
@@ -146,7 +149,8 @@ def pvinverter_detail(request, pvinverter_id):
     return render(
         request, 'pvinverter_detail.html', {
             'path': request.path, 'pvinv': pvinv, 'plot_script': plot_script,
-            'plot_div': plot_div, 'pvinv_dict': pvinv_dict})
+            'plot_div': plot_div, 'pvinv_dict': pvinv_dict,
+            'bokeh_resources': resources})
 
 
 def sam_versions(request):
@@ -267,7 +271,8 @@ def pvmodule_detail(request, pvmodule_id):
     return render(
         request, 'pvmodule_detail.html', {
             'path': request.path, 'pvmod': pvmod, 'plot_script': plot_script,
-            'plot_div': plot_div, 'pvmod_dict': pvmod_dict})
+            'plot_div': plot_div, 'pvmod_dict': pvmod_dict,
+            'bokeh_resources': resources})
 
 
 def _filter_by_technology(search_term):
@@ -411,6 +416,7 @@ def cec_module_detail(request, cec_module_id):
         request, 'cec_module_detail.html', {
             'path': request.path, 'cec_mod': cec_mod,
             'plot_script': plot_script, 'plot_div': plot_div,
+            'bokeh_resources': resources,
             'cec_mod_dict': cec_mod_dict,
             'cec_mod_tech': dict(CEC_Module.TECH)})
 
