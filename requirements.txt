@@ -11,7 +11,7 @@ openpyxl==3.0.3
 pandas==1.5.3
 psycopg2==2.9.10
 pvlib==0.10.5
-pytest==8.3.5
+pytest==9.0.3
 pytest-cov==6.1.0
 pytest-django==4.8.0
 pytz==2025.2
