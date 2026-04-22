@@ -5,7 +5,7 @@ Django==4.2.30
 django-tastypie==0.15.1
 gunicorn==23.0.0
 Jinja2==3.1.6  # bokeh
-lxml==5.4.0  # PyYAML, django-tastypie
+lxml==6.1.0  # PyYAML, django-tastypie
 numpy==1.26.4
 openpyxl==3.0.3
 pandas==1.5.3
